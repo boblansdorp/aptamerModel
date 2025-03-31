@@ -74,10 +74,13 @@ downSwitchTimesFast=Table[(n+0.5)/SquareWaveFastFreq,{n,0,Floor[Tmax[SquareWaveF
 (*Equations for Aptamer Signal*)
 
 
-(*Define rate constants based on VAptamerGold*)
-koxExpr[fB_]:=(1-fB) k0u Exp[alpha F (VAptamerGold[t]-E0)/(R T)]+fB k0b Exp[alpha F (VAptamerGold[t]-E0)/(R T)];
+ClampExp[x_] := Exp[Clip[x, {-10, 10}]]
 
-kredExpr[fB_]:=(1-fB) k0u Exp[-(1-alpha) F (VAptamerGold[t]-E0)/(R T)]+fB k0b Exp[-(1-alpha) F (VAptamerGold[t]-E0)/(R T)];
+
+(*Define rate constants based on VAptamerGold*)
+koxExpr[fB_]:=(1-fB) k0u ClampExp[alpha F (VAptamerGold[t]-E0)/(R T)]+fB k0b ClampExp[alpha F (VAptamerGold[t]-E0)/(R T)];
+
+kredExpr[fB_]:=(1-fB) k0u ClampExp[-(1-alpha) F (VAptamerGold[t]-E0)/(R T)]+fB k0b ClampExp[-(1-alpha) F (VAptamerGold[t]-E0)/(R T)];
 
 (*Oxidation fraction differential equation*)
 aptamerODE[fB_]:=fOx'[t]==koxExpr[fB] (1-fOx[t])-kredExpr[fB] fOx[t];
@@ -195,7 +198,23 @@ Plot[{VSWVFast[t],VAptamerSol["Fast_f05"][t]},{t,0,Tmax[SquareWaveFastFreq]/10},
 (* labelsToPlot={"Slow_f05","Fast_f05"};
 labelsToPlot={"Slow_f00","Fast_f00","Slow_f02","Fast_f02","Slow_f05","Fast_f05","Slow_f10","Fast_f10"};
 *)
-labelsToPlot=Flatten[Table[{"Slow_f"<>StringPadLeft[ToString[IntegerPart[fb*10]],2,"0"],"Fast_f"<>StringPadLeft[ToString[IntegerPart[fb*10]],2,"0"]},{fb,0,1,0.1}]];
+(* Extract available labels from conditionsList *)
+availableLabels = conditionsList[[All, "label"]];
+
+(* Generate all possible fBound-based labels *)
+labelsToPlot = Select[
+   Flatten[
+    Table[
+     {
+      "Slow_f" <> StringPadLeft[ToString[IntegerPart[fb*10]], 2, "0"],
+      "Fast_f" <> StringPadLeft[ToString[IntegerPart[fb*10]], 2, "0"]
+     },
+     {fb, 0.0, 1.0, 0.1}
+    ]
+   ],
+   MemberQ[availableLabels, #] &
+]
+
 
 
 (*Noise parameters*)
@@ -276,42 +295,41 @@ ListPlot[{swvResults[[1,"diff"]],swvResults[[2,"diff"]]},AxesLabel->{"Potential 
 
 
 (* --- Setup --- *)
-
 epsilon = 10^-20;  (* to avoid divide-by-zero *)
 
 fBoundValues = Range[0, 1, 0.1];  (* 0, 0.1, ..., 1 *)
 
-(* Convert numeric fBound to matching label suffix *)
-formatF[f_] := If[IntegerQ[f], ToString[Round[f]], StringReplace[ToString[NumberForm[f, {2, 1}]], "." -> ""]];
+(* Format fBound to match label suffix *)
+formatF[f_] := StringPadLeft[ToString[IntegerPart[f*10]], 2, "0"];
+
+(* Extract all available labels from conditionsList *)
+availableLabels = conditionsList[[All, "label"]];
 
 (* Function to extract peak current from SWV difference data *)
 extractSWVPeak[data_List] := Max[data[[All, 2]]];
 
-(* Compute SWV difference peak current for each condition *)
+(* Initialize association for peak SWV values *)
 peakSWV = Association[];
 
+(* Loop through fBound values and populate peaks if labels exist *)
 Do[
-  Module[{fStr, slowLabel, fastLabel, slowData, fastData},
-    fStr = formatF[f];  (* e.g. 0.2 \[RightArrow] "02" *)
-    slowLabel = "Slow_f" <> fStr;
-    fastLabel = "Fast_f" <> fStr;
+  Module[{slowLabel, fastLabel, slowData, fastData},
+    slowLabel = "Slow_f" <> formatF[f];
+    fastLabel = "Fast_f" <> formatF[f];
 
-    If[
-     KeyExistsQ[noisyCurrentSWVData, slowLabel] && 
-     KeyExistsQ[noisyCurrentSWVData, fastLabel],
-     
-     slowData = computeSWV[slowLabel, VSWVSlow, upSwitchTimesSlow, downSwitchTimesSlow, noisyCurrentSWVData[slowLabel]]["diff"];
-     fastData = computeSWV[fastLabel, VSWVFast, upSwitchTimesFast, downSwitchTimesFast, noisyCurrentSWVData[fastLabel]]["diff"];
-     
-     peakSWV[slowLabel] = extractSWVPeak[slowData];
-     peakSWV[fastLabel] = extractSWVPeak[fastData];
-     
-     ,
-     Print["\:26a0\:fe0f Missing: ", slowLabel, " or ", fastLabel]
+    If[MemberQ[availableLabels, slowLabel],
+      slowData = computeSWV[slowLabel, VSWVSlow, upSwitchTimesSlow, downSwitchTimesSlow, noisyCurrentSWVData[slowLabel]]["diff"];
+      peakSWV[slowLabel] = extractSWVPeak[slowData];
+    ];
+
+    If[MemberQ[availableLabels, fastLabel],
+      fastData = computeSWV[fastLabel, VSWVFast, upSwitchTimesFast, downSwitchTimesFast, noisyCurrentSWVData[fastLabel]]["diff"];
+      peakSWV[fastLabel] = extractSWVPeak[fastData];
     ];
   ],
   {f, fBoundValues}
 ];
+
 
 (* --- KDM Gain Calculation --- *)
 kdmGainData = 
