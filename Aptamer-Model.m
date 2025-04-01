@@ -141,6 +141,14 @@ conditionsList={
 <|"label"->"Fast_f09","squareWave"->VSWVFast,"fBound"->0.9,"freq"->SquareWaveFastFreq|>,
 <|"label"->"Fast_f10","squareWave"->VSWVFast,"fBound"->1,"freq"->SquareWaveFastFreq|>
 };
+conditionsList={
+<|"label"->"Slow_f00","squareWave"->VSWVSlow,"fBound"->0.0,"freq"->SquareWaveSlowFreq|>,
+<|"label"->"Slow_f05","squareWave"->VSWVSlow,"fBound"->0.5,"freq"->SquareWaveSlowFreq|>,
+<|"label"->"Slow_f10","squareWave"->VSWVSlow,"fBound"->1,"freq"->SquareWaveSlowFreq|>,
+<|"label"->"Fast_f00","squareWave"->VSWVFast,"fBound"->0,"freq"->SquareWaveFastFreq|>,
+<|"label"->"Fast_f05","squareWave"->VSWVFast,"fBound"->0.5,"freq"->SquareWaveFastFreq|>,
+<|"label"->"Fast_f10","squareWave"->VSWVFast,"fBound"->1,"freq"->SquareWaveFastFreq|>
+};
 
 (*Step 2:Initialize an empty association*)
 solutionsAssoc=Association[];
@@ -425,3 +433,145 @@ ListPlot[
   Joined -> True,
   ImageSize -> Large
 ]
+
+
+
+
+
+(* --- Log-Spaced Frequency Sweep Setup --- *)
+
+ClearAll[freqValues, makeSquareWave, freqScanConditions, freqSolutionsAssoc]
+
+numFreqs = 25;
+freqValues = N@Exp[Subdivide[Log[5], Log[1000], numFreqs - 1]];
+
+makeSquareWave[freq_] := 
+  Function[t, 
+   E0 - VRampAmplitude/2 + VRampAmplitude*t/Tmax[freq] + 
+    VPeakAmplitude*SmoothSquareWave[t, freq, epsilonWidth]];
+(* Format frequency for label as a zero-padded integer *)
+formatFreqLabel[freq_] := StringPadLeft[ToString[Round[freq]], 3, "0"];
+
+(* Build frequency scan conditions with cleaned labels *)
+freqScanConditions = Flatten[
+   Table[
+    {
+     <|"label" -> "Freq_" <> formatFreqLabel[freq] <> "_f0",
+       "freq" -> freq,
+       "squareWave" -> makeSquareWave[freq],
+       "fBound" -> 0|>,
+     
+     <|"label" -> "Freq_" <> formatFreqLabel[freq] <> "_f1",
+       "freq" -> freq,
+       "squareWave" -> makeSquareWave[freq],
+       "fBound" -> 1|>
+     },
+    {freq, freqValues}
+   ],
+   1
+];
+
+
+
+(* Solve for each condition with progress monitor *)
+freqSolutionsAssoc = Association[];
+
+Monitor[
+ Do[
+  Module[{label, squareWaveInput, fValue, freqValue, solution},
+   label = freqScanConditions[[i, "label"]];
+   squareWaveInput = freqScanConditions[[i, "squareWave"]];
+   fValue = freqScanConditions[[i, "fBound"]];
+   freqValue = freqScanConditions[[i, "freq"]];
+   
+   solution = 
+    NDSolve[
+     {aptamerODE[fValue], circuitODE[fValue], initialAptamer, 
+      initialRC, VApplied[t] == squareWaveInput[t]},
+     {fOx, VAptamerGold},
+     {t, 0, Tmax[freqValue]},
+     Method -> "Automatic",
+     MaxSteps -> Infinity
+     ];
+   
+   freqSolutionsAssoc[label] = solution;
+   ],
+  {i, Length[freqScanConditions]}
+ ],
+ Row[{"Solving ", Dynamic[freqScanConditions[[i, "label"]]], 
+   ProgressIndicator[i, {1, Length[freqScanConditions]}]}]
+];
+
+
+(* -- Parameters -- *)
+epsilon = 10^-6;
+preStepOffset = 0.0001;  (* Adjust this to match your time resolution *)
+
+(* -- Shifted timepoints just BEFORE voltage jumps -- *)
+upSwitchTimes[freq_] := 
+ Table[n/freq - preStepOffset, {n, 1, Floor[Tmax[freq]*freq]}];
+downSwitchTimes[freq_] := 
+ Table[(n + 0.5)/freq - preStepOffset, {n, 0, 
+   Floor[Tmax[freq]*freq - 0.5]}];
+
+(* -- Extract current at given timepoints from solution -- *)
+extractCurrentsAtTimes[sol_, times_List] := 
+ Module[{vFunc},
+  vFunc = VAptamerGold /. sol[[1]];
+  Table[{t, vFunc[t]}, {t, times}]
+ ];
+
+(* -- Main current extraction loop -- *)
+currentExtractionTable = 
+ Table[
+  Module[{label, freq, fBound, sol, up, down, iFwdList, iRevList, 
+    iFwdPeak, iRevPeak, iDiffPeak},
+   
+   label = cond["label"];
+   freq = cond["freq"];
+   fBound = cond["fBound"];
+   sol = freqSolutionsAssoc[label];
+   
+   up = upSwitchTimes[freq];
+   down = downSwitchTimes[freq];
+   
+   iFwdList = extractCurrentsAtTimes[sol, down];
+   iRevList = extractCurrentsAtTimes[sol, up];
+   
+   iFwdPeak = Max[iFwdList[[All, 2]]];
+   iRevPeak = Max[iRevList[[All, 2]]];
+   iDiffPeak = iFwdPeak - iRevPeak;
+   
+   {label, freq, fBound, iFwdPeak, iRevPeak, iDiffPeak}
+   ],
+  {cond, freqScanConditions}
+ ]
+
+
+
+(* Group entries by frequency *)
+grouped = GroupBy[currentExtractionTable, #[[2]] &];
+
+kdmGainFreqData = 
+ Table[
+  Module[{entries, iDiff0, iDiff1, kdm},
+   entries = grouped[freq];
+   iDiff0 = SelectFirst[entries, #[[3]] == 0 &][[6]];
+   iDiff1 = SelectFirst[entries, #[[3]] == 1 &][[6]];
+   kdm = (iDiff1 - iDiff0)/(iDiff1 + iDiff0 );
+   {freq, kdm}
+   ],
+  {freq, Keys[grouped]}
+ ]
+ListLogLinearPlot[
+ kdmGainFreqData,
+ PlotLabel -> "KDM Gain vs Frequency",
+ AxesLabel -> {"Frequency (Hz)", "KDM Gain"},
+ Joined -> True,
+ PlotMarkers -> Automatic,
+ ImageSize -> Large
+]
+
+
+
+
