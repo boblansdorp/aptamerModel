@@ -109,7 +109,7 @@ initialRC=VAptamerGold[0]==VCap0;
 
 VSWVSlow[t_]:=E0-VRampAmplitude/2+VRampAmplitude*t/Tmax[SquareWaveSlowFreq]+VPeakAmplitude*SmoothSquareWave[t,SquareWaveSlowFreq,epsilonWidth]; 
 VSWVFast[t_]:=E0-VRampAmplitude/2+VRampAmplitude*t/Tmax[SquareWaveFastFreq]+VPeakAmplitude*SmoothSquareWave[t,SquareWaveFastFreq,epsilonWidth]
-Clear[solutionSWVSlow, solutionSWVFast]
+
 (*Solve for VAptamerGold and fOx simultaneously*)
 (* solutionSWVSlow=NDSolve[{aptamerODE[0.5],circuitODE[0.5],initialAptamer,initialRC, VApplied[t]==VSWVSlow[t]},{fOx,VAptamerGold},{t,0,Tmax[SquareWaveSlowFreq]}, Method->"Automatic"];
 solutionSWVFast=NDSolve[{aptamerODE[0.5],circuitODE[0.5],initialAptamer,initialRC, VApplied[t]==VSWVFast[t]},{fOx,VAptamerGold},{t,0,Tmax[SquareWaveFastFreq]}, Method->"Automatic"];
@@ -302,145 +302,21 @@ ListPlot[{swvResults[[1,"diff"]],swvResults[[2,"diff"]]},AxesLabel->{"Potential 
 
 
 
-(* --- Setup --- *)
-epsilon = 10^-20;  (* to avoid divide-by-zero *)
+extractSWVDiffPeak[result_] := Max[result["diff"][[All, 2]]];
+peakSlow = extractSWVDiffPeak[swvResults[[1]]];
+peakFast = extractSWVDiffPeak[swvResults[[2]]];
 
-fBoundValues = Range[0, 1, 0.1];  (* 0, 0.1, ..., 1 *)
-
-(* Format fBound to match label suffix *)
-formatF[f_] := StringPadLeft[ToString[IntegerPart[f*10]], 2, "0"];
-
-(* Extract all available labels from conditionsList *)
-availableLabels = conditionsList[[All, "label"]];
-
-(* Function to extract peak current from SWV difference data *)
-extractSWVPeak[data_List] := Max[data[[All, 2]]];
-
-(* Initialize association for peak SWV values *)
-peakSWV = Association[];
-
-(* Loop through fBound values and populate peaks if labels exist *)
-Do[
-  Module[{slowLabel, fastLabel, slowData, fastData},
-    slowLabel = "Slow_f" <> formatF[f];
-    fastLabel = "Fast_f" <> formatF[f];
-
-    If[MemberQ[availableLabels, slowLabel],
-      slowData = computeSWV[slowLabel, VSWVSlow, upSwitchTimesSlow, downSwitchTimesSlow, noisyCurrentSWVData[slowLabel]]["diff"];
-      peakSWV[slowLabel] = extractSWVPeak[slowData];
-    ];
-
-    If[MemberQ[availableLabels, fastLabel],
-      fastData = computeSWV[fastLabel, VSWVFast, upSwitchTimesFast, downSwitchTimesFast, noisyCurrentSWVData[fastLabel]]["diff"];
-      peakSWV[fastLabel] = extractSWVPeak[fastData];
-    ];
-  ],
-  {f, fBoundValues}
-];
-
-
-(* --- KDM Gain Calculation --- *)
-kdmGainData = 
-  Table[
-    Module[{fStr, slow, fast, kdm},
-      fStr = formatF[f];
-      slow = Lookup[peakSWV, "Slow_f" <> fStr, Missing[]];
-      fast = Lookup[peakSWV, "Fast_f" <> fStr, Missing[]];
-      
-      If[! MissingQ[slow] && ! MissingQ[fast],
-        kdm = (fast - slow)/(fast + slow + epsilon);
-        {f, kdm},
-        Nothing
-      ]
-    ],
-    {f, fBoundValues}
-  ];
-
-(* --- Display Results --- *)
-Print["KDM Gain Data:"];
-TableForm[kdmGainData, TableHeadings -> {None, {"fBound", "KDM Values"}}]
-
-ListPlot[
-  kdmGainData,
-  PlotLabel -> "KDM Gain vs. fBound",
-  AxesLabel -> {"fBound", "KDM Values"},
-  PlotRange -> All,
-  PlotMarkers -> Automatic,
-  Joined -> True,
-  ImageSize -> Large
-]
+Print["Peak \[CapitalDelta]i (Slow) = ", peakSlow];
+Print["Peak \[CapitalDelta]i (Fast) = ", peakFast];
 
 
 
-
-(* --- KDM Gain Calculation --- *)
-kdmFastData = 
-  Table[
-    Module[{fStr, fast, fastData},
-      fStr = formatF[f];
-      fast = Lookup[peakSWV, "Fast_f" <> fStr, Missing[]];
-      
-      If[! MissingQ[slow] && ! MissingQ[fast],
-        fastData = fast ;
-        {f, fastData},
-        Nothing
-      ]
-    ],
-    {f, fBoundValues}
-  ];
-
-(* --- Display Results --- *)
-Print["KDM Fast Data:"];
-TableForm[kdmFastData, TableHeadings -> {None, {"fBound", "Fast"}}]
-
-ListPlot[
-  kdmFastData,
-  PlotLabel -> "KDM Gain vs. fBound",
-  AxesLabel -> {"fBound", "KDM Values"},
-  PlotRange -> All,
-  PlotMarkers -> Automatic,
-  Joined -> True,
-  ImageSize -> Large
-]
-
-
-(* --- KDM Gain Calculation --- *)
-kdmSlowData = 
-  Table[
-    Module[{fStr, slow, slowData},
-      fStr = formatF[f];
-      slow = Lookup[peakSWV, "Slow_f" <> fStr, Missing[]];
-      
-      If[! MissingQ[slow] && ! MissingQ[fast],
-        slowData = slow ;
-        {f, slowData},
-        Nothing
-      ]
-    ],
-    {f, fBoundValues}
-  ];
-
-(* --- Display Results --- *)
-Print["KDM Fast Data:"];
-TableForm[kdmSlowData, TableHeadings -> {None, {"fBound", "Fast"}}]
-
-ListPlot[
-  kdmSlowData,
-  PlotLabel -> "KDM Gain vs. fBound",
-  AxesLabel -> {"fBound", "KDM Values"},
-  PlotRange -> All,
-  PlotMarkers -> Automatic,
-  Joined -> True,
-  ImageSize -> Large
-]
-
-
-
+Keys[noisyCurrentSWVData]
 
 
 (* --- Log-Spaced Frequency Sweep Setup --- *)
 
-ClearAll[freqValues, makeSquareWave, freqScanConditions, freqSolutionsAssoc]
+(* ClearAll[freqValues, makeSquareWave, freqScanConditions, freqSolutionsAssoc] *)
 
 numFreqs = 25;
 freqValues = N@Exp[Subdivide[Log[5], Log[1000], numFreqs - 1]];
@@ -470,8 +346,6 @@ freqScanConditions = Flatten[
    ],
    1
 ];
-
-
 
 (* Solve for each condition with progress monitor *)
 freqSolutionsAssoc = Association[];
@@ -503,75 +377,176 @@ Monitor[
 ];
 
 
-(* -- Parameters -- *)
-epsilon = 10^-6;
-preStepOffset = 0.0001;  (* Adjust this to match your time resolution *)
 
-(* -- Shifted timepoints just BEFORE voltage jumps -- *)
-upSwitchTimes[freq_] := 
- Table[n/freq - preStepOffset, {n, 1, Floor[Tmax[freq]*freq]}];
-downSwitchTimes[freq_] := 
- Table[(n + 0.5)/freq - preStepOffset, {n, 0, 
-   Floor[Tmax[freq]*freq - 0.5]}];
-
-(* -- Extract current at given timepoints from solution -- *)
-extractCurrentsAtTimes[sol_, times_List] := 
- Module[{vFunc},
-  vFunc = VAptamerGold /. sol[[1]];
-  Table[{t, vFunc[t]}, {t, times}]
- ];
-
-(* -- Main current extraction loop -- *)
-currentExtractionTable = 
- Table[
-  Module[{label, freq, fBound, sol, up, down, iFwdList, iRevList, 
-    iFwdPeak, iRevPeak, iDiffPeak},
-   
-   label = cond["label"];
-   freq = cond["freq"];
-   fBound = cond["fBound"];
-   sol = freqSolutionsAssoc[label];
-   
-   up = upSwitchTimes[freq];
-   down = downSwitchTimes[freq];
-   
-   iFwdList = extractCurrentsAtTimes[sol, down];
-   iRevList = extractCurrentsAtTimes[sol, up];
-   
-   iFwdPeak = Max[iFwdList[[All, 2]]];
-   iRevPeak = Max[iRevList[[All, 2]]];
-   iDiffPeak = iFwdPeak - iRevPeak;
-   
-   {label, freq, fBound, iFwdPeak, iRevPeak, iDiffPeak}
-   ],
-  {cond, freqScanConditions}
- ]
+(* Extract VAptamer from solution *)
+Clear[VAptamerSol, iSWV]
 
 
 
-(* Group entries by frequency *)
-grouped = GroupBy[currentExtractionTable, #[[2]] &];
+label = "Freq_643_f0";
+entry = SelectFirst[freqScanConditions, #["label"] == label &];
+freq = entry["freq"];
+squareWave = entry["squareWave"];
+TmaxVal = Tmax[freq];
 
-kdmGainFreqData = 
- Table[
-  Module[{entries, iDiff0, iDiff1, kdm},
-   entries = grouped[freq];
-   iDiff0 = SelectFirst[entries, #[[3]] == 0 &][[6]];
-   iDiff1 = SelectFirst[entries, #[[3]] == 1 &][[6]];
-   kdm = (iDiff1 - iDiff0)/(iDiff1 + iDiff0 );
-   {freq, kdm}
-   ],
-  {freq, Keys[grouped]}
- ]
-ListLogLinearPlot[
- kdmGainFreqData,
- PlotLabel -> "KDM Gain vs Frequency",
- AxesLabel -> {"Frequency (Hz)", "KDM Gain"},
- Joined -> True,
- PlotMarkers -> Automatic,
- ImageSize -> Large
+(* Total current = (V_applied - V) / R *)
+VAptamerSol[t_] := VAptamerGold[t] /. freqSolutionsAssoc[label][[1]];
+iSWV[t_] := (squareWave[t] - VAptamerSol[t]) / RSol;
+
+Plot[iSWV[t], {t, 0, 0.2 TmaxVal}, PlotLabel -> "Raw current", AxesLabel -> {"t", "I(t)"}, PlotRange -> All]
+
+
+
+(* Switch times *)
+upSwitchTimes[freq_] := Table[n/freq, {n, 1, Floor[TmaxVal*freq]}];
+downSwitchTimes[freq_] := Table[(n + 0.5)/freq, {n, 0, Floor[TmaxVal*freq - 0.5]}];
+
+(* Make trace *)
+trace = Table[{t, iSWV[t]}, {t, 0, TmaxVal, 0.0001}];
+
+(* Find point before switches *)
+findPrecedingCurrent[switchTimes_List, data_List] := Module[
+  {times = data[[All, 1]]},
+  Table[
+    Module[{index},
+      index = SelectFirst[Reverse[Range[3, Length[times]]], times[[#]] < t &, Missing["NotAvailable"]];
+      If[MissingQ[index] || index < 2, {t, Missing["NotAvailable"]}, data[[index - 1]]]
+    ],
+    {t, switchTimes}
+  ]
+];
+
+(* Extract currents *)
+up = upSwitchTimes[freq];
+down = downSwitchTimes[freq];
+fwd = findPrecedingCurrent[down, trace];
+rev = findPrecedingCurrent[up, trace];
+minN = Min[Length[fwd], Length[rev], Length[up]];
+
+diff = Table[{-squareWave[up[[n]]], fwd[[n, 2]] - rev[[n, 2]]}, {n, minN}];
+fwdPts = Table[{-squareWave[up[[n]]], fwd[[n, 2]]}, {n, minN}];
+revPts = Table[{-squareWave[down[[n]]], rev[[n, 2]]}, {n, minN}];
+
+(* Plot SWV: forward, reverse, diff *)
+ListPlot[{fwdPts, revPts, diff},
+  Joined -> True,
+  PlotLegends -> {"Forward", "Reverse", "Diff"},
+  AxesLabel -> {"Potential (V)", "Current (A)"},
+  PlotLabel -> "SWV for Freq_005_f0",
+  PlotRange -> All
 ]
 
 
 
+(* ::InheritFromParent:: *)
+(**)
+
+
+peakDeltaI = Max[diff[[All, 2]]]
+
+
+
+
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+Clear[VAptamerSol, iSWV, peakDeltaITable]
+
+(* Helper to compute peak \[CapitalDelta]I from a given label entry *)
+extractPeakDeltaI[entry_] := Module[
+  {label, freq, squareWave, TmaxVal, VAptamerSol, iSWV, trace, up, down, fwd, rev, minN, diff},
+
+  label = entry["label"];
+  freq = entry["freq"];
+  squareWave = entry["squareWave"];
+  TmaxVal = Tmax[freq];
+
+  VAptamerSol[t_] := VAptamerGold[t] /. freqSolutionsAssoc[label][[1]];
+  iSWV[t_] := (squareWave[t] - VAptamerSol[t]) / RSol;
+
+  trace = Table[{t, iSWV[t]}, {t, 0, TmaxVal, 0.0001}];
+
+  upSwitchTimes[freq_] := Table[n/freq, {n, 1, Floor[TmaxVal*freq]}];
+  downSwitchTimes[freq_] := Table[(n + 0.5)/freq, {n, 0, Floor[TmaxVal*freq - 0.5]}];
+
+  up = upSwitchTimes[freq];
+  down = downSwitchTimes[freq];
+
+  fwd = findPrecedingCurrent[down, trace];
+  rev = findPrecedingCurrent[up, trace];
+  minN = Min[Length[fwd], Length[rev], Length[up]];
+
+  diff = Table[{-squareWave[up[[n]]], fwd[[n, 2]] - rev[[n, 2]]}, {n, minN}];
+
+  <|"label" -> label, "freq" -> freq, "fBound" -> entry["fBound"], "peakDeltaI" -> Max[diff[[All, 2]]]|>
+];
+
+(* Run for all entries *)
+peakDeltaITable = Table[
+  extractPeakDeltaI[cond],
+  {cond, freqScanConditions}
+];
+
+(* Display output *)
+peakDeltaITable // Dataset
+
+
+
+(* Small constant to avoid division by zero *)
+epsilon = 10^-6;
+
+(* Group entries by frequency *)
+groupedByFreq = GroupBy[peakDeltaITable, Round[#["freq"], 0.001] &];
+
+(* Compute KDM gain for frequencies that have both f0 and f1 *)
+kdmFreqData = Select[
+  Table[
+    Module[{entries, i0, i1, kdm},
+      entries = groupedByFreq[freq];
+      If[
+        Length[entries] == 2 && AllTrue[entries[[All, "fBound"]], MemberQ[{0, 1}, #] &],
+        i0 = SelectFirst[entries, #["fBound"] == 0 &]["peakDeltaI"];
+        i1 = SelectFirst[entries, #["fBound"] == 1 &]["peakDeltaI"];
+        kdm = (i1 - i0)/(0.5*(i1 + i0 + epsilon));
+        {freq, kdm},
+        Nothing
+      ]
+    ],
+    {freq, Keys[groupedByFreq]}
+  ],
+  FreeQ[#, _Missing] &
+];
+
+(* Plot KDM vs Frequency (log-log) *)
+ListLogLinearPlot[
+  kdmFreqData,
+  Joined -> True,
+  PlotMarkers -> Automatic,
+  PlotLabel -> "KDM vs Frequency",
+  AxesLabel -> {"Frequency (Hz)", "KDM"},
+  ImageSize -> Large
+]
+
+
+
+kdmSummaryTable = Table[
+  Module[{entries, i0, i1, kdm},
+    entries = groupedByFreq[freq];
+    i0 = SelectFirst[entries, #["fBound"] == 0 &]["peakDeltaI"];
+    i1 = SelectFirst[entries, #["fBound"] == 1 &]["peakDeltaI"];
+    kdm = (i1 - i0)/(0.5*(i1 + i0 + epsilon));
+    <|
+      "Frequency (Hz)" -> freq,
+      "\[CapitalDelta]I (f=0) [microAmps]" -> i0*10^6,
+      "\[CapitalDelta]I (f=1) [microAmps]" -> i1*10^6,
+      "KDM" -> kdm
+    |>
+  ],
+  {freq, Keys[groupedByFreq]}
+];
+
+kdmSummaryTable // Dataset
 
