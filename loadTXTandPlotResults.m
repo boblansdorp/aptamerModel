@@ -29,7 +29,6 @@ extractKDMPlotData[reportText_] := Module[
   dataLines = Select[lines, StringContainsQ[#, DigitCharacter] &];
   parsedData = StringSplit[#, Whitespace] & /@ dataLines;
   numericData = ToExpression /@ parsedData;
-  
   numericData[[All, {1, 4}]]
 ];
 
@@ -37,26 +36,20 @@ extractKDMPlotData[reportText_] := Module[
 plotDataList = 
   Table[
     Module[
-      {text, rcVals, kdmData, label, rVal, cValMicro},
+      {text, rcVals, kdmData, label},
       text = Import[file, "Text"];
       rcVals = extractRC[text];
-      rVal = rcVals[[1]];
-      cValMicro = rcVals[[2]]*10^6; (* Convert F to \[Micro]F *)
       kdmData = extractKDMPlotData[text];
-      label = StringTemplate["R = `` \[CapitalOmega], C = `` \[Micro]F"][rVal, NumberForm[cValMicro, {4, 2}]];
+      label = StringTemplate["R = `` \[CapitalOmega], C = `` \[Micro]F"][rcVals[[1]], rcVals[[2]]*10^6];
       {kdmData, label}
     ],
     {file, fileNames}
   ];
-;
-
-(* Generate color-coded plot with RC legends *)
 ListLogLinearPlot[
   plotDataList[[All, 1]],
   Joined -> True,
   PlotMarkers -> Automatic,
   PlotStyle -> ColorData[97] /@ Range[Length[plotDataList]],
-  PlotLabel -> "Simulated KDM Overlay",
   FrameLabel -> {
     Style["Frequency (Hz)", 15], 
     Style["KDM Gain (%)", 15]
@@ -66,8 +59,12 @@ ListLogLinearPlot[
   Frame -> True,
   FrameStyle -> Black,
   PlotLegends -> Placed[
-    plotDataList[[All, 2]], 
-    Right
+    LineLegend[
+      ColorData[97] /@ Range[Length[plotDataList]],
+      plotDataList[[All, 2]]
+    ],
+    {Center,Right}
   ]
 ]
+
 
