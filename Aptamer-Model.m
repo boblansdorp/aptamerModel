@@ -218,36 +218,6 @@ Plot[
 
 
 
-Plot[
-  Evaluate[
-    {
-      10^6 * iSWV["Fast_f00", VSWVFast][t],
-      10^6 * iSWV["Fast_f05", VSWVFast][t],
-      10^6 * iSWV["Fast_f10", VSWVFast][t]
-    }
-  ],
-  {t, 0.48*Tmax[SquareWaveFastFreq], 0.52*Tmax[SquareWaveFastFreq]},
-  PlotLabel -> "Simulated Current vs Time at 200 Hz",
-  AxesLabel -> {"Time (s)", "Current (\[Micro]A)"},
-  Background -> White,
-  PlotStyle -> {
-    {Black, Thick}, 
-    {Black, Dashed, Thick}, 
-    {Black, Dotted, Thick}
-  },
-  PlotLegends -> Placed[
-    LineLegend[
-      {"f = 0", "f = 0.5", "f = 1"},
-      LegendMarkers -> "Line",
-      Background -> White,
-      LabelStyle -> {FontSize -> 12}
-    ],
-    {0.75, 0.85}
-  ]
-]
-
-
-
 (*Visual Check*)
 (*Plot applied voltage vs aptamer voltage for a given condition*)Plot[{VSWVSlow[t],VAptamerSol["Slow_f05"][t]},{t,0,Tmax[SquareWaveSlowFreq]/30},PlotLabel->"Applied vs Aptamer Voltage (Slow, fBound = 0.5)",PlotLegends->{"Applied Voltage","Aptamer Voltage"},AxesLabel->{"Time (s)","Voltage (V)"}]
 
@@ -787,4 +757,103 @@ ListLogLinearPlot[
   Frame -> True,
   FrameStyle -> Black
 ]
+
+
+
+ListLogLinearPlot[
+  kdmTable[[All, {"Frequency (Hz)", "KDM"}]] // 
+    Normal // 
+    (Values[#] /. {f_, kdm_} :> {f, 100 kdm}) &,
+  
+  Joined -> True,
+  PlotMarkers -> {Automatic, Black},
+  PlotStyle -> Black,
+  PlotLabel -> "Simulated data",
+  FrameLabel -> {
+    Style["Frequency (Hz)", 15], 
+    Style["KDM Gain (%)", 15]
+  },
+  PlotRange -> {{1, 1000}, {-0.5, 0.8} * 100},  (* percentage range *)
+  Background -> White,
+  Frame -> True,
+  FrameStyle -> Black
+]
+
+
+
+(* Export results to txt file *)
+
+(* 1. Header section *)
+headerText = StringJoin[
+  "Simulation Parameters\n",
+  "---------------------\n",
+  "Physical Constants:\n",
+  StringTemplate["F = `` C/mol\n"][F],
+  StringTemplate["R = `` J/mol\[CenterDot]K\n"][R],
+  StringTemplate["T = `` K\n"][T],
+  StringTemplate["alpha = ``\n\n"][alpha],
+
+  "System Parameters:\n",
+  StringTemplate["nElec = `` electrons\n"][nElec],
+  StringTemplate["Electrode Area A = `` m^2\n"][A],
+  StringTemplate["Surface concentration Lambda = `` mol/m^2\n"][Lambda],
+  StringTemplate["k0u (unbound) = `` 1/s\n"][k0u],
+  StringTemplate["k0b (bound) = `` 1/s\n"][k0b],
+  StringTemplate["E0 = `` V\n\n"][E0],
+
+  "Time and Frequency:\n",
+  StringTemplate["deltaV = `` V\n"][deltaV],
+  StringTemplate["Npoints = ``\n"][Npoints],
+  StringTemplate["SquareWaveFastFreq = `` Hz\n"][SquareWaveFastFreq],
+  StringTemplate["SquareWaveSlowFreq = `` Hz\n"][SquareWaveSlowFreq],
+  StringTemplate["VRampAmplitude = `` V\n"][VRampAmplitude],
+  StringTemplate["VPeakAmplitude = `` V\n\n"][VPeakAmplitude],
+
+  "Circuit Impedance:\n",
+  StringTemplate["RSol = `` ohms\n"][RSol],
+  StringTemplate["Cint = `` F\n\n"][Cint],
+
+  "Voltage Function:\n",
+  StringTemplate["epsilonWidth = ``\n\n"][epsilonWidth]
+];
+
+(* 2. KDM result table section *)
+resultTableText = StringJoin[
+  "Simulation Results (KDM)\n",
+  "------------------------\n",
+  "Frequency (Hz)\tDeltaI (f=0, uA)\tDeltaI (f=1, uA)\tKDM (%)\n",
+  StringRiffle[
+    kdmTable /. <|
+      "Frequency (Hz)" -> f_,
+      "\[CapitalDelta]I (f=0)" -> i0_,
+      "\[CapitalDelta]I (f=1)" -> i1_,
+      "KDM" -> kdm_
+    |> :> StringTemplate["``\t``\t``\t``\n"][f, i0, i1, NumberForm[100 kdm, {4, 2}]],
+    ""
+  ]
+];
+
+(* 3. Combine and export *)
+fullText = headerText <> "\n" <> resultTableText;
+
+(* Define base directory and filename *)
+resultsDir = FileNameJoin[{NotebookDirectory[], "results"}];
+baseName = "SimulationReport";
+ext = ".txt";
+
+(* Create results directory if needed *)
+If[!DirectoryQ[resultsDir], CreateDirectory[resultsDir]];
+
+(* Generate a unique filename if one already exists *)
+reportPath = Module[{i = 0, path},
+  path = FileNameJoin[{resultsDir, baseName <> ext}];
+  While[FileExistsQ[path],
+    i++;
+    path = FileNameJoin[{resultsDir, baseName <> "_" <> ToString[i] <> ext}];
+  ];
+  path
+];
+
+(* Export the text safely *)
+Export[reportPath, fullText, "Text"]
 
