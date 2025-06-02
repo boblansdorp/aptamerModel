@@ -38,8 +38,22 @@ freqResolution[SquareWaveFreq_]:=1/(Npoints*dt[SquareWaveFreq]); (*Frequency res
 frequencyList[SquareWaveFreq_]=Table[n freqResolution[SquareWaveFreq],{n,0,Npoints/2-1}]; (*Positive frequencies only*)
 
 (* System Impedence*)
-RSol = 147; (* 147 ohms Randle resistance *)
-Cint = 4.4*10^-7; (*0.4 microFarads *) (* values from Subsecond-Resolved Molecular Measurements Using
+RSol = 1470; (* 147 ohms Randle resistance *)
+RSolOscillationAmplitude = 0.1; (* a 10% oscillation in resistance *)
+heartRate = 8; (* a rat has a pulse of 8 Hz *)
+(* Approximate venous pressure waveform using a skewed sawtooth-like signal *)
+period = 1/heartRate;
+pressureAmplitude = 2;
+JugularPulseShape[t_] := 
+  PDF[BetaDistribution[2, 5], FractionalPart[t * heartRate]];
+
+PressureJugular[t_] := 1.5*pressureAmplitude + pressureAmplitude*JugularPulseShape[t];
+
+(* Plot[PressureJugular[t], {t, 0, 1}, PlotRange -> All, 
+ AxesLabel -> {"Time (s)", "Pressure (mmHg)"}] *)
+
+RSolOscillation[t_] := RSol + RSol*RSolOscillationAmplitude*PressureJugular[t]/pressureAmplitude; (* a 10% solution resistance oscillation *)
+Cint = 4.4*10^-6; (*0.4 microFarads *) (* values from Subsecond-Resolved Molecular Measurements Using
 Electrochemical Phase Interrogation of AptamerBased Sensors - but just assume capacitance not CPE *)
 
 
@@ -100,7 +114,7 @@ iAptamerExpr[fB_]:=nElec*F*A*Lambda*(koxExpr[fB]*(1-fOx[t])-kredExpr[fB]*fOx[t])
 iTotalExpr[fB_]:=iCap[t]+iAptamerExpr[fB];
 
 (*Voltage drop across resistor*)
-circuitODE[fB_]:=VApplied[t]-VAptamerGold[t]==RSol*iTotalExpr[fB];
+circuitODE[fB_]:=VApplied[t]-VAptamerGold[t]==RSolOscillation[t]*iTotalExpr[fB];
 
 VCap0 =0; (* assume initial charge zero *)
 
@@ -172,7 +186,7 @@ fOxSol[label_][t_]:=fOx[t]/. solutionsAssoc[label][[1]];
 VAptamerSol[label_][t_]:=VAptamerGold[t]/. solutionsAssoc[label][[1]];
 
 (*Redefine total current function*)
-iSWV[label_,squareWaveFunc_][t_]:=(squareWaveFunc[t]-VAptamerGold[t]/. solutionsAssoc[label][[1]])/RSol;
+iSWV[label_,squareWaveFunc_][t_]:=(squareWaveFunc[t]-VAptamerGold[t]/. solutionsAssoc[label][[1]])/RSolOscillation[t];
 
 (*Example Plots*)
 
@@ -260,7 +274,7 @@ noiseStd=1*10^-12; (*Standard deviation in Amperes*)
 ts=Association[Table[label->timeSamples[If[StringStartsQ[label,"Slow"],SquareWaveSlowFreq,SquareWaveFastFreq]],{label,labelsToPlot}]];
 
 (*Model current function for each label*)
-iSWV=Association[Table[label->Function[t,(If[StringStartsQ[label,"Slow"],VSWVSlow[t],VSWVFast[t]]-VAptamerSol[label][t])/RSol],{label,labelsToPlot}]];
+iSWV=Association[Table[label->Function[t,(If[StringStartsQ[label,"Slow"],VSWVSlow[t],VSWVFast[t]]-VAptamerSol[label][t])/RSolOscillation[t]],{label,labelsToPlot}]];
 
 (*Generate noisy current data for each label*)
 noisyCurrentSWVData=Association[Table[Module[{timeVec=ts[label],modelVals=iSWV[label]/@ts[label],noise=RandomVariate[NormalDistribution[0,noiseStd],Length[ts[label]]]},label->Transpose[{timeVec,modelVals+noise}]],{label,labelsToPlot}]];
@@ -599,7 +613,7 @@ TmaxVal = Tmax[freq];
 
 (* Total current = (V_applied - V) / R *)
 VAptamerSol[t_] := VAptamerGold[t] /. freqSolutionsAssoc[label][[1]];
-iSWV[t_] := (squareWave[t] - VAptamerSol[t]) / RSol;
+iSWV[t_] := (squareWave[t] - VAptamerSol[t]) / RSolOscillation[t];
 
 Plot[iSWV[t], {t, 0.0 TmaxVal, 0.8 TmaxVal}, PlotLabel -> "Raw current", AxesLabel -> {"t", "I(t)"}, PlotRange -> All]
 
@@ -676,7 +690,7 @@ getPeakDeltaI[label_] := Module[
   TmaxVal = Tmax[freq];
 
   VAptamerSol[t_] := VAptamerGold[t] /. freqSolutionsAssoc[label][[1]];
-  iSWV[t_] := (squareWave[t] - VAptamerSol[t]) / RSol;
+  iSWV[t_] := (squareWave[t] - VAptamerSol[t]) / RSolOscillation[t];
 
   upSwitchTimes = Table[n/freq, {n, 1, Floor[TmaxVal*freq]}];
   downSwitchTimes = Table[(n + 0.5)/freq, {n, 0, Floor[TmaxVal*freq - 0.5]}];
@@ -811,8 +825,11 @@ headerText = StringJoin[
 
   "Circuit Impedance:\n",
   StringTemplate["RSol = `` ohms\n"][RSol],
+  StringTemplate["RSolOscillationAmplitude = `` F\n\n"][RSolOscillationAmplitude],
+  StringTemplate["RSolOscillationFrequency = `` F\n\n"][RSolOscillationFrequency],
+  
   StringTemplate["Cint = `` F\n\n"][Cint],
-
+  
   "Voltage Function:\n",
   StringTemplate["epsilonWidth = ``\n\n"][epsilonWidth]
 ];
