@@ -1,5 +1,11 @@
 # aptamerModel
 Physical electrochemistry model of aptamer sensor
+## Introduction
+These simulations are written in Mathematica (run version 13.1).
+The main goal of the simulations are to be able to reproduce Square Wave Voltammetry with different cell parameters.
+
+In addition, radialConductivity.m explores electrostatics to generate an effective resistance between two electrodes in a cylindrical geometry.
+
 
 #### Goals: 
 1. Reproduce experimental data from different applied voltages using a single theoretical framework
@@ -10,11 +16,9 @@ Physical electrochemistry model of aptamer sensor
 
 ## Remaining items to do
 
-- Make the solutions for current i[t] also be a function of applied \
-voltage VApplied[t], so we can solve for different square wave,\
-AC voltage, or arbitrary voltage application patterns
-- get the gain vs concentration curve for SWV and AC
+- get the gain vs concentration curve for ACV
 - add noise to simulate drift in various parameters
+- simulate EIS
 
 ## Insights and thoughts
 
@@ -36,3 +40,4 @@ not!!
 then most ions are related to nonspecific capacitance double layer \
 charge, and so the voltage that the aptamer experiences is equal to \
 the voltage over the capacitor
+- we are using Butler Volmer kinetics with n=2 for Methylene blue. What happens if we use Marcus theory instead?

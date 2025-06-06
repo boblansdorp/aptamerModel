@@ -78,9 +78,9 @@ ClampExp[x_] := Exp[Clip[x, {-10, 10}]]
 
 
 (*Define rate constants based on VAptamerGold*)
-koxExpr[fB_]:=(1-fB) k0u ClampExp[alpha F (VAptamerGold[t]-E0)/(R T)]+fB k0b ClampExp[alpha F (VAptamerGold[t]-E0)/(R T)];
+koxExpr[fB_]:=(1-fB) k0u ClampExp[alpha nElec F (VAptamerGold[t]-E0)/(R T)]+fB k0b ClampExp[ alpha nElec F (VAptamerGold[t]-E0)/(R T)];
 
-kredExpr[fB_]:=(1-fB) k0u ClampExp[-(1-alpha) F (VAptamerGold[t]-E0)/(R T)]+fB k0b ClampExp[-(1-alpha) F (VAptamerGold[t]-E0)/(R T)];
+kredExpr[fB_]:=(1-fB) k0u ClampExp[-(1-alpha) nElec F (VAptamerGold[t]-E0)/(R T)]+fB k0b ClampExp[-(1-alpha) nElec F (VAptamerGold[t]-E0)/(R T)];
 
 (*Oxidation fraction differential equation*)
 aptamerODE[fB_]:=fOx'[t]==koxExpr[fB] (1-fOx[t])-kredExpr[fB] fOx[t];
