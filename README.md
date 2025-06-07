@@ -16,6 +16,9 @@ In addition, radialConductivity.m explores electrostatics to generate an effecti
 
 ## Remaining items to do
 
+- move all the plotting functions now in aptamerModel.m into the txt analysis file (loadTXTandPlotResults.m) - this will make it easier to reproduce graphs from data
+- speed up the NDSolve loop
+- remove excessive definitions of VAptamerSol (code cleanup)
 - get the gain vs concentration curve for ACV
 - add noise to simulate drift in various parameters
 - simulate EIS
