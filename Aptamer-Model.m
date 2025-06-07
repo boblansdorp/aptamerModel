@@ -252,15 +252,30 @@ computeDiffCurve[label_] := Module[
   upSwitchTimes = Table[n/freq, {n, 1, Floor[TmaxVal*freq]}];
   downSwitchTimes = Table[(n + 0.5)/freq, {n, 0, Floor[TmaxVal*freq - 0.5]}];
 
-  fwd = Table[
-    { -squareWave[downSwitchTimes[[n]]],
-      10^6 * iSWV[downSwitchTimes[[n]] - offsetBeforeSwitch] },
-    {n, Length[downSwitchTimes]}];
-
-  rev = Table[
-    { -squareWave[upSwitchTimes[[n]]],
-      10^6 * iSWV[upSwitchTimes[[n]] - offsetBeforeSwitch] },
-    {n, Length[upSwitchTimes]}];
+ (* Averaging function over final portion of half-cycle *)
+	sampleAvg[nextSwitchTime_] := Module[{t1, t2, ts},
+	  t2 = nextSwitchTime - offsetBeforeSwitch;
+	  t1 = t2 - samplingWidth/(2*freq);  (* 25% of full cycle *)
+	  ts = Subdivide[t1, t2, 99];       (* 100 points *)
+	  Mean[iSWV /@ ts]
+	];
+	  
+	(* Compute forward and reverse SWV with averaging *)
+	fwd = Table[
+	  {
+	    -squareWave[downSwitchTimes[[n]]],
+	    10^6 * sampleAvg[downSwitchTimes[[n]]]
+	  },
+	  {n, Length[downSwitchTimes]}
+	];
+	
+	rev = Table[
+	  {
+	    -squareWave[upSwitchTimes[[n]]],
+	    10^6 * sampleAvg[upSwitchTimes[[n]]]
+	  },
+	  {n, Length[upSwitchTimes]}
+	];
 
   minN = Min[Length[fwd], Length[rev]];
 
