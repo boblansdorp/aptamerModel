@@ -229,58 +229,10 @@ Plot[
 	PlotRange -> All
 ]
 
-Plot[{10^3 squareWave[t], 10^3 VAptamerSol[t], 10^6*iSWV[t]}, {t, 0.35 TmaxVal, 0.45 TmaxVal}, PlotLabel -> "Voltages and current", AxesLabel -> {"t", "I(t)"}, PlotRange -> All, PlotLegends -> {"squareWave (mV)", "VAptamer (mV)", "iSWV (\[Micro]A)"}
+Plot[{10^3 squareWave[t], 10^3 VAptamerSol[t], 10^6*iSWV[t]}, {t, 0.35 TmaxVal, 0.45 TmaxVal}, PlotLabel -> "Voltages and current", AxesLabel -> {"t", "I(t)"}, 
+	PlotRange -> {Automatic,{-10,10}}, PlotLegends -> {"squareWave (mV)", "VAptamer (mV)", "iSWV (\[Micro]A)"}
 ]
 
-(* --- Define switch times --- *)
-upSwitchTimes = Table[n/freq, {n, 1, Floor[TmaxVal*freq]}];
-downSwitchTimes = Table[(n + 0.5)/freq, {n, 0, Floor[TmaxVal*freq - 0.5]}];
-
-(* --- Define fixed time offset before switches --- *)
-offsetBeforeSwitch = 1/(100 freq);
-
-(* --- Sample current just before each voltage switch --- *)
-fwd = Table[
-  { -squareWave[downSwitchTimes[[n]]], iSWV[downSwitchTimes[[n]] - offsetBeforeSwitch] },
-  {n, Length[downSwitchTimes]}
-];
-
-rev = Table[
-  { -squareWave[upSwitchTimes[[n]]], iSWV[upSwitchTimes[[n]] - offsetBeforeSwitch] },
-  {n, Length[upSwitchTimes]}
-];
-
-(* --- Compute SWV difference --- *)
-minN = Min[Length[fwd], Length[rev]];
-diff = Table[
-  {fwd[[n, 1]], fwd[[n, 2]] - rev[[n, 2]]},
-  {n, minN}
-];
-
-(* --- Plot SWV --- *)
-ListPlot[{fwd, rev, diff},
-  Joined -> True,
-  PlotLegends -> {"Forward", "Reverse", "Diff"},
-  AxesLabel -> {"Potential (V)", "Current (A)"},
-  PlotLabel -> "SWV with Fixed Offset (Freq_000_f0)",
-  PlotRange -> All,
-  ImageSize -> Large
-]
-
-
-
-(* ::InheritFromParent:: *)
-(**)
-
-
-(* ===================================== *)
-(* == Plot Frequency dependent currents ==== *)
-(* ===================================== *)
-
-
-(* Separate f0 and f1 labels *)
-f0labels = Select[Keys[freqSolutionsAssoc], StringEndsQ[#, "f0"] &];
-f1labels = Select[Keys[freqSolutionsAssoc], StringEndsQ[#, "f1"] &];
 
 (* Shared function to compute SWV diff curves *)
 computeDiffCurve[label_] := Module[
@@ -316,12 +268,46 @@ computeDiffCurve[label_] := Module[
     {fwd[[n, 1]], fwd[[n, 2]] - rev[[n, 2]]},
     {n, minN}];
 
-  diff
+	(* Return as an association *)
+  <|
+    "fwd" -> fwd,
+    "rev" -> rev,
+    "diff" -> diff
+  |>
 ];
+curve = computeDiffCurve[label];
 
-(* Compute difference curves *)
-diffCurvesF0 = computeDiffCurve /@ f0labels;
-diffCurvesF1 = computeDiffCurve /@ f1labels;
+ListPlot[
+  {curve["fwd"], curve["rev"], curve["diff"]},
+  Joined -> True,
+  PlotLegends -> {"Forward", "Reverse", "Diff"},
+  AxesLabel -> {"Potential (V)", "Current (\[Micro]A)"},
+  PlotLabel -> "SWV Components",
+  PlotRange -> All,
+  ImageSize -> Large
+]
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ===================================== *)
+(* == Plot Frequency dependent currents ==== *)
+(* ===================================== *)
+
+
+(* Separate f0 and f1 labels *)
+f0labels = Select[Keys[freqSolutionsAssoc], StringEndsQ[#, "f0"] &];
+f1labels = Select[Keys[freqSolutionsAssoc], StringEndsQ[#, "f1"] &];
+
+(* Compute full curve associations *)
+curveDataF0 = computeDiffCurve /@ f0labels;
+curveDataF1 = computeDiffCurve /@ f1labels;
+
+(* Extract just the difference curves *)
+diffCurvesF0 = curveDataF0[[All, "diff"]];
+diffCurvesF1 = curveDataF1[[All, "diff"]];
 
 (* Frequency labels *)
 frequenciesHz = ToExpression[
