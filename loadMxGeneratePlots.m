@@ -9,7 +9,12 @@
 (*resultsDir=NotebookDirectory[]<>"results\\";*)
 (*latestFile=Last[SortBy[FileNames["aptamer_results_*.mx",resultsDir],FileDate]];*)
 (**)
-(*(* latestFile=FileNameJoin[{resultsDir,"ranged_Conc_two_frequencies_highR.mx"}]; *)*)
+(**)
+(*(* *)
+(**)
+(*latestFile=FileNameJoin[{resultsDir,"aptamer_results_matchToExperiment_20250620101447_lowR.mx"}]*)
+(**)
+(**)*)
 (**)
 (*data=Import[latestFile];*)
 (**)
@@ -172,7 +177,7 @@
 (*        Frame -> True,*)
 (*        PlotLegends -> legendLabels,*)
 (*        ImageSize -> Large,*)
-(*        PlotRange -> {Automatic, {0, 10}}*)
+(*        PlotRange -> {Automatic, {0, 20}}*)
 (*      ]*)
 (*    ]*)
 (*  ],*)
@@ -186,132 +191,159 @@
 (*(* now extract the baselin and peak currents as a function of frequency for each concentration*)*)
 
 
-(* ::Input:: *)
-(*(* --- Function to compute peak \[CapitalDelta]I from label --- *)*)
-(*getPeakDeltaI[label_] := Module[*)
-(*  {*)
-(*    entry, freq, squareWave, TmaxVal,*)
-(*    VAptamerSol, iSWV, upSwitchTimes, downSwitchTimes,*)
-(*    offsetBeforeSwitch, fwd, rev, minN, diff*)
-(*  },*)
-(*  *)
-(*  entry = SelectFirst[freqScanConditions, #["label"] == label &];*)
-(*  freq = entry["freq"];*)
-(*  squareWave = entry["squareWave"];*)
-(*  TmaxVal = Tmax[freq];*)
-(**)
-(*  VAptamerSolLocal[t_] := VAptamerGold[t] /. freqSolutionsAssoc[label][[1]];*)
-(*  iFunc[t_] := (squareWave[t] - VAptamerSolLocal[t]) / RSol; *)
-(*  *)
-(*  upSwitchTimes = Table[n/freq, {n, 1, Floor[TmaxVal*freq]}];*)
-(*  downSwitchTimes = Table[(n + 0.5)/freq, {n, 0, Floor[TmaxVal*freq - 0.5]}];*)
-(*  offsetBeforeSwitch = 1/(100 freq);*)
-(**)
-(*  fwd = Table[*)
-(*    { -squareWave[downSwitchTimes[[n]]], iFunc[downSwitchTimes[[n]] - offsetBeforeSwitch] },*)
-(*    {n, Length[downSwitchTimes]}*)
-(*  ];*)
-(*  *)
-(*  rev = Table[*)
-(*    { -squareWave[upSwitchTimes[[n]]], iFunc[upSwitchTimes[[n]] - offsetBeforeSwitch] },*)
-(*    {n, Length[upSwitchTimes]}*)
-(*  ];*)
-(**)
-(*  minN = Min[Length[fwd], Length[rev]];*)
-(*  diff = Table[*)
-(*    {fwd[[n, 1]], fwd[[n, 2]] - rev[[n, 2]]},*)
-(*    {n, minN}*)
-(*  ];*)
-(**)
-(*  Max[diff[[All, 2]]]*)
-(*];*)
-(**)
-(*(* --- Function to compute peak \[CapitalDelta]I from label --- *)*)
-(*getBaselineI[label_] := Module[*)
-(*  {*)
-(*    entry, freq, squareWave, TmaxVal,*)
-(*    VAptamerSol, iSWV, upSwitchTimes, downSwitchTimes,*)
-(*    offsetBeforeSwitch, fwd, rev, minN, diff,*)
-(*    potentials, deltaI, lowRegion, highRegion,*)
-(*    lowMean, highMean*)
-(*  },*)
-(*  *)
-(*  entry = SelectFirst[freqScanConditions, #["label"] == label &];*)
-(*  freq = entry["freq"];*)
-(*  squareWave = entry["squareWave"];*)
-(*  TmaxVal = Tmax[freq];*)
-(*  *)
-(*  VAptamerSolLocal[t_] := VAptamerGold[t] /. freqSolutionsAssoc[label][[1]];*)
-(*  iFunc[t_] := (squareWave[t] - VAptamerSolLocal[t]) / RSol;*)
-(**)
-(*  upSwitchTimes = Table[n/freq, {n, 1, Floor[TmaxVal*freq]}];*)
-(*  downSwitchTimes = Table[(n + 0.5)/freq, {n, 0, Floor[TmaxVal*freq - 0.5]}];*)
-(*  offsetBeforeSwitch = 1/(100 freq);*)
-(**)
-(*  fwd = Table[*)
-(*    { -squareWave[downSwitchTimes[[n]]], iFunc[downSwitchTimes[[n]] - offsetBeforeSwitch] },*)
-(*    {n, Length[downSwitchTimes]}*)
-(*  ];*)
-(*  *)
-(*  rev = Table[*)
-(*    { -squareWave[upSwitchTimes[[n]]], iFunc[upSwitchTimes[[n]] - offsetBeforeSwitch] },*)
-(*    {n, Length[upSwitchTimes]}*)
-(*  ];*)
-(**)
-(*  minN = Min[Length[fwd], Length[rev]];*)
-(*  diff = Table[*)
-(*    {fwd[[n, 1]], fwd[[n, 2]] - rev[[n, 2]]},*)
-(*    {n, minN}*)
-(*  ];*)
-(**)
-(*  potentials = diff[[All, 1]];*)
-(*  deltaI = diff[[All, 2]];*)
-(*lowRegion=Pick[deltaI,potentials,_?(Between[{-0.15, \[Dash]0.10}])];*)
-(*highRegion = Pick[deltaI,potentials,_?(Between[{0.10, 0.15}])];*)
-(**)
-(*  lowMean = If[Length[lowRegion] > 0, Mean[lowRegion], 0];*)
-(*  highMean = If[Length[highRegion] > 0, Mean[highRegion], 0];*)
-(**)
-(*  Mean[{lowMean, highMean}]*)
-(*];*)
+analyzeVoltammogram[data_] := Module[
+  {trimmed, baselineRegion, b0, x0init, fit, fitParams},
+  
+  trimmed = Take[data, {6, -6}];
+  baselineRegion = Select[trimmed, -0.1 <= #[[1]] <= 0.1 &];
+  b0 = Mean[baselineRegion[[All, 2]]];
+  x0init = trimmed[[Ordering[trimmed[[All, 2]], -1][[1]], 1]];
+
+  fit = NonlinearModelFit[
+    trimmed,
+    b + C*Exp[-((x - x0)/\[Sigma])^2],
+    {
+      {b, b0},
+      {C, Max[trimmed[[All, 2]]] - Min[trimmed[[All, 2]]]},
+      {\[Sigma], 0.025},
+      {x0, x0init}
+    },
+    x
+  ];
+  
+  fitParams = fit["BestFitParameters"];
+  
+<|
+    "Baseline" -> b /. fitParams,
+    "DeltaI" -> C /. fitParams,
+    "PeakCurrent" -> (b + C) /. fitParams,
+    "Fit" -> fit
+  |>
+];
 
 
-(* ::Input:: *)
-(*curvesByConc;*)
-(**)
-(*(* === Fix concentration field robustly === *)*)
-(*fixConc[conc_] := Which[*)
-(*  NumericQ[conc], conc,*)
-(*  Head[conc] === Failure, 0.0,*)
-(*  StringMatchQ[conc, "0.e"], 0.0,*)
-(*  StringQ[conc], Quiet@Check[ToExpression@conc, Missing["BadConc"]],*)
-(*  True, Missing["UnparseableConc"]*)
-(*];*)
+
+entry = RandomChoice @ RandomChoice @ Values[curvesByConc];
+data = entry["diff"];
+result = analyzeVoltammogram[data];
+
+Show[
+  ListPlot[
+    Take[data, {6, -6}],
+    PlotStyle -> {Black, PointSize[0.012]},
+    Frame -> True,
+    FrameLabel -> {"Voltage (V)", "\!\(\Delta\)I (A)"},
+    PlotLabel -> StringJoin[
+      "QC Fit \[LongDash] Label: ", entry["label"],
+      " | Freq: ", ToString[entry["freq"]], " Hz",
+      " | Conc: ", ToString[entry["conc"]], " M\n",
+      "Baseline: ", ToString[NumberForm[result["Baseline"], {5, 3}]], " \[Micro]A, ",
+      "\[CapitalDelta]I: ", ToString[NumberForm[result["DeltaI"], {5, 3}]], " \[Micro]A, ",
+      "Peak: ", ToString[NumberForm[result["PeakCurrent"], {5, 3}]], " \[Micro]A"
+    ],
+    ImageSize -> Large
+  ],
+  Plot[
+    result["Fit"][x],
+    {x, Min[data[[All, 1]]], Max[data[[All, 1]]]},
+    PlotStyle -> {Red, Thick}
+  ]
+]
 
 
-(* ::Input:: *)
-(*baselineDataByConc=GroupBy[Normal[parsedDiffCurvesFixed],fixConc[#[[2,"conc"]]]&,Function[curves,SortBy[Table[{c[[2,"freq"]],10^6*getBaselineI[c[[1]]]},{c,curves}],First]]]; (* current in microA *)*)
-(*ListLogLinearPlot[Values[baselineDataByConc],Joined->True,PlotStyle->Thick,PlotLegends->Placed[LineLegend[Keys[baselineDataByConc],LabelStyle->Small],Right],PlotLabel->"Baseline Current vs Frequency",FrameLabel->{"Frequency (Hz)","Baseline I (microA)"},Frame->True,ImageSize->Large]*)
-(**)
+
+resultsByConc = AssociationMap[
+  Function[conc,
+    Table[
+      Module[{entry = curve, result},
+        result = analyzeVoltammogram[curve["diff"]];
+        <|
+          "freq" -> curve["freq"],
+          "label" -> curve["label"],
+          "Baseline" -> result["Baseline"],
+          "DeltaI" -> result["DeltaI"]
+        |>
+      ],
+      {curve, curvesByConc[conc]}
+    ]
+  ],
+  Keys[curvesByConc]
+];
 
 
-(* ::Input:: *)
-(*peakDeltaIDataByConc=GroupBy[Normal[parsedDiffCurvesFixed],fixConc[#[[2,"conc"]]]&,Function[curves,SortBy[Table[{c[[2,"freq"]],10^6*getPeakDeltaI[c[[1]]]},{c,curves}],First]]];  (*current in microA*)*)
-(**)
-(**)
-(**)
-(*ListLogLinearPlot[Values[peakDeltaIDataByConc],Joined->True,PlotStyle->Thick,PlotLegends->Placed[LineLegend[Keys[peakDeltaIDataByConc],LabelStyle->Small],Right],PlotLabel->"Peak \[CapitalDelta]I vs Frequency",FrameLabel->{"Frequency (Hz)","Peak \[CapitalDelta]I (microA)"},Frame->True,ImageSize->Large]*)
-(**)
+
+baselineDataByConc = AssociationMap[
+  With[{curves = resultsByConc[#]},
+    SortBy[Table[{c["freq"], c["Baseline"]}, {c, curves}], First]
+  ] &,
+  Keys[resultsByConc]
+];
+
+ListLogLinearPlot[
+  Values[baselineDataByConc],
+  Joined -> True,
+  PlotStyle -> Thick,
+  PlotLegends -> Placed[
+    LineLegend[Keys[baselineDataByConc], LabelStyle -> Small],
+    Right
+  ],
+  PlotLabel -> "Baseline Current vs Frequency",
+  FrameLabel -> {"Frequency (Hz)", "Baseline I (\[Mu]A)"},
+  Frame -> True,
+  ImageSize -> Large
+]
 
 
-(* ::Input:: *)
-(*peakDeltaIBaselineSubtractedByConc=AssociationMap[Function[conc,MapThread[{#1[[1]],#1[[2]]-#2[[2]]}&,{peakDeltaIDataByConc[conc],baselineDataByConc[conc]}]],Keys[peakDeltaIDataByConc]];*)
-(**)
 
 
-(* ::Input:: *)
-(*ListLogLinearPlot[Values[peakDeltaIBaselineSubtractedByConc],Joined->True,PlotStyle->Thick,PlotLegends->Placed[LineLegend[Keys[peakDeltaIBaselineSubtractedByConc],LabelStyle->Small],Right],PlotLabel->"Peak \[CapitalDelta]I vs Frequency",FrameLabel->{"Frequency (Hz)","Peak \[CapitalDelta]I (microA)"},Frame->True,ImageSize->Large]*)
-(**)
+peakDeltaIBaselineSubtractedByConc = AssociationMap[
+  With[{curves = resultsByConc[#]},
+    SortBy[Table[{c["freq"], c["DeltaI"]}, {c, curves}], First]
+  ] &,
+  Keys[resultsByConc]
+];
+
+ListLogLinearPlot[
+  Values[peakDeltaIBaselineSubtractedByConc],
+  Joined -> True,
+  PlotStyle -> Thick,
+  PlotLegends -> Placed[
+    LineLegend[Keys[peakDeltaIBaselineSubtractedByConc], LabelStyle -> Small],
+    Right
+  ],
+  PlotLabel -> "Peak Current vs Frequency",
+  FrameLabel -> {"Frequency (Hz)", "Peak I (\[Mu]A)"},
+  Frame -> True,
+  ImageSize -> Large
+]
+
+
+
+(* === Extract lowest and highest concentration datasets === *)
+lowestConc = Min[Keys[peakDeltaIBaselineSubtractedByConc]];
+highestConc = Max[Keys[peakDeltaIBaselineSubtractedByConc]];
+
+lowData = AssociationThread @@ Transpose[peakDeltaIBaselineSubtractedByConc[lowestConc]];
+highData = AssociationThread @@ Transpose[peakDeltaIBaselineSubtractedByConc[highestConc]];
+
+(* === Compute normalized current (iNorm = I_high / I_low) at common frequencies === *)
+commonFreqs = Intersection[Keys[lowData], Keys[highData]];
+
+iNormData = Table[
+   {f, highData[f]/lowData[f]-1},
+   {f, commonFreqs}
+];
+
+(* === Plot iNorm vs Frequency === *)
+ListLogLinearPlot[iNormData,
+ PlotStyle -> {Blue, Thick},
+ Joined -> True,
+ PlotLabel -> "iNorm Gain vs Frequency",
+ Frame -> True,
+ FrameLabel -> {"Frequency (Hz)", "iNorm Gain = I_highConc / I_lowConc - 1"},
+ ImageSize -> Large
+]
+
 
 
 (* ::Input:: *)
@@ -319,11 +351,8 @@
 (*peakDeltaIBaselineSubtractedByConc;*)
 (*(* ===Normalize by frequency to create Lovric plot===*)*)
 (*(* lovricDataByConc=AssociationMap[Function[data,data/. {f_,y_}:>{f,y/f}],peakDeltaIBaselineSubtractedByConc] *)*)
-(*lovricDataByConc=Association@Map[Function[{rule},Module[{conc=rule[[1]],data=rule[[2]]},conc->({#[[1]],#[[2]]/#[[1]]}&/@data)]],Normal[peakDeltaIBaselineSubtractedByConc]]*)
+(*lovricDataByConc=Association@Map[Function[{rule},Module[{conc=rule[[1]],data=rule[[2]]},conc->({#[[1]],#[[2]]/#[[1]]}&/@data)]],Normal[peakDeltaIBaselineSubtractedByConc]];*)
 (**)
-
-
-(* ::Input:: *)
 (*(*Format concentration labels*)*)
 (*legendLabels=Map[ToString[#]<>" M"&,Keys[lovricDataByConc]];*)
 (**)
@@ -332,34 +361,27 @@
 
 
 (* ::Input:: *)
-(*ListLogLogPlot[Values[lovricDataByConc],Joined->True,PlotStyle->Thick,PlotLegends->Placed[LineLegend[legendLabels,LabelStyle->Small],Right],PlotLabel->"Lovri\[CAcute] Plot: Normalized SWV Peak vs Frequency",FrameLabel->{"Frequency (Hz)","\!\(\*FractionBox[\(\[CapitalDelta]I\), \(f\)]\) (\[Mu]A/Hz)"},Frame->True,ImageSize->Large]*)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
-(*(* Signal Gain curve *)*)
+(*(* Step 1: Flatten all {f, i/f} values from all concentrations *)*)
+(*allLovricValues = Flatten[Values[lovricDataByConc], 1][[All, 2]];*)
 (**)
-
-
-(* ::Input:: *)
-(*(*Extract concentrations sorted numerically*)*)
-(*sortedConcs=Sort[Keys[peakDeltaIBaselineSubtractedByConc]];*)
+(*(* Step 2: Find the global maximum *)*)
+(*maxLovric = Max[allLovricValues];*)
 (**)
-(*(*Identify low and high concentration datasets*)*)
-(*lowConc=First[sortedConcs];*)
-(*highConc=Last[sortedConcs];*)
+(*(* Step 3: Normalize each value by maxLovric *)*)
+(*normalizedLovricDataByConc = *)
+(*  Map[# /. {f_, y_} :> {f, y/maxLovric} &, lovricDataByConc, {1}];*)
 (**)
-(*(*Extract frequency and peak delta I for both*)*)
-(*lowData=AssociationThread@@Transpose[peakDeltaIDataByConc[lowConc]];*)
-(*highData=AssociationThread@@Transpose[peakDeltaIDataByConc[highConc]];*)
 (**)
-(*(*Frequencies common to both*)*)
-(*commonFreqs=Intersection[Keys[lowData],Keys[highData]];*)
+(*ListLogLinearPlot[Values[normalizedLovricDataByConc],Joined->True,PlotLegends->Placed[LineLegend[legendLabels,LabelStyle->Small],Right],PlotLabel->"Lovri\[CAcute] Plot: Normalized SWV Peak vs Frequency",FrameLabel->{"Frequency (Hz)","\!\(\*FractionBox[\(\[CapitalDelta]I\), \(f\)]\) (\[Mu]A/Hz)"},Frame->True,ImageSize->Large]*)
 (**)
-(*(*Compute signal gain at each frequency*)*)
-(*signalGainData=Table[With[{iLow=lowData[f],iHigh=highData[f]},{f,(iHigh-iLow)/iLow}],{f,commonFreqs}];*)
-(**)
-(*(*Plot the signal gain*)*)
-(*ListLogLinearPlot[signalGainData,Joined->True,PlotStyle->Thick,Frame->True,FrameLabel->{"Frequency (Hz)","Signal Gain"},PlotLabel->"Signal Gain vs Frequency",ImageSize->Large]*)
 (**)
 
 
@@ -369,22 +391,6 @@
 
 (* ::Input:: *)
 (*(* KDM = currents at 200 Hz*)*)
-
-
-(* ::Input:: *)
-(*Keys[peakDeltaIBaselineSubtractedByConc]*)
-
-
-(* ::Input:: *)
-(*peakDeltaIBaselineSubtractedByConc*)
-
-
-(* ::Input:: *)
-(*peakDeltaIBaselineSubtractedByConc[0.009300000000000001`]*)
-
-
-(* ::Input:: *)
-(*peakDeltaIBaselineSubtractedByConc[0.009300000000000001`][[1]][[2]]*)
 
 
 (* ::Input:: *)
@@ -402,31 +408,10 @@
 (*(*Identify zero-concentration values for normalization*)*)
 (*i0Low=getAtFreq[peakDeltaIBaselineSubtractedByConc[0],lowFreq];*)
 (*i0High=getAtFreq[peakDeltaIBaselineSubtractedByConc[0],highFreq];*)
-(*(* SignalGain[baselineSubtractedCurrent_,  baselineSubtractedCurrentAtZeroConc_] := (baselineSubtractedCurrent-baselineSubtractedCurrentAtZeroConc)/baselineSubtractedCurrentAtZeroConc; *)*)
-(*SignalGain[baselineSubtractedCurrent_,  baselineSubtractedCurrentAtZeroConc_] := (baselineSubtractedCurrent-baselineSubtractedCurrentAtZeroConc);*)
 (**)
-(*kdmGain[SignalGainHighFreq_, SignalGainLowFreq_] := (SignalGainHighFreq+SignalGainLowFreq)*)
+(*(* use the "New KDM" method from Plaxco group *)*)
+(* kdmGain[iNormHighFreq_, iNormLowFreq_] := (iNormHighFreq-iNormLowFreq)/((1/2) *(iNormHighFreq+iNormLowFreq)); *)
 (**)
-(*(* kdmGain[SignalGainHighFreq_, SignalGainLowFreq_] := (SignalGainHighFreq+SignalGainLowFreq)/((1/2) *(SignalGainHighFreq-SignalGainLowFreq)); *)*)
-(**)
-(*SignalGain[peakDeltaIBaselineSubtractedByConc[0.009300000000000001`][[2]][[2]], peakDeltaIBaselineSubtractedByConc[0][[2]][[2]]]*)
-(*SignalGain[peakDeltaIBaselineSubtractedByConc[0.009300000000000001`][[1]][[2]], peakDeltaIBaselineSubtractedByConc[0][[1]][[2]]]*)
-(**)
-(**)
-(**)
-(*kdmGain[SignalGain[peakDeltaIBaselineSubtractedByConc[0.009300000000000001`][[2]][[2]], peakDeltaIBaselineSubtractedByConc[0][[2]][[2]]],SignalGain[peakDeltaIBaselineSubtractedByConc[0.009300000000000001`][[1]][[2]], peakDeltaIBaselineSubtractedByConc[0][[1]][[2]]]]*)
-
-
-(* ::Input:: *)
-(*peakDeltaIBaselineSubtractedByConc[0.009300000000000001`][[2]][[2]]*)
-
-
-(* ::Input:: *)
-(*peakDeltaIBaselineSubtractedByConc*)
-
-
-(* ::Input:: *)
-(*valuesByConc*)
 
 
 (* ::Input:: *)
@@ -437,18 +422,248 @@
 (*iHigh=row[[3]],*)
 (*gainLow,*)
 (*gainHigh,*)
+(*iNormLow,*)
+(*iNormHigh,*)
 (*kdm},*)
-(*If[conc==0||AnyTrue[{iLow,iHigh},MissingQ],Nothing,*)
-(*gainLow=SignalGain[iLow,i0Low];*)
-(*gainHigh=SignalGain[iHigh,i0High];*)
-(*kdm=kdmGain[gainHigh,gainLow];*)
-(*{conc,kdm}]],{row,valuesByConc}],ListQ]*)
+(*	If[conc==0||AnyTrue[{iLow,iHigh},MissingQ],Nothing,*)
+(*	iNormLow =iLow/i0Low ;*)
+(*	iNormHigh=iHigh/i0High;*)
+(*	kdm=kdmGain[iNormHigh,iNormLow];*)
+(*	{conc,kdm}]*)
+(*	],{row,valuesByConc}],ListQ*)
+(*]*)
 (**)
 (*(* ===Optionally show the raw table for sanity check===*)*)
 (*Grid[Prepend[kdmPoints,{"Concentration (M)","KDM Signal"}],Frame->All]*)
 (**)
 (*(* ===Plot===*)*)
-(*ListLogLinearPlot[kdmPoints,Joined->True,PlotStyle->{Red,Thin},PlotMarkers->Automatic,Frame->True,FrameLabel->{"Concentration (M)","KDM Signal"},PlotLabel->"Kinetic Differential Measurement (KDM) vs Concentration",ImageSize->Large, PlotRange->{{10^-7,10^-2},{0,1.5}}]*)
+(*ListLogLinearPlot[kdmPoints,Joined->True,PlotStyle->{Red,Thin},PlotMarkers->Automatic,Frame->True,FrameLabel->{"Concentration (M)","KDM Signal"},PlotLabel->"Kinetic Differential Measurement (KDM) vs Concentration",ImageSize->Large, PlotRange->{{10^-7,10^-2},{0,2}}]*)
 
 
+(* digest the voltammograms for TXT export *)
+voltammogramText = StringJoin @ KeyValueMap[
+  Function[{conc, curves},
+    
+    voltages = curves[[1, "diff"]][[All, 1]];
+    freqs = curves[[All, "freq"]];
+    
+    dataMatrix = Transpose @ Map[
+      #[["diff"]][[All, 2]] &,  (* already in \[Micro]A *)
+      curves
+    ];
+    
+    header = StringJoin[
+      "## === Voltammograms at Conc = ", ToString[conc], " M ===\n",
+      StringRiffle[
+        Prepend[Map["f=" <> ToString[#] <> " Hz" &, freqs], "Voltage (V)"],
+        "\t"
+      ],
+      "  [Current in \[Micro]A]\n"
+    ];
+    
+    rows = StringRiffle[
+      MapThread[
+        Function[{v, row},
+          StringJoin[
+            ToString[NumberForm[v, {4, 3}, ExponentFunction -> (Null &)]], "\t",
+            StringRiffle[
+              Map[
+                ToString[
+                  NumberForm[#, {6, 3}, ExponentFunction -> (Null &)]
+                ] &,
+                row
+              ],
+              "\t"
+            ]
+          ]
+        ],
+        {voltages, dataMatrix}
+      ],
+      "\n"
+    ];
+    
+    StringJoin[header, rows, "\n\n"]
+  ],
+  curvesByConc
+];
+
+
+
+(* digest the current vs freq data for TXT export *)
+formatTableByConc = Function[{dataByConc, label},
+  concs = Keys[dataByConc];
+  freqs = Union @@ (dataByConc[#][[All, 1]] & /@ concs);
+  
+  header = StringJoin[
+    "## === ", label, " ===\n",
+    StringRiffle[Prepend[freqs, "Conc (M)"] /. f_ /; NumberQ[f] :> "f=" <> ToString[f] <> " Hz", "\t"],
+    "  [Current in \[Micro]A]\n"
+  ];
+  
+  rows = StringRiffle[
+    Table[
+      StringJoin[
+        ToString[conc], "\t",
+        StringRiffle[
+          Map[
+            Function[freq,
+              With[{row = SelectFirst[dataByConc[conc], #[[1]] == freq &]},
+                If[row === Missing["NotFound"], "NA",
+                  ToString[NumberForm[row[[2]], {6, 3}, ExponentFunction -> (Null &)]]
+                ]
+              ]
+            ],
+            freqs
+          ],
+          "\t"
+        ]
+      ],
+      {conc, concs}
+    ],
+    "\n"
+  ];
+  
+  StringJoin[header, rows, "\n\n"]
+];
+
+baselineText = formatTableByConc[baselineDataByConc, "Baseline Current vs Frequency"];
+deltaIText = formatTableByConc[peakDeltaIBaselineSubtractedByConc, "Peak \[CapitalDelta]I vs Frequency"];
+
+
+
+lovricDataByConc
+
+
+(* Get all unique frequencies in sorted order *)
+allFreqs = Union[Flatten[Values[lovricDataByConc][[All, All, 1]]]];
+
+(* Construct table header *)
+lovricHeader = StringJoin[
+  "## === Lovric Plot Data ===\n",
+  "## \[CapitalDelta]I/f in \[Micro]A/Hz\n",
+  "Conc (M)\t",
+  StringRiffle[ToString[#, InputForm] <> " Hz" & /@ allFreqs, "\t"],
+  "\n"
+];
+
+(* Construct rows for each concentration *)
+lovricRows = StringRiffle[
+  KeyValueMap[
+    Function[{conc, data},
+      Module[{assoc = Association[Rule @@@ data]},
+        ToString[conc] <> "\t" <>
+        StringRiffle[
+          Map[
+            Function[f,
+              ToString[NumberForm[Lookup[assoc, f, "NaN"], {6, 4}]]
+            ],
+            allFreqs
+          ],
+          "\t"
+        ]
+      ]
+    ],
+    lovricDataByConc
+  ],
+  "\n"
+];
+
+(* Combine into full text *)
+lovricText = StringJoin[lovricHeader, lovricRows, "\n\n"];
+
+
+
+
+iNormData
+
+
+(* === Format iNorm Gain Section === *)
+iNormHeader = StringJoin[
+  "## === iNorm Gain Data ===\n",
+  "## Definition: iNorm Gain = I_highConc / I_lowConc - 1\n",
+  "Frequency (Hz)\tiNorm Gain (unitless)\n"
+];
+
+iNormRows = StringRiffle[
+  Map[
+    Function[pair,
+      ToString[pair[[1]]] <> "\t" <> ToString[NumberForm[pair[[2]], {6, 5}]]
+    ],
+    iNormData
+  ],
+  "\n"
+];
+
+
+iNormText = StringJoin[iNormHeader, iNormRows, "\n\n"];
+
+
+
+
+kdmPoints
+
+
+kdmTableText = StringJoin[
+  "## === Calibration Curve (KDM vs Concentration) ===\n",
+  "Concentration (M)\tKDM Signal\n",
+  StringRiffle[
+    Map[
+      Function[pair,
+        ToString[pair[[1]]] <> "\t" <> ToString[NumberForm[pair[[2]], {6, 5}]]
+      ],
+      kdmPoints
+    ],
+    "\n"
+  ],
+  "\n\n"
+];
+
+
+
+
+(* Now prepare and write the TXT file *)
+
+paramsAssoc = Association@params;
+
+(* Format each key-value pair to string *)
+paramsText = StringJoin[
+  "## === Simulation Parameters ===\n",
+  StringRiffle[
+    Map[
+      Function[{rule},
+        ToString[rule[[1]]] <> " = " <> ToString[rule[[2]], InputForm]
+      ],
+      Normal[paramsAssoc]
+    ],
+    "\n"
+  ],
+  "\n\n"
+];
+
+(* Optional header section *)
+headerText = StringJoin[
+  "## === Simulation Export ===\n",
+  "Timestamp: ", metadata["Timestamp"], "\n\n",
+  paramsText
+];
+(* Updated plot section with actual data *)
+plotSection = StringJoin[
+  "## === Voltammogram Data ===\n",
+  voltammogramText,
+  "## === Currents vs Freq ===\n\n",
+  baselineText,
+  deltaIText,
+  "## === Lovric Plot\n",
+  lovricText,
+  "## === iNorm Gain vs Freq\n",
+  iNormText,
+  "## === Calibration Curve\n",
+  kdmTableText
+];
+
+
+(* Combine and export *)
+fullText = StringJoin[headerText, plotSection];
+outputFile = FileNameJoin[{NotebookDirectory[], "results", "simulation_export_full_header.txt"}];
+Export[outputFile, fullText, "Text"]
 

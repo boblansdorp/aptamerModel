@@ -20,12 +20,14 @@ T=298; (* Temperature (K) *)
 
 
 (* System Impedence*)
-RSol = 150; (* 147 ohms Randle resistance [Ohms] *)
-Cint = 2*10^-7; (*0.2 microFarads *) (* just assume capacitance not CPE *)
+RSol = 238; (* 238 ohms Randle resistance [Ohms] *) (* 1.58k total with resistor *)
+RSol = 1580; (* 238 ohms Randle resistance [Ohms] *) (* 1.58k total with resistor *)
+
+Cint = 3.535*10^-7; (* average of 337nF and 370nF  *) (* just assume capacitance not CPE *)
 
 (* k0u=0.5; *) (*Standard rate constant for unbound state (cm/s)*) (* let's not do the tunneling calculation done in Langmuir.2017 May 09;33(18):4407\[Dash]4413... *)
 k0u=30; (* Standard rate constant for unbound state (1/s) *)
-k0b=50; (* Standard rate constant for bound state (1/s) *)
+k0b=80; (* Standard rate constant for bound state (1/s) *)
 (* note "Simulation-Based Approach to Determining Electron Transfer Rates Using Square-Wave Voltammetry" publication uses incorrect units for current which is confusing  
 - Eq 8,9 are current /cm^2 not actual current *)
 
@@ -39,8 +41,8 @@ E0=0;  (* Set the Methylene Blue Standard redox potential to zero volts so that 
 A = 2* Pi * 0.075 * 3 / 100; (*Electrode electrochemical area (cm^2) for 3mm long electrode, 75 micrometer radius*)
 A=A*2; (* assume that electrochemical roughening increases A by 2 *)
 
-Lambda=8*10^12/(6.02*10^23); (*Surface concentration (moles/cm^2)*) (* this parameter is fudged to match amplitude observed *)
-(* roughly 10^12 mocleuls/cm^2 from Anal.Chem.2023,95,2229\[Minus]2237 *)
+Lambda= 5*10^12/(6.02*10^23); (*Surface concentration (moles/cm^2)*) (* this parameter is fudged to match current amplitude observed *)
+(* roughly 10^12 molecules/cm^2 from Anal.Chem.2023,95,2229\[Minus]2237 *)
 
 
 
@@ -133,8 +135,7 @@ ClampExp[x_] := Exp[Clip[x, {-10, 10}]] (* clamp the eponential so we don't get 
 
 (* the rate that bound and unbound states interchange is related to the dissociation constant *)
 Kd = 1*10^-6;           (* Dissociation constant in M - value can vary depending on aptamer!! *) 
-Kd = 4*10^-3;           (* Dissociation constant in M - value can vary depending on aptamer!! *) 
-(* this should be the true (solution based) Kd, not an "effective Kd from SWV" *)
+Kd = 2.951*10^-3;           (* Dissociation constant in M - value can vary depending on aptamer!! 2.951mM from experimental fit *)
 
 kon = 3*10^5;          (* Association rate in M^-1 s^-1 - a typical value is diffusion limited to around this value*)
 (* C = ...; *)            (* Constant analyte concentration in M *)
@@ -353,18 +354,25 @@ Keys[freqSolutionsAssoc];
 
 
 (* ===================================== *)
-(* ======= Sanity Check Raw current ====== *)
+(* === Extracting voltage and current ====== *)
 (* ===================================== *)
-
-label = "Freq_081_f05"; (* a representative data trace *)
-entry = SelectFirst[freqScanConditions, #["label"] == label &];
-freq = entry["freq"];
-squareWave = entry["squareWave"];
-TmaxVal = Tmax[freq];
-
 (* Total current = (V_applied - V) / R *)
 VAptamerSol[label_][t_] := VAptamerGold[t] /. freqSolutionsAssoc[label][[1]];
 iSWV[label_, squareWave_][t_] := (squareWave[t] - VAptamerSol[label][t]) / RSol;
+
+
+
+
+
+
+(* ===================================== *)
+(* ======= Sanity Check Raw current ====== *)
+(* ===================================== *)
+label = "Freq_200_Conc_0e"; (* a representative data trace *)
+entry = SelectFirst[freqScanConditions, #["label"] == label &];
+freq = entry["freq"];
+squareWave = entry["squareWave"];
+TmaxVal = Tmax[freq]
 
 Plot[
 	{fOxBound[t]/. freqSolutionsAssoc[label][[1]], fOxUnbound[t]/. freqSolutionsAssoc[label][[1]]},
