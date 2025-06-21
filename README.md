@@ -13,10 +13,19 @@ In addition, radialConductivity.m explores electrostatics to generate an effecti
 3. Provide suggestions for experiments to run
 4. Improve on existing aptamer biosensors using insights obtained!
 
+## Assigning model parameters
+To assign parameters to the model, we do the following:
+- use EIS data and fit to equivalent circuit to obtain RSol (solution resistance) and C_DL (double layer capacitance)
+- use knowledge of redox reporter (Methylene Blue) to assume 2e- per aptamer
+- fit the KDM vs frequency to extract the dissociation constant Kd
+- use normalized Lovric plot to assign the electron transfer rates for unbound and bound states
+- use the current vs frequency to see if surface coverage is correct (e.g. molecules/cm^2)
+
 
 ## Remaining items to do
-
-- move all the plotting functions now in aptamerModel.m into the txt analysis file (loadTXTandPlotResults.m) - this will make it easier to reproduce graphs from data
+- sanity check baseline vs frequency experiment vs theory
+- check triangle wave... and what is meant by "square wave potential is superimposed onto the base potential, which increments after each cycle of
+the square wave" (from manual https://www.chinstruments.com/openshare/Manual/Model_1000C_Series_User_Manual.pdf)
 - speed up the NDSolve loop
 - remove excessive definitions of VAptamerSol (code cleanup)
 - get the gain vs concentration curve for ACV

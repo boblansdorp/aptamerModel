@@ -1,70 +1,89 @@
 (* ::Package:: *)
 
-(* Directory and file list *)
+(* Set directory and read the first matching file *)
 resultsDir = FileNameJoin[{NotebookDirectory[], "results"}];
-fileNames = FileNames["SimulationReport_*.txt", resultsDir];
+file = First@FileNames["SimulationReport_*.txt", resultsDir];
+reportText = Import[file, "Text"];
 
-(* Function to extract RSol and Cint from the header *)
-extractRC[reportText_] := Module[
-  {rVal, cVal},
-  rVal = StringCases[reportText, 
-    "RSol = " ~~ x : NumberString ~~ ___ ~~ "ohms" :> ToExpression[x]] // First;
-  cVal = StringCases[reportText, 
-    "Cint = " ~~ x : NumberString ~~ ___ ~~ "F" :> ToExpression[x]] // First;
-  {rVal, cVal}
+(* Extract KDM block *)
+kdmBlock = StringCases[
+   reportText,
+   "Simulation Results (KDM)\n" ~~ s__ :> s
+] // First;
+
+(* Split into rows and columns *)
+lines = StringSplit[kdmBlock, "\n"];
+dataLines = Select[lines, StringContainsQ[#, DigitCharacter] &];
+parsed = StringSplit[#, Whitespace] & /@ dataLines;
+
+(* Drop the first row if it contains headers *)
+numericRows = Rest[parsed];
+
+(* Define column names *)
+headers = {
+  "Frequency (Hz)", 
+  "\[CapitalDelta]I (f=0) [\[Micro]A]", 
+  "\[CapitalDelta]I (f=1) [\[Micro]A]", 
+  "Baseline (f=0) [\[Micro]A]", 
+  "Baseline (f=1) [\[Micro]A]", 
+  "\[CapitalDelta]I - Baseline (f=0) [\[Micro]A]", 
+  "\[CapitalDelta]I - Baseline (f=1) [\[Micro]A]"
+};
+
+(* Construct dataset *)
+kdmTable = Dataset[
+  AssociationThread[headers, ToExpression /@ #] & /@ numericRows
 ];
 
-(* Function to extract KDM plot data *)
-extractKDMPlotData[reportText_] := Module[
-  {kdmSection, lines, dataLines, parsedData, numericData},
-  
-  kdmSection = 
-    StringCases[reportText, 
-      Shortest[
-        "Simulation Results (KDM)\n" ~~ ___ ~~ 
-         "Frequency (Hz)\tDeltaI (f=0, uA)\tDeltaI (f=1, uA)\tKDM (%)\n" ~~ 
-         s__ ~~ EndOfString] :> s] // First;
-  
-  lines = StringSplit[kdmSection, "\n"];
-  dataLines = Select[lines, StringContainsQ[#, DigitCharacter] &];
-  parsedData = StringSplit[#, Whitespace] & /@ dataLines;
-  numericData = ToExpression /@ parsedData;
-  numericData[[All, {1, 4}]]
-];
-
-(* Gather all data + labels *)
-plotDataList = 
-  Table[
-    Module[
-      {text, rcVals, kdmData, label},
-      text = Import[file, "Text"];
-      rcVals = extractRC[text];
-      kdmData = extractKDMPlotData[text];
-      label = StringTemplate["R = `` \[CapitalOmega], C = `` \[Micro]F"][rcVals[[1]], rcVals[[2]]*10^6];
-      {kdmData, label}
-    ],
-    {file, fileNames}
-  ];
+(* Plot selected columns *)
 ListLogLinearPlot[
-  plotDataList[[All, 1]],
-  Joined -> True,
-  PlotMarkers -> Automatic,
-  PlotStyle -> ColorData[97] /@ Range[Length[plotDataList]],
-  FrameLabel -> {
-    Style["Frequency (Hz)", 15], 
-    Style["KDM Gain (%)", 15]
+  {
+    kdmTable[[All, {"Frequency (Hz)", "\[CapitalDelta]I - Baseline (f=0) [\[Micro]A]"}]] // Normal // Values,
+    kdmTable[[All, {"Frequency (Hz)", "\[CapitalDelta]I - Baseline (f=1) [\[Micro]A]"}]] // Normal // Values
   },
-  PlotRange -> {{1, 1000}, {-0.5, 0.8} * 100},
+  Joined -> True,
+  PlotMarkers -> {Automatic},
+  PlotStyle -> {Blue, Orange},
+  PlotLabel -> "Baseline-Subtracted SWV Currents",
+  AxesLabel -> {"Frequency (Hz)", "Current (\[Micro]A)"},
+  PlotRange -> {{1, 1000}, Automatic},
   Background -> White,
   Frame -> True,
-  FrameStyle -> Black,
-  PlotLegends -> Placed[
-    LineLegend[
-      ColorData[97] /@ Range[Length[plotDataList]],
-      plotDataList[[All, 2]]
-    ],
-    {Center,Right}
-  ]
+  GridLines -> Automatic,
+  PlotLegends -> {
+    "f = 0 (\[CapitalDelta]I - baseline)", 
+    "f = 1 (\[CapitalDelta]I - baseline)"
+  }
 ]
 
+
+
+(* === Compute Signal Gain from Simulation Report === *)
+
+(* Convert dataset to list of associations *)
+rows = Normal[kdmTable];
+
+(* Extract numeric lists from associations *)
+freqs = rows[[All, "Frequency (Hz)"]];
+i0 = rows[[All, "\[CapitalDelta]I - Baseline (f=0) [\[Micro]A]"]];
+i1 = rows[[All, "\[CapitalDelta]I - Baseline (f=1) [\[Micro]A]"]];
+
+(* Compute signal gain: (I_f=1 - I_f=0)/I_f=0 *)
+gainSim = MapThread[
+  {#1, (#2 - #3)/#3} &,
+  {freqs, i1, i0}
+];
+
+(* Plot simulated signal gain *)
+ListLogLinearPlot[
+  gainSim,
+  Joined -> True,
+  PlotMarkers -> Automatic,
+  PlotStyle -> {Black, Thick},
+  Frame -> True,
+  FrameLabel -> {"Frequency (Hz)", "Signal Gain"},
+  PlotLabel -> "Simulated Signal Gain vs Frequency\n(I_f=1 - I_f=0) / I_f=0",
+  PlotRange -> All,
+  GridLines -> Automatic
+]
 
