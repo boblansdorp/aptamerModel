@@ -133,6 +133,24 @@ importVoltammogramBlock[filePath_String, sectionHeader_String, targetSymbol_Symb
 (*importVoltammogramBlock[simulationDataWithNoResistorFilePath,"## === Voltammograms at Conc = 0 M ===",theoryVoltammogramsConc0withNoResistor]*)
 
 
+Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\testLoad.wl"]
+
+
+TestLoad`helloWorld[]
+
+
+Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\loadExperimentalVoltammogramGeneratePlots.m"]
+
+
+Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\testLoad.m"]
+
+
+rawData = LoadVoltammogramData`loadAllVoltammograms["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\voltammograms\\"];
+experimentalVoltmammogramdata = LoadVoltammogramData`reshapeVoltammogramData[rawData, "IDiff", 4];
+experimentalVoltmammogramdataWithResistor = LoadVoltammogramData`reshapeVoltammogramData[rawData, "IDiff", 1];
+
+
+
 plotRangeVoltammograms = {Automatic, {0, 20}};
 
 makeVoltammogramPlot[dataAssoc_, conc_, label_, isPending_: False] := Module[
@@ -173,12 +191,12 @@ makeVoltammogramPlot[dataAssoc_, conc_, label_, isPending_: False] := Module[
 voltammogramPlots = Grid[
   {
     {
-     makeVoltammogramPlot[<||>, 0, "Exp5 (Standard, 0 mM)", True],
+     makeVoltammogramPlot[experimentalVoltmammogramdata, 0, "Exp5 (Standard, 0 mM)"],
      makeVoltammogramPlot[theoryVoltammogramsConc0withNoResistor, 0, 
        "Theory (Standard, 0 mM)"]
     },
     {
-     makeVoltammogramPlot[<||>, 0, "Exp6 (Resistor, 0 mM)", True],
+     makeVoltammogramPlot[experimentalVoltmammogramdataWithResistor, 0, "Exp6 (Resistor, 0 mM)", False],
      makeVoltammogramPlot[theoryVoltammogramsConc0withResistor, 0, 
        "Theory (added Resistor, 0 mM)"]
     }
