@@ -191,35 +191,9 @@
 (*(* now extract the baselin and peak currents as a function of frequency for each concentration*)*)
 
 
-analyzeVoltammogram[data_] := Module[
-  {trimmed, baselineRegion, b0, x0init, fit, fitParams},
-  
-  trimmed = Take[data, {6, -6}];
-  baselineRegion = Select[trimmed, -0.1 <= #[[1]] <= 0.1 &];
-  b0 = Mean[baselineRegion[[All, 2]]];
-  x0init = trimmed[[Ordering[trimmed[[All, 2]], -1][[1]], 1]];
-
-  fit = NonlinearModelFit[
-    trimmed,
-    b + C*Exp[-((x - x0)/\[Sigma])^2],
-    {
-      {b, b0},
-      {C, Max[trimmed[[All, 2]]] - Min[trimmed[[All, 2]]]},
-      {\[Sigma], 0.025},
-      {x0, x0init}
-    },
-    x
-  ];
-  
-  fitParams = fit["BestFitParameters"];
-  
-<|
-    "Baseline" -> b /. fitParams,
-    "DeltaI" -> C /. fitParams,
-    "PeakCurrent" -> (b + C) /. fitParams,
-    "Fit" -> fit
-  |>
-];
+Remove["Global`analyzeVoltammogram"];
+Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\AnalyzeVoltammogram.m"];
+AppendTo[$ContextPath, "AnalyzeVoltammogram`"];
 
 
 

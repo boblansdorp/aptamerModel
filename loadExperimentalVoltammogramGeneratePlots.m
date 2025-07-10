@@ -3,6 +3,10 @@
 (* ::Input::Initialization:: *)
 BeginPackage["LoadVoltammogramData`"]
 loadAllVoltammograms::usage="loadAllVoltammograms[dir] loads and parses voltammogram files.";
+
+reshapeVoltammogramData::usage="reshapeVoltammogramData[data, currentKey, channel] reshapes the voltammogram data into an Association.";
+
+
 Begin["`Private`"]
 
 parseDataFile[file_]:=Module[{lines,headerLineIndex,startIndex,dataLines,stringValues,convertENotation,stringValuesFixed,numericValues,numCols,dataMatrix,voltages,currents,nChan,iDiff,iFwd,iRev,frequencyHz},(*Read lines*)lines=Import[file,"Lines"];
@@ -48,10 +52,14 @@ loadAllVoltammograms[dir_]:=
 reshapeVoltammogramData[data_,currentKey_:"IDiff",channel_:4]:=Association[Table[Module[{freq,volts,currents},freq=record["Frequency"];
 volts=record["Voltage"];
 currents=Lookup[record,currentKey][[All,channel]];
-freq->Transpose[{volts,10^6*currents}]],{record,data}]]
+freq->Transpose[{volts,10^6*currents}]],{record,data}]];
+
+
+
 End[]  (*`Private` context*)
 
-Print["Calling loadAllVoltammograms 253232"];
-
 EndPackage[]
+
+
+
 
