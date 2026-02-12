@@ -19,15 +19,31 @@ T=298; (* Temperature (K) *)
 (* ===================================== *)
 
 
+analyticalModelFit=<|"CDL"->71/200000000,"Rsol"->294,"Rct0"->17021.386901767124`,"Rct1"->6573.064966390861`,"kD"->0.017733158127065773`,"Capt"->2.2012032765291434`*^-7|> (* obtained using a simple 2R, 2C, Rct0, Rct1, kD model. Assumes data was baseline subtracted! *)
+
+
 (* System Impedence*)
+
 RSol = 238; (* 238 ohms Randle resistance [Ohms] *) (* 1.58k total with resistor *)
 RSol = 1580; (* 238 ohms Randle resistance [Ohms] *) (* 1.58k total with resistor *)
+RSol = 1620; (* from EIS fit with added resistor *)
 
-Cint = 3.535*10^-7; (* average of 337nF and 370nF  *) (* just assume capacitance not CPE *)
+RSol = analyticalModelFit["Rsol"];  (* 294 Ohm from Jenny's EIS fits *)
+
+Cint = 3.55*10^-7; (* average of 337nF and 370nF  *) (* just assume capacitance not CPE *)
+
+Cint = analyticalModelFit["CDL"];
+
+
 
 (* k0u=0.5; *) (*Standard rate constant for unbound state (cm/s)*) (* let's not do the tunneling calculation done in Langmuir.2017 May 09;33(18):4407\[Dash]4413... *)
 k0u=60; (* Standard rate constant for unbound state (1/s) *)
 k0b=160; (* Standard rate constant for bound state (1/s) *)
+k0u = 1/(2* analyticalModelFit["Rct0"] * analyticalModelFit["Capt"]);
+k0b = 1/(2* analyticalModelFit["Rct1"] * analyticalModelFit["Capt"]);
+
+
+
 (* note "Simulation-Based Approach to Determining Electron Transfer Rates Using Square-Wave Voltammetry" publication uses incorrect units for current which is confusing  
 - Eq 8,9 are current /cm^2 not actual current *)
 
@@ -42,6 +58,8 @@ A = 2* Pi * 0.075 * 3 / 100; (*Electrode electrochemical area (cm^2) for 3mm lon
 A=A*2; (* assume that electrochemical roughening increases A by 2 *)
 
 Lambda= 3*10^12/(6.02*10^23); (*Surface concentration (moles/cm^2)*) (* this parameter is fudged to match current amplitude observed *)
+Lambda = 4 R T analyticalModelFit["Capt"] / ( (nElec F )^2 A)
+
 (* roughly 10^12 molecules/cm^2 from Anal.Chem.2023,95,2229\[Minus]2237 *)
 
 
@@ -72,7 +90,12 @@ Current_500
 Current_600 
 *)
 
-freqValues = {10, 15, 20, 25, 30, 40, 70, 80, 100, 200, 300, 400, 500, 600};
+freqValues = {10, 15, 20, 25, 30, 40, 70, 80, 100, 200, 300, 400, 500, 600};  (* use multiple frequencies for frequency-dependence *)
+
+
+
+freqValues = {25, 200};  (* use just 2 for "calibration curves" (KDM vs freq) since we only need 2 frequencies for KDM*)
+
 
 
 (* Format frequency for label as a zero-padded integer *)
@@ -87,6 +110,7 @@ formatFreqLabel[freq_] := StringPadLeft[ToString[Round[freq]], 3, "0"];
 9.3E-03 M - rows 17-19
 *)
 (* concValues = {0,9.3*10^-3}; *) (* quick test only highest and lowest *)
+
 concValues = {
 	0,
 	1*10^-5,
@@ -94,8 +118,10 @@ concValues = {
 	1*10^-4,
 	3.2*10^-4,
 	9.3*10^-3
-};
-
+}; (* use multiple concentrations for a titration "calibration curve" *)
+ 
+concValues = {0}; (* only absence of target data *)
+concValues = {0, 9.3*10^-3}; (* use 2 concentrations for frequency dependence *)
 
 
 (* ===================================== *)
@@ -118,6 +144,8 @@ VPeakAmplitude = 0.025; (* Volts total = 25mV *)
 (* Define square wave function for voltage *)
 (* Define a smooth square wave approximation using tanh *)
 epsilonWidth = 0.0005;
+
+
 SmoothSquareWave[t_,freq_,width_]:=Tanh[Sin[2 Pi freq t]/width];  
 (* SmoothSquareWave[t_,freq_,width_]:=SquareWave[ freq t]; *)
 
@@ -136,6 +164,7 @@ ClampExp[x_] := Exp[Clip[x, {-10, 10}]] (* clamp the eponential so we don't get 
 (* the rate that bound and unbound states interchange is related to the dissociation constant *)
 Kd = 1*10^-6;           (* Dissociation constant in M - value can vary depending on aptamer!! *) 
 Kd = 2.951*10^-3;           (* Dissociation constant in M - value can vary depending on aptamer!! 2.951mM from experimental fit *)
+Kd = analyticalModelFit["kD"] ;
 
 kon = 3*10^5;          (* Association rate in M^-1 s^-1 - a typical value is diffusion limited to around this value*)
 (* C = ...; *)            (* Constant analyte concentration in M *)
@@ -183,6 +212,7 @@ iTotalExpr[t]:=iCap[t]+iAptamerExpr[t];
 circuitODE = VApplied[t]-VAptamerGold[t]==RSol*iTotalExpr[t];
 
 VCap0 = 0; (* assume initial charge zero *)
+VCap0 = makeSquareWave[x][0]; (* assume initial double layer is fully charged (zero current through solutino resistance) *)
 
 (*Initial voltage condition*)
 initialRC=VAptamerGold[0]==VCap0;
@@ -229,6 +259,11 @@ makeSquareWave[freq_] :=
 (* Solve for each condition with progress monitor *)
 freqSolutionsAssoc = Association[];
 
+
+
+
+
+(* 
 Monitor[
  Do[
   Module[{label, squareWaveInput, fValue, freqValue, solution},
@@ -262,7 +297,51 @@ Monitor[
  ],
  Row[{"Solving ", Dynamic[freqScanConditions[[i, "label"]]], 
    ProgressIndicator[i, {1, Length[freqScanConditions]}]}]
-];
+]; *)
+{totalTime, timingResult} =
+  AbsoluteTiming[
+    Monitor[
+      Do[
+        Module[{label, squareWaveInput, fValue, freqValue, concValue, solution},
+          label          = freqScanConditions[[i, "label"]];
+          squareWaveInput = freqScanConditions[[i, "squareWave"]];
+          freqValue      = freqScanConditions[[i, "freq"]];
+          concValue      = freqScanConditions[[i, "Conc"]];
+
+          solution = NDSolve[
+            {
+              aptamerBoundODEs   /. Conc -> concValue,
+              aptamerUnboundODEs /. Conc -> concValue,
+              circuitODE,
+              initialAptamer /. Conc -> concValue,
+              initialRC,
+              VApplied[t] == squareWaveInput[t]
+            },
+            {fOxBound, fOxUnbound, VAptamerGold},
+            {t, 0, Tmax[freqValue]},
+            (* Method -> {"IDA"}, *)
+            MaxSteps -> Infinity,
+            AccuracyGoal -> 6,
+            PrecisionGoal -> 6,
+            Compiled -> True
+          ];
+
+          freqSolutionsAssoc[label] = solution;
+        ],
+        {i, Length[freqScanConditions]}
+      ],
+      Row[{
+        "Solving ", Dynamic[freqScanConditions[[i, "label"]]],
+        ProgressIndicator[i, {1, Length[freqScanConditions]}]
+      }]
+    ]
+  ];
+
+Print["Total solve time = ", totalTime, " s"];
+
+
+
+
 
 
 
@@ -342,12 +421,6 @@ Export[dynamicFilePath, allResultsPackage]
 
 
 
-(* ::InheritFromParent:: *)
-(**)
-
-
-(* ::InheritFromParent:: *)
-(**)
 
 
 Keys[freqSolutionsAssoc];
@@ -362,13 +435,13 @@ iSWV[label_, squareWave_][t_] := (squareWave[t] - VAptamerSol[label][t]) / RSol;
 
 
 
-
+freqScanConditions
 
 
 (* ===================================== *)
 (* ======= Sanity Check Raw current ====== *)
 (* ===================================== *)
-label = "Freq_200_Conc_0e"; (* a representative data trace *)
+label = "Freq_025_Conc_0e"; (* a representative data trace *)
 entry = SelectFirst[freqScanConditions, #["label"] == label &];
 freq = entry["freq"];
 squareWave = entry["squareWave"];
@@ -381,7 +454,7 @@ Plot[
 	AxesLabel -> {"t", "f_ox"},
 	PlotRange -> All
 ]
-Plot[{10^3 squareWave[t], 10^3 VAptamerSol[label][t], 10^6*iSWV[label, squareWave][t]}, {t, 0.35 TmaxVal, 0.45 TmaxVal}, PlotLabel -> "Voltages and current", AxesLabel -> {"t", "I(t)"}, 
+Plot[{10^3 squareWave[t], 10^3 VAptamerSol[label][t], 10^6*iSWV[label, squareWave][t]}, {t, 0.45 TmaxVal, 0.55 TmaxVal}, PlotLabel -> "Voltages and current", AxesLabel -> {"t", "I(t)"}, 
 	PlotRange -> {Automatic,{-10,10}}, PlotLegends -> {"squareWave (mV)", "VAptamer (mV)", "iSWV (\[Micro]A)"}
 ]
 
@@ -445,6 +518,8 @@ computeDiffCurve[label_] := Module[
     "diff" -> diff
   |>
 ];
+
+
 curve = computeDiffCurve[label];
 
 ListPlot[
