@@ -31,7 +31,7 @@ x0init=trimmed[[Ordering[trimmed[[All,2]],-1][[1]],1]];
 (*Fit a Gaussian plus baseline*)
 fit=NonlinearModelFit[trimmed,b+C*Exp[-((x-x0)/\[Sigma])^2],{{b,b0},{C,Max[trimmed[[All,2]]]-Min[trimmed[[All,2]]]},{\[Sigma],0.025},{x0,x0init}},x];
 fitParams=fit["BestFitParameters"];
-Association["Baseline"->(b/. fitParams),"DeltaI"->(C/. fitParams),"PeakCurrent"->((b+C)/. fitParams),"Fit"->fit]];
+Association["Baseline"->(b/. fitParams),"DeltaI"->(C/. fitParams),"PeakCurrent"->((b+C)/. fitParams),"Fit"->fit, "Mean"->b0]];
 
 End[]
 Print["\:2705 AnalyzeVoltammogram Package loaded."];

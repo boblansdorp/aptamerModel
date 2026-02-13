@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Input:: *)
-(* ClearAll["Global`*"]*)
+(*ClearAll["Global`*"] *)
 
 
 (* ::Input:: *)
@@ -9,13 +9,7 @@
 (*resultsDir=NotebookDirectory[]<>"results\\";*)
 (*latestFile=Last[SortBy[FileNames["aptamer_results_*.mx",resultsDir],FileDate]];*)
 (**)
-(**)
-(*(* *)
-(**)
-(*latestFile=FileNameJoin[{resultsDir,"aptamer_results_matchToExperiment_20250620101447_lowR.mx"}]*)
-(**)
-(**)*)
-(**)
+(*(* latestFile=FileNameJoin[{resultsDir,"aptamer_results_matchToExperiment_20251121183420.mx"}] *)*)
 (*data=Import[latestFile];*)
 (**)
 (*solutions=data["Solutions"];*)
@@ -59,7 +53,6 @@
 
 
 (* ::Input:: *)
-(**)
 (*(* ===================================== *)*)
 (*(* === Extracting voltage and current ====== *)*)
 (*(* ===================================== *)*)
@@ -77,8 +70,11 @@
 (*sampleSol=solutions[sampleKey];*)
 (*freqScanConditionsLocal=metadata["SweepConditions"];*)
 (*labelList=Keys[freqSolutionsAssoc];  (*solutions=data["Solutions"]*)*)
-(*middleIndex=Round[Length[labelList]/2];*)
+(*middleIndex=Round[Length[labelList]/2]*)
+(**)
 (*label=labelList[[middleIndex]];*)
+(*label=labelList[[Length[labelList]]]*)
+(**)
 (*(* label = "Freq_248_Conc_1.e-5"; *)(* a representative data trace *)*)
 (*entry = SelectFirst[freqScanConditions, #["label"] == label &];*)
 (*freq = entry["freq"];*)
@@ -96,25 +92,59 @@
 (*]*)
 
 
+Plot[{10^3 squareWave[t], 10^3 VAptamerSol[label][t]}, {t, 0.0 TmaxVal, 0.05 TmaxVal}, PlotLabel -> "Voltages and current", AxesLabel -> {"t", "I(t)"}, 
+	PlotRange -> {Automatic,Automatic}, PlotLegends -> {"squareWave (mV)", "VAptamer (mV)", "iSWV (\[Micro]A)"}
+]
+
+
+
+itNonFaradaicTheory = (E^(-(t/(CDL Rsol))) V0)/Rsol
+itNonFaradaicTheory = itNonFaradaicTheory/.{t->(t-0.0/600)}
+paramstemp={V0->0.025,(*25 mV amplitude*)CDL->255*10^-9,Rsol->1500,Capt->850*10^-9,Rct->100000};
+
+Plot[{10^6 iSWVFourier[t,V0,f,mMax]/. paramstemp, 10^6 itNonFaradaicTheory/.{CDL->394*10^-9, Rsol->1550, V0->0.025, fSWV->600}, 10^6*iSWV[label, squareWave][t]}, {t, 0.0 TmaxVal, 0.025 TmaxVal}, PlotLabel -> "Voltages and current", AxesLabel -> {"t", "I(t)"}, 
+	PlotRange -> {Automatic,{-10,20}}, PlotLegends -> {"squareWave (mV)", "VAptamer (mV)", "iSWV (\[Micro]A)"}
+]
+
+
+infiniteNonFaradaic/.{CDL->394*10^-9, Rsol->1550, V0->0.025, fSWV->600}
+
+
+
+
+
 (* ::Input:: *)
 (*(* =====================================*)*)
 (*(* ====Sanity Check Difference Current===*)*)
 (*(* =====================================*)*)
 (**)
-(*computeDiffCurve[label_]:=Module[{entry,freq,squareWave,TmaxVal,upSwitchTimes,downSwitchTimes,fwd,rev,minN,diff,offsetBeforeSwitch,sampleAvg,iFunc},entry=SelectFirst[freqScanConditions,#["label"]==label&];*)
-(*freq=entry["freq"];*)
-(*squareWave=entry["squareWave"];*)
-(*TmaxVal=Tmax[freq];*)
-(*offsetBeforeSwitch=1/(100 freq);*)
-(*iFunc=iSWV[label,squareWave];(*freeze label and squareWave*)(*Switching times*)upSwitchTimes=Table[n/freq,{n,1,Floor[TmaxVal*freq]}];*)
-(*downSwitchTimes=Table[(n+0.5)/freq,{n,0,Floor[TmaxVal*freq-0.5]}];*)
-(*(*Averaging function over final portion of half-cycle*)sampleAvg[nextSwitchTime_]:=Module[{t1,t2,ts},t2=nextSwitchTime-offsetBeforeSwitch;*)
-(*t1=t2-samplingWidth/(2*freq);(*25% of full cycle*)ts=Subdivide[t1,t2,99];(*100 points*)Mean[iFunc/@ts]];*)
-(*(*Compute forward and reverse SWV with averaging*)fwd=Table[{-squareWave[downSwitchTimes[[n]]],10^6*sampleAvg[downSwitchTimes[[n]]]},{n,Length[downSwitchTimes]}];*)
-(*rev=Table[{-squareWave[upSwitchTimes[[n]]],10^6*sampleAvg[upSwitchTimes[[n]]]},{n,Length[upSwitchTimes]}];*)
-(*minN=Min[Length[fwd],Length[rev]];*)
-(*diff=Table[{fwd[[n,1]],fwd[[n,2]]-rev[[n,2]]},{n,minN}];*)
-(*<|"fwd"->fwd,"rev"->rev,"diff"->diff|>];*)
+(*computeDiffCurve[label_]:=*)
+(*Module[*)
+(*{entry,freq,squareWave,TmaxVal,upSwitchTimes,downSwitchTimes,fwd,rev,minN,diff,offsetBeforeSwitch,sampleAvg,iFunc},*)
+(*entry=SelectFirst[freqScanConditions,#["label"]==label&];*)
+(*	freq=entry["freq"];*)
+(*	squareWave=entry["squareWave"];*)
+(*	TmaxVal=Tmax[freq];*)
+(*	offsetBeforeSwitch=1/(100 freq);*)
+(*	iFunc=iSWV[label,squareWave];(*freeze label and squareWave*)(*Switching times*)*)
+(*upSwitchTimes=Table[n/freq,{n,1,Floor[TmaxVal*freq]}];*)
+(*	downSwitchTimes=Table[(n+0.5)/freq,{n,0,Floor[TmaxVal*freq-0.5]}];*)
+(*	(*Averaging function over final portion of half-cycle*)*)
+(*sampleAvg[nextSwitchTime_]:=*)
+(*Module[*)
+(*{t1,t2,ts},*)
+(*t2=nextSwitchTime-offsetBeforeSwitch;*)
+(*t1=t2-samplingWidth/(2*freq)+ offsetBeforeSwitch;(* CHI potentiostat uses 50 % avegaing over each half cycle*)*)
+(*ts=Subdivide[t1,t2,99];(*100 points*) (* Print["freq = " , freq, "   t1 = ", t1, "  t2 = ", t2]; *)*)
+(*Mean[iFunc/@ts]*)
+(*];*)
+(*(*Compute forward and reverse SWV with averaging*)*)
+(*	fwd=Table[{-squareWave[downSwitchTimes[[n]]],10^6*sampleAvg[downSwitchTimes[[n]]]},{n,Length[downSwitchTimes]}];*)
+(*	rev=Table[{-squareWave[upSwitchTimes[[n]]],10^6*sampleAvg[upSwitchTimes[[n]]]},{n,Length[upSwitchTimes]}];*)
+(*	minN=Min[Length[fwd],Length[rev]];*)
+(*	diff=Table[{fwd[[n,1]],fwd[[n,2]]-rev[[n,2]]},{n,minN}];*)
+(*	<|"fwd"->fwd,"rev"->rev,"diff"->diff|>*)
+(*];*)
 (*exampleCurve=computeDiffCurve[label];*)
 (**)
 (*ListPlot[{exampleCurve["fwd"],exampleCurve["rev"],exampleCurve["diff"]},Joined->True,PlotLegends->{"Forward","Reverse","Diff"},AxesLabel->{"Potential (V)","Current (\[Micro]A)"},PlotLabel->"SWV Components",PlotRange->All,ImageSize->Large]*)
@@ -149,6 +179,41 @@
 (*  #["conc"] &,*)
 (*  Function[curves, SortBy[curves, #["freq"] &]]*)
 (*];*)
+
+
+(* === Generate plots === *)
+plotsByConc = KeyValueMap[
+  Function[{conc, curves},
+    Module[
+      {freqs, colors, legendLabels, lines},
+      
+      freqs = curves[[All, "freq"]];
+      colors = ColorData["BlueGreenYellow"] /@ Rescale[Reverse@Range[Length[freqs]]];
+      legendLabels = Placed[
+        SwatchLegend[colors, Map["f = " <> ToString[#] <> " Hz" &, freqs]],
+        Right
+      ];
+
+      lines = MapThread[
+        ListLinePlot[#1["fwd"], PlotStyle -> {#2, Thick}, Joined -> True] &,
+        {curves, colors}
+      ];
+      
+      Show[
+        lines,
+        PlotLabel -> Row[{"SWV forward I vs Potential at Conc = ", conc, " M"}],
+        AxesLabel -> {"Potential (V)", "\[CapitalDelta]I (nA)"},
+        Frame -> True,
+        PlotLegends -> legendLabels,
+        ImageSize -> Large,
+        PlotRange -> {Automatic, {0, 20}}
+      ]
+    ]
+  ],
+  curvesByConc
+]
+
+
 
 
 (* ::Input:: *)
@@ -297,8 +362,8 @@ ListLogLinearPlot[
 lowestConc = Min[Keys[peakDeltaIBaselineSubtractedByConc]];
 highestConc = Max[Keys[peakDeltaIBaselineSubtractedByConc]];
 
-lowData = AssociationThread @@ Transpose[peakDeltaIBaselineSubtractedByConc[lowestConc]];
-highData = AssociationThread @@ Transpose[peakDeltaIBaselineSubtractedByConc[highestConc]];
+lowData = AssociationThread @@ Transpose[peakDeltaIBaselineSubtractedByConc[lowestConc]]
+highData = AssociationThread @@ Transpose[peakDeltaIBaselineSubtractedByConc[highestConc]]
 
 (* === Compute normalized current (iNorm = I_high / I_low) at common frequencies === *)
 commonFreqs = Intersection[Keys[lowData], Keys[highData]];
@@ -306,7 +371,7 @@ commonFreqs = Intersection[Keys[lowData], Keys[highData]];
 iNormData = Table[
    {f, highData[f]/lowData[f]-1},
    {f, commonFreqs}
-];
+]
 
 (* === Plot iNorm vs Frequency === *)
 ListLogLinearPlot[iNormData,
@@ -443,7 +508,7 @@ voltammogramText = StringJoin @ KeyValueMap[
             StringRiffle[
               Map[
                 ToString[
-                  NumberForm[#, {6, 3}, ExponentFunction -> (Null &)]
+                  NumberForm[#, {6, 6}, ExponentFunction -> (Null &)]
                 ] &,
                 row
               ],
@@ -483,7 +548,7 @@ formatTableByConc = Function[{dataByConc, label},
             Function[freq,
               With[{row = SelectFirst[dataByConc[conc], #[[1]] == freq &]},
                 If[row === Missing["NotFound"], "NA",
-                  ToString[NumberForm[row[[2]], {6, 3}, ExponentFunction -> (Null &)]]
+                  ToString[NumberForm[row[[2]], {6, 6}, ExponentFunction -> (Null &)]]
                 ]
               ]
             ],
@@ -505,7 +570,7 @@ deltaIText = formatTableByConc[peakDeltaIBaselineSubtractedByConc, "Peak \[Capit
 
 
 
-lovricDataByConc
+lovricDataByConc;
 
 
 (* Get all unique frequencies in sorted order *)
@@ -529,7 +594,7 @@ lovricRows = StringRiffle[
         StringRiffle[
           Map[
             Function[f,
-              ToString[NumberForm[Lookup[assoc, f, "NaN"], {6, 4}]]
+              ToString[NumberForm[Lookup[assoc, f, "NaN"], {6, 6}]]
             ],
             allFreqs
           ],
@@ -561,7 +626,7 @@ iNormHeader = StringJoin[
 iNormRows = StringRiffle[
   Map[
     Function[pair,
-      ToString[pair[[1]]] <> "\t" <> ToString[NumberForm[pair[[2]], {6, 5}]]
+      ToString[pair[[1]]] <> "\t" <> ToString[NumberForm[pair[[2]], {6, 6}]]
     ],
     iNormData
   ],
@@ -583,7 +648,7 @@ kdmTableText = StringJoin[
   StringRiffle[
     Map[
       Function[pair,
-        ToString[pair[[1]]] <> "\t" <> ToString[NumberForm[pair[[2]], {6, 5}]]
+        ToString[pair[[1]]] <> "\t" <> ToString[NumberForm[pair[[2]], {6, 6}]]
       ],
       kdmPoints
     ],
