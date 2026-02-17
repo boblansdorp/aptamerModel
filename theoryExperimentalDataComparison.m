@@ -1306,191 +1306,234 @@ Export[
 
 
 (* ============================================================ *)
-(* THEORY-ONLY RAW EXPORT (NO INTERPOLATION) + PARAMETER HEADER  *)
-(* Includes:                                                     *)
-(*  - Baseline non-faradaic: TIME-DOMAIN + ANALYTICAL            *)
-(*  - Faradaic peak \[CapitalDelta]I: TIME-DOMAIN + ANALYTICAL                 *)
-(*  - Analytical parameter blocks in header                      *)
-(* Missing values written as NaN.                                *)
+(* THEORY-ONLY RAW EXPORT + HEADER FROM FIRST EXP TXT PREAMBLE    *)
+(* Reads first .txt in voltammogramPath and includes its preamble *)
 (* ============================================================ *)
 
-ClearAll[
-  cleanPairs, toAssoc, unionFreqs, buildUnionTable,
-  numStr, paramLine, paramBlockLines,
-  tableToLines,
-  (* tables + columns *)
-  colBaselineTD, colBaselineANA, colFarTD, colFarANA,
-  tableBaselineTD, tableBaselineANA, tableFarTD, tableFarANA,
-  (* output *)
-  baseDir, fileOut, headerLines, dataLines
-];
-
-(* ---------- helpers ---------- *)
-
-cleanPairs[data_] :=
-  Select[data, VectorQ[#, NumericQ] && Length[#] == 2 && #[[1]] > 0 &];
-
-toAssoc[data_] := Module[{pairs = cleanPairs[data], groups},
-  groups = GatherBy[pairs, First];
-  Association @ ((First@First[#] -> Mean[#[[All, 2]]]) & /@ groups)
-];
-
-unionFreqs[assocs_List] :=
-  Sort @ DeleteDuplicates @ Flatten[Keys /@ assocs];
-
-buildUnionTable[freqs_List, assocs_List] :=
-  Table[
-    Join[{f}, Lookup[assocs, f, Missing["NoData"]] /. Missing[__] -> Missing["NoData"]],
-    {f, freqs}
-  ];
-
-numStr[v_] := Which[
-  MissingQ[v] || v === Indeterminate || v === ComplexInfinity || v === Infinity || v === -Infinity,
-    "NaN",
-  True,
-    ToString[FortranForm @ N @ v]
-];
-
-tableToLines[header_String, colNames_List, table_List] :=
-  Join[
-    {header},
-    {StringRiffle[colNames, "\t"]},
-    (StringRiffle[(numStr /@ #), "\t"] & /@ table),
-    {""}
-  ];
-
-paramLine[key_, val_] := "# " <> ToString[key] <> " = " <> numStr[val];
-
-paramBlockLines[title_, assoc_Association] := Module[{keys},
-  keys = Keys[assoc];
-  Join[
-    {"# ------------------------------------------------------------",
-     "# " <> title},
-    paramLine[#, assoc[#]] & /@ keys,
-    {"# ------------------------------------------------------------", ""}
-  ]
-];
-
-(* ============================================================ *)
-(* SECTION A: BASELINE (Non-faradaic) TIME-DOMAIN theory          *)
-(* ============================================================ *)
-
-colBaselineTD = {
-  "Frequency_Hz",
-  "Baseline_TimeDomain_LowR_uA",
-  "Baseline_TimeDomain_HighR_uA"
-};
-
-tdBaselineLowR  = theoryCurve[0, parsedBaselineDataLowResistor];
-tdBaselineHighR = theoryCurve[0, parsedBaselineDataHighResistor];
-
-assocsBaselineTD = toAssoc /@ {tdBaselineLowR, tdBaselineHighR};
-freqsBaselineTD  = unionFreqs[assocsBaselineTD];
-tableBaselineTD  = buildUnionTable[freqsBaselineTD, assocsBaselineTD];
-
-(* ============================================================ *)
-(* SECTION B: BASELINE (Non-faradaic) ANALYTICAL theory           *)
-(* ============================================================ *)
-
-colBaselineANA = {
-  "Frequency_Hz",
-  "Baseline_Analytic_LowR_uA",
-  "Baseline_Analytic_HighR_uA"
-};
-
-(* analytic baseline curves (already computed earlier in your notebook): *)
-(* anaBaselineLowR, anaBaselineHighR *)
-
-assocsBaselineANA = toAssoc /@ {anaBaselineLowR, anaBaselineHighR};
-freqsBaselineANA  = unionFreqs[assocsBaselineANA];
-tableBaselineANA  = buildUnionTable[freqsBaselineANA, assocsBaselineANA];
-
-(* ============================================================ *)
-(* SECTION C: FARADAIC (peak \[CapitalDelta]I) TIME-DOMAIN theory               *)
-(* ============================================================ *)
-
-colFarTD = {
-  "Frequency_Hz",
-  "FaradaicLowConc_TimeDomain_LowR_uA",
-  "FaradaicLowConc_TimeDomain_HighR_uA",
-  "FaradaicHighConc_TimeDomain_LowR_uA",
-  "FaradaicHighConc_TimeDomain_HighR_uA"
-};
-
-tdFar0LowR      = simLowCurves[[1]];
-tdFar0HighR     = simLowCurves[[2]];
-tdFarHighLowR   = simHighCurves[[1]];
-tdFarHighHighR  = simHighCurves[[2]];
-
-assocsFarTD = toAssoc /@ {tdFar0LowR, tdFar0HighR, tdFarHighLowR, tdFarHighHighR};
-freqsFarTD  = unionFreqs[assocsFarTD];
-tableFarTD  = buildUnionTable[freqsFarTD, assocsFarTD];
-
-(* ============================================================ *)
-(* SECTION D: FARADAIC (peak \[CapitalDelta]I) ANALYTICAL theory                *)
-(* (4 columns: low/high conc \[Times] low/high R)                        *)
-(* ============================================================ *)
-
-colFarANA = {
-  "Frequency_Hz",
-  "FaradaicLowConc_Analytic_LowR_uA",
-  "FaradaicLowConc_Analytic_HighR_uA",
-  "FaradaicHighConc_Analytic_LowR_uA",
-  "FaradaicHighConc_Analytic_HighR_uA"
-};
-
-(* analytic faradaic curves (already computed earlier in your notebook): *)
-(* analyticLowNoR, analyticLowAddR, analyticHighNoR, analyticHighAddR *)
-
-anaFar0LowR      = analyticLowNoR;
-anaFar0HighR     = analyticLowAddR;
-anaFarHighLowR   = analyticHighNoR;
-anaFarHighHighR  = analyticHighAddR;
-
-assocsFarANA = toAssoc /@ {anaFar0LowR, anaFar0HighR, anaFarHighLowR, anaFarHighHighR};
-freqsFarANA  = unionFreqs[assocsFarANA];
-tableFarANA  = buildUnionTable[freqsFarANA, assocsFarANA];
-
-(* ============================================================ *)
-(* HEADER: Analytical parameter blocks                            *)
-(* ============================================================ *)
-
-paramsBaselineAnalyticLowR  = KeyTake[bestFitParameters,      {"CDL", "Rsol", "V0"}];
-paramsBaselineAnalyticHighR = KeyTake[bestFitParametersHighR, {"CDL", "Rsol", "V0"}];
-
-paramsFaradaicAnalytic = <|
-  "Analytical FARADAIC (Low conc, low R)"   -> paramsLowNoR,
-  "Analytical FARADAIC (Low conc, high R)"  -> paramsLowAddR,
-  "Analytical FARADAIC (High conc, low R)"  -> paramsHighNoR,
-  "Analytical FARADAIC (High conc, high R)" -> paramsHighAddR
-|>;
-
-headerLines = Join[
+Module[
   {
-    "# export_theory_only_raw.txt",
-    "# Units: Frequency in Hz, currents in microA (uA)",
-    ""
+    (* ---- USER SETTINGS ---- *)
+    nPreambleLines = 8,  (* how many lines from the experimental txt to include *)
+    filePattern = "*.txt",
+
+    (* ---- preamble/header ---- *)
+    firstTxt, preambleLines, preambleHeaderLines,
+
+    (* helpers *)
+    cleanPairs, toAssoc, unionFreqs, buildUnionTable,
+    numStr, paramLine, paramBlockLines, tableToLines,
+    log10, getSeries,
+
+    (* baseline series *)
+    tdBaselineLowR, tdBaselineHighR,
+    chiNFmicroA, freqGridNF, anaBaselineLowR, anaBaselineHighR,
+
+    (* faradaic series *)
+    tdFar0LowR, tdFar0HighR, tdFarHighLowR, tdFarHighHighR,
+    anaFar0LowR, anaFar0HighR, anaFarHighLowR, anaFarHighHighR,
+
+    (* columns + tables *)
+    colBaselineTD, colBaselineANA, colFarTD, colFarANA,
+    tableBaselineTD, tableBaselineANA, tableFarTD, tableFarANA,
+
+    (* header + export *)
+    headerWithParams, dataLines,
+    baseDir, fileOut,
+
+    (* parameter blocks *)
+    paramsAnalyticLowR, paramsAnalyticHighR,
+    farParamAssocPairs,
+
+    (* analytic baseline grid control *)
+    nAnaLocal
   },
-  paramBlockLines["Analytical NON-FARADAIC baseline parameters (low R)",  paramsBaselineAnalyticLowR],
-  paramBlockLines["Analytical NON-FARADAIC baseline parameters (high R)", paramsBaselineAnalyticHighR],
-  Flatten @ (paramBlockLines[##] & @@@ Normal[paramsFaradaicAnalytic])
-];
 
-(* ============================================================ *)
-(* DATA LINES + EXPORT                                            *)
-(* ============================================================ *)
+  (* ---------- pull experimental preamble from first txt ---------- *)
+  firstTxt = Quiet @ Check[
+     First @ Sort @ FileNames[filePattern, voltammogramPath],
+     Missing["NoTxtFound"]
+  ];
 
-dataLines = Join[
-  tableToLines["## Non-faradaic baseline (TIME-DOMAIN theory) [microA]", colBaselineTD,  tableBaselineTD],
-  tableToLines["## Non-faradaic baseline (ANALYTICAL theory) [microA]",  colBaselineANA, tableBaselineANA],
-  tableToLines["## Faradaic peak \[CapitalDelta]I (TIME-DOMAIN theory) [microA]",      colFarTD,       tableFarTD],
-  tableToLines["## Faradaic peak \[CapitalDelta]I (ANALYTICAL theory) [microA]",       colFarANA,      tableFarANA]
-];
+  preambleLines =
+    If[firstTxt === Missing["NoTxtFound"],
+      {"(No experimental .txt files found in voltammogramPath)"},
+      Quiet @ Check[
+        Take[Import[firstTxt, "Lines"], UpTo[nPreambleLines]],
+        {"(Failed to read experimental preamble from: " <> ToString[firstTxt] <> ")"}
+      ]
+    ];
 
-baseDir = Quiet @ Check[NotebookDirectory[], $TemporaryDirectory];
-fileOut = FileNameJoin[{baseDir, "export_theory_only_raw.txt"}];
+  preambleHeaderLines = Join[
+    {
+      "# --- Experimental file preamble (first file in voltammogramPath) ---",
+      "# FileRead = " <> If[StringQ[firstTxt], firstTxt, "None"]
+    },
+    ("# " <> # & /@ preambleLines),
+    {
+      "# ------------------------------------------------------------",
+      ""
+    }
+  ];
 
-Export[fileOut, StringRiffle[Join[headerLines, dataLines], "\n"], "Text"];
+  (* ---------- helpers ---------- *)
+  cleanPairs[data_] := Select[data, VectorQ[#, NumericQ] && Length[#] == 2 && #[[1]] > 0 &];
 
-fileOut
+  toAssoc[data_] := Module[{pairs = cleanPairs[data], groups},
+    groups = GatherBy[pairs, First];
+    Association @ ((First@First[#] -> Mean[#[[All, 2]]]) & /@ groups)
+  ];
+
+  unionFreqs[assocs_List] := Sort @ DeleteDuplicates @ Flatten[Keys /@ assocs];
+
+  buildUnionTable[freqs_List, assocs_List] :=
+    Table[
+      Join[{f}, Lookup[assocs, f, Missing["NoData"]] /. Missing[__] -> Missing["NoData"]],
+      {f, freqs}
+    ];
+
+  numStr[v_] := Which[
+    MissingQ[v] || v === Indeterminate || v === ComplexInfinity || v === Infinity || v === -Infinity,
+      "NaN",
+    True,
+      ToString[FortranForm @ N @ v]
+  ];
+
+  tableToLines[header_String, colNames_List, table_List] :=
+    Join[
+      {header},
+      {StringRiffle[colNames, "\t"]},
+      (StringRiffle[(numStr /@ #), "\t"] & /@ table),
+      {""}
+    ];
+
+  paramLine[key_, val_] := "# " <> ToString[key] <> " = " <> numStr[val];
+
+  paramBlockLines[title_, assoc_Association] := Module[{keys = Keys[assoc]},
+    Join[
+      {"# ------------------------------------------------------------", "# " <> title},
+      (paramLine[#, assoc[#]] & /@ keys),
+      {"# ------------------------------------------------------------", ""}
+    ]
+  ];
+
+  log10[x_] := Log[10, x];
+  getSeries[s_] := If[ListQ[s], s, {}];
+
+  (* ============================================================ *)
+  (* Baseline TIME-DOMAIN                                          *)
+  (* ============================================================ *)
+  colBaselineTD = {"Frequency_Hz","Baseline_TimeDomain_LowR_uA","Baseline_TimeDomain_HighR_uA"};
+
+  tdBaselineLowR  = theoryCurve[0, parsedBaselineDataLowResistor];
+  tdBaselineHighR = theoryCurve[0, parsedBaselineDataHighResistor];
+
+  tableBaselineTD = buildUnionTable[
+    unionFreqs[toAssoc /@ {tdBaselineLowR, tdBaselineHighR}],
+    toAssoc /@ {tdBaselineLowR, tdBaselineHighR}
+  ];
+
+  (* ============================================================ *)
+  (* Baseline ANALYTICAL                                           *)
+  (* ============================================================ *)
+  colBaselineANA = {"Frequency_Hz","Baseline_Analytic_LowR_uA","Baseline_Analytic_HighR_uA"};
+
+  chiNFmicroA[f_?NumericQ, params_Association] :=
+    Quiet @ Chop @ N[
+      10^6*(CHISignalDiffNonFaradaic /. {
+          fSWV -> f, CDL -> params["CDL"], Rsol -> params["Rsol"], V0 -> params["V0"]
+        })
+    ];
+
+  nAnaLocal = If[ValueQ[nAnaBaseline] && IntegerQ[nAnaBaseline] && nAnaBaseline > 10, nAnaBaseline, 300];
+
+  freqGridNF = 10^Subdivide[
+    log10[plotRanges[[1, 1]]],
+    log10[plotRanges[[1, 2]]],
+    nAnaLocal
+  ];
+
+  anaBaselineLowR  = Select[{#, chiNFmicroA[#, bestFitParameters]}      & /@ freqGridNF, VectorQ[#, NumericQ] &];
+  anaBaselineHighR = Select[{#, chiNFmicroA[#, bestFitParametersHighR]} & /@ freqGridNF, VectorQ[#, NumericQ] &];
+
+  tableBaselineANA = buildUnionTable[
+    unionFreqs[toAssoc /@ {anaBaselineLowR, anaBaselineHighR}],
+    toAssoc /@ {anaBaselineLowR, anaBaselineHighR}
+  ];
+
+  (* ============================================================ *)
+  (* Faradaic TIME-DOMAIN                                          *)
+  (* ============================================================ *)
+  colFarTD = {
+    "Frequency_Hz",
+    "FaradaicLowConc_TimeDomain_LowR_uA","FaradaicLowConc_TimeDomain_HighR_uA",
+    "FaradaicHighConc_TimeDomain_LowR_uA","FaradaicHighConc_TimeDomain_HighR_uA"
+  };
+
+  tdFar0LowR      = simLowCurves[[1]];
+  tdFar0HighR     = simLowCurves[[2]];
+  tdFarHighLowR   = simHighCurves[[1]];
+  tdFarHighHighR  = simHighCurves[[2]];
+
+  tableFarTD = buildUnionTable[
+    unionFreqs[toAssoc /@ {tdFar0LowR, tdFar0HighR, tdFarHighLowR, tdFarHighHighR}],
+    toAssoc /@ {tdFar0LowR, tdFar0HighR, tdFarHighLowR, tdFarHighHighR}
+  ];
+
+  (* ============================================================ *)
+  (* Faradaic ANALYTICAL                                           *)
+  (* ============================================================ *)
+  colFarANA = {
+    "Frequency_Hz",
+    "FaradaicLowConc_Analytic_LowR_uA","FaradaicLowConc_Analytic_HighR_uA",
+    "FaradaicHighConc_Analytic_LowR_uA","FaradaicHighConc_Analytic_HighR_uA"
+  };
+
+  anaFar0LowR      = getSeries[analyticLowNoR];
+  anaFar0HighR     = getSeries[analyticLowAddR];
+  anaFarHighLowR   = getSeries[analyticHighNoR];
+  anaFarHighHighR  = getSeries[analyticHighAddR];
+
+  tableFarANA = buildUnionTable[
+    unionFreqs[toAssoc /@ {anaFar0LowR, anaFar0HighR, anaFarHighLowR, anaFarHighHighR}],
+    toAssoc /@ {anaFar0LowR, anaFar0HighR, anaFarHighLowR, anaFarHighHighR}
+  ];
+
+  (* ============================================================ *)
+  (* Parameter blocks                                               *)
+  (* ============================================================ *)
+  paramsAnalyticLowR  = bestFitParameters;
+  paramsAnalyticHighR = bestFitParametersHighR;
+
+  farParamAssocPairs = {
+    {"Analytical FARADAIC (Low conc, low R)",   paramsLowNoR},
+    {"Analytical FARADAIC (Low conc, high R)",  paramsLowAddR},
+    {"Analytical FARADAIC (High conc, low R)",  paramsHighNoR},
+    {"Analytical FARADAIC (High conc, high R)", paramsHighAddR}
+  };
+
+  headerWithParams = Join[
+    preambleHeaderLines,
+    paramBlockLines["Analytical theory parameters (no added R)", paramsAnalyticLowR],
+    paramBlockLines["Analytical theory parameters (added resistor)", paramsAnalyticHighR],
+    Flatten @ (paramBlockLines[#[[1]], #[[2]]] & /@ farParamAssocPairs)
+  ];
+
+  (* ============================================================ *)
+  (* Data lines + export                                            *)
+  (* ============================================================ *)
+  dataLines = Join[
+    tableToLines["## Non-faradaic baseline (TIME-DOMAIN theory) [microA]", colBaselineTD,  tableBaselineTD],
+    tableToLines["## Non-faradaic baseline (ANALYTICAL theory) [microA]",  colBaselineANA, tableBaselineANA],
+    tableToLines["## Faradaic peak \[CapitalDelta]I (TIME-DOMAIN theory) [microA]",      colFarTD,       tableFarTD],
+    tableToLines["## Faradaic peak \[CapitalDelta]I (ANALYTICAL theory) [microA]",       colFarANA,      tableFarANA]
+  ];
+
+  baseDir = Quiet @ Check[NotebookDirectory[], $TemporaryDirectory];
+  fileOut = FileNameJoin[{baseDir, "export_theory_only_raw.txt"}];
+
+  Export[fileOut, StringRiffle[Join[headerWithParams, dataLines], "\n"], "Text"];
+
+  fileOut
+]
+
 
