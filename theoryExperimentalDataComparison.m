@@ -261,9 +261,6 @@ Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\Anal
 AppendTo[$ContextPath, "AnalyzeVoltammogram`"];
 
 
-experimentalVoltammogramdataNoResistorLowConc
-
-
 (* reshape the voltammogram data for the form required by analyzeVoltammogram*)
 (* Reshape experimentalVoltmammogramdata into curvesByConc *)
 
@@ -338,19 +335,7 @@ baselineVsFrequencyMicroA = baselineVsFrequency;
 
 (* Sort by frequency for nice plotting *)
 baselineVsFrequencyMicroASorted = 
-  SortBy[baselineVsFrequencyMicroA, First]
-
-(* Plot *)
-ListLogLogPlot[
-  baselineVsFrequencyMicroASorted,
-  PlotStyle -> {Red, PointSize[0.015]},
-  Joined -> True,
-  Frame -> True,
-  FrameLabel -> {"1/f (s)", "Current (A)"},
-  PlotLabel -> "Plot of 1/f vs Current",
-  ImageSize -> 400
-]
-
+  SortBy[baselineVsFrequencyMicroA, First];
 
 
 
@@ -380,83 +365,59 @@ baselineVsFrequencyMicroASortedWithResistor =
 
 
 
-(* ::Input:: *)
-(*(* Currents vs Freq  *)*)
-(*(* replace below with voltammogram derived data *)*)
-(**)
-(**)
-(**)
-(*(* *)
-(*columnHeaders=experimentalDataWithNoResistor[[1]];*)
-(*data1=experimentalDataWithNoResistor[[2;;]];*)
-(*frequencies=ToExpression[StringReplace[columnHeaders,"Current_"->""]];*)
-(**)
-(*concentrationList=Join[ConstantArray[0.0,4],ConstantArray[1.0*^-5,3],ConstantArray[4.0*^-5,3],ConstantArray[1.0*^-4,3],ConstantArray[3.2*^-4,3],ConstantArray[9.3*^-3,3]];*)
-(*concentrationList=Take[concentrationList,Length[data1]];*)
-(*grouped1=GroupBy[Thread[{concentrationList,data1}],First->Last];*)
-(**)
-(*(*Load file 2*)*)
-(*data2=experimentalDataWithResistor[[2;;]];*)
-(*concentrationList2=Take[concentrationList,Length[data2]];*)
-(*grouped2=GroupBy[Thread[{concentrationList2,data2}],First->Last];*)
-(**)
-(*(*Identify min and max concentration*)*)
-(*minConc=Min[Keys[grouped1]];*)
-(*maxConc=Max[Keys[grouped1]];*)
-(**)*)
-(**)
-(*(* Baseline *)*)
-(*importLabeledTheoryBlock[simulationDataWithResistorFilePath,"## === Baseline Current vs Frequency ===",parsedBaselineDataHighResistor];*)
-(**)
-(*importLabeledTheoryBlock[simulationDataWithNoResistorFilePath,"## === Baseline Current vs Frequency ===",parsedBaselineDataLowResistor];*)
-(**)
-(*(*Helper to compute mean baseline*)*)
-(*meanBaselineLine[group_,conc_]:=Transpose[{frequencies,10^6*Mean/@Transpose[group[conc]]}];*)
-(**)
-(*baselineLineStandardLowConc=meanBaselineLine[grouped1,minConc];*)
-(*baselineLineStandardHighConc=meanBaselineLine[grouped1,maxConc];*)
-(*baselineLineAddedResistorLowConc=meanBaselineLine[grouped2,minConc];*)
-(*baselineLineAddedResistorHighConc=meanBaselineLine[grouped2,maxConc];*)
-(**)
-(**)
-(*(* plotRangesBaseline = {{5,700}, {0,20}}; *)*)
-(*(* ===Define reusable styles===*)*)
-(*plotStyles={*)
-(*RGBColor[0.1216,0.4667,0.7059],(*Muted blue*)*)
-(*RGBColor[0.1725,0.6275,0.1725]   (*Muted green*)*)
-(*};*)
-(**)
-(*lineStyles={Thick,Thick};*)
-(*plotRanges = {{5,700}, {-2,20}};*)
-(*plotRangesNoResistor = {{5,700}, {0,1}};*)
-(*makeConsistentBaselinePlot[data_,label_, plotRanges_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},FrameTicks->{{True, False}, {True, False}},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->{"0 mM","9.3 mM"}]; *)
-(**)
-(*baselineStandardPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASorted},"Exp5 (Standard, Baseline)", plotRangesNoResistor];*)
-(*baselineResistorPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASortedWithResistor},"Exp6 (Added Resistor, Baseline)", plotRanges];*)
-(*makePendingPlot[label_]:=Show[makeConsistentBaselinePlot[{{},{}},label],Graphics[{Text[Style["Pending data",20,Bold,Gray],Scaled[{0.5,0.5}]]}]]*)
-(**)
-(**)
-(*(* *)
-(*baselineStandardPlot=makePendingPlot["Exp5 (Standard, Baseline)"];*)
-(*baselineResistorPlot=makePendingPlot["Exp6 (Added Resistor, Baseline)"];*)
-(**)*)
-(*(* ===Extract and plot theory lines===*)(* ===Extract theory curve data only===*)*)
-(*theoryCurve[conc_,data_]:=*)
-(*	Module[*)
-(*	{nearestConc,entry},*)
-(*	nearestConc=First@Nearest[*)
-(*	data[[All,1]],conc];*)
-(*	    entry=SelectFirst[data,#[[1]]==nearestConc&];*)
-(*        If[ListQ[entry]&&Length[entry]==2,entry[[2]],Missing["NotFound"]]*)
-(*]*)
-(**)
-(*theoryBaselineStandardPlot=makeConsistentBaselinePlot[{theoryCurve[0,parsedBaselineDataLowResistor]},"Theory (Standard, Baseline)", plotRangesNoResistor];*)
-(*theoryBaselineResistorPlot=makeConsistentBaselinePlot[{theoryCurve[0,parsedBaselineDataHighResistor]},"Theory (Added Resistor, Baseline)", plotRanges];*)
-(**)
-(*baselinePlots = Grid[{{baselineStandardPlot,theoryBaselineStandardPlot},{baselineResistorPlot,theoryBaselineResistorPlot}},Spacings->{2,2}]*)
-(**)
-(**)
-(**)
+(* ::Input::Initialization:: *)
+(* Baseline *)
+importLabeledTheoryBlock[simulationDataWithResistorFilePath,"## === Baseline Current vs Frequency ===",parsedBaselineDataHighResistor];
+
+importLabeledTheoryBlock[simulationDataWithNoResistorFilePath,"## === Baseline Current vs Frequency ===",parsedBaselineDataLowResistor];
+
+(*Helper to compute mean baseline*)
+meanBaselineLine[group_,conc_]:=Transpose[{frequencies,10^6*Mean/@Transpose[group[conc]]}];
+
+baselineLineStandardLowConc=meanBaselineLine[grouped1,minConc];
+baselineLineStandardHighConc=meanBaselineLine[grouped1,maxConc];
+baselineLineAddedResistorLowConc=meanBaselineLine[grouped2,minConc];
+baselineLineAddedResistorHighConc=meanBaselineLine[grouped2,maxConc];
+
+
+(* plotRangesBaseline = {{5,700}, {0,20}}; *)
+(* ===Define reusable styles===*)
+plotStyles={
+RGBColor[0.1216,0.4667,0.7059],(*Muted blue*)
+RGBColor[0.1725,0.6275,0.1725]   (*Muted green*)
+};
+
+lineStyles={Thick,Thick};
+plotRanges = {{5,700}, {-2,20}};
+plotRangesNoResistor = {{5,700}, {0,1}};
+makeConsistentBaselinePlot[data_,label_, plotRanges_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},FrameTicks->{{True, False}, {True, False}},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->{"0 mM","9.3 mM"}]; 
+
+baselineStandardPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASorted},"Exp5 (Standard, Baseline)", plotRangesNoResistor];
+baselineResistorPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASortedWithResistor},"Exp6 (Added Resistor, Baseline)", plotRanges];
+makePendingPlot[label_]:=Show[makeConsistentBaselinePlot[{{},{}},label],Graphics[{Text[Style["Pending data",20,Bold,Gray],Scaled[{0.5,0.5}]]}]]
+
+
+(* 
+baselineStandardPlot=makePendingPlot["Exp5 (Standard, Baseline)"];
+baselineResistorPlot=makePendingPlot["Exp6 (Added Resistor, Baseline)"];
+*)
+(* ===Extract and plot theory lines===*)(* ===Extract theory curve data only===*)
+theoryCurve[conc_,data_]:=
+	Module[
+	{nearestConc,entry},
+	nearestConc=First@Nearest[
+	data[[All,1]],conc];
+	    entry=SelectFirst[data,#[[1]]==nearestConc&];
+        If[ListQ[entry]&&Length[entry]==2,entry[[2]],Missing["NotFound"]]
+]
+
+theoryBaselineStandardPlot=makeConsistentBaselinePlot[{theoryCurve[0,parsedBaselineDataLowResistor]},"Theory (Standard, Baseline)", plotRangesNoResistor];
+theoryBaselineResistorPlot=makeConsistentBaselinePlot[{theoryCurve[0,parsedBaselineDataHighResistor]},"Theory (Added Resistor, Baseline)", plotRanges];
+
+baselinePlots = Grid[{{baselineStandardPlot,theoryBaselineStandardPlot},{baselineResistorPlot,theoryBaselineResistorPlot}},Spacings->{2,2}]
+
+
+
 
 
 Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\CustomTicks\\CustomTicks.m"]
@@ -565,7 +526,7 @@ baselineStandardPlot2 =
       baselineStandardPlot2Theory
     },
     Spacings -> 1
-  ]
+  ];
 
 
 (* ============================================================ *)
@@ -758,7 +719,7 @@ deltaILowConcPlotExp =
     },
     "Exp5 (Standard, Baseline) \[Dash] Experimental",
     plotRanges
-  ]
+  ];
 
 
 
@@ -778,7 +739,7 @@ deltaIVsFrequencyNoResistorHighConc =
       {freq, result["DeltaI"]}
     ],
     {f, Keys[experimentalVoltammogramdataNoResistorHighConc]}
-  ]
+  ];
  
 (* Convert to microamps *)
 (* deltaIStandardVsFrequencyMicroAWithResistor = deltaIStandardVsFrequencyWithResistor;
@@ -800,7 +761,7 @@ deltaIVsFrequencyWithResistorHighConc =
       {freq, result["DeltaI"]}
     ],
     {f, Keys[experimentalVoltammogramdataWithResistorHighConc]}
-  ]
+  ];
  
 (* Convert to microamps *)
 (* deltaIStandardVsFrequencyMicroAWithResistor = deltaIStandardVsFrequencyWithResistor;
@@ -818,7 +779,7 @@ deltaIHighConcPlotExp =
     },
     "Exp5 (Standard, Baseline) \[Dash] Experimental",
     plotRanges
-  ]
+  ];
 
 
 (* ::Input:: *)
@@ -1211,43 +1172,95 @@ differingParams = AssociationMap[
 
 
 
-(* Format key-value pairs for display *)
-formatParamAssoc[assoc_] := Column[
-  KeyValueMap[
-    Function[{k, v},
-      Row[{Style[k, Plain], " = ", ScientificForm[N[v], 3]}]
-    ],
-    assoc
-  ],
-  Spacings -> 0.2
-]
+(* ===================== Experimental preamble section ===================== *)
 
-paramSection = Column[{
-   Style["Simulation Parameters", 14, Bold],
-   
-   Style["Common Parameters", 12, Bold],
-   Style[formatParamAssoc[commonParams], FontSize -> 10],
-   
-   Style["Differing Parameters by File", 12, Bold],
-   Column[
-     KeyValueMap[
-       Function[{file, paramAssoc},
-         Column[{
-           Style[file, FontSize -> 10, Bold],
-           Style[formatParamAssoc[paramAssoc], FontSize -> 10]
-         }, Spacings -> 0.5]
-       ],
-       differingParams
-     ],
-     Spacings -> 1
-   ]
+firstTxtFile[dir_] := Module[{files},
+  files = Sort @ FileNames["*.txt", dir];
+  If[Length[files] == 0, Missing["NoTxtFiles"], First[files]]
+];
+
+getPreambleLines[file_, maxLines_: 12] := Module[{txt, lines},
+  txt = Import[file, "Text"];
+  lines = StringSplit[txt, {"\r\n", "\n", "\r"}];
+  StringTrim /@ Take[lines, UpTo[maxLines]]
+];
+
+experimentalPreambleSection[dir_, maxLines_: 12] := Module[{file, lines},
+  file = firstTxtFile[dir];
+  If[MissingQ[file],
+    Column[
+      {
+        Style["No .txt files found in this directory:", 10, Bold],
+        Style[dir, FontSize -> 9]
+      },
+      Spacings -> 0.3
+    ],
+    lines = getPreambleLines[file, maxLines];
+    Column[
+      {
+        Style["Experimental data (from first .txt file in directory)", 10, Bold],
+        Row[{Style["Directory:", Plain], " ", Style[dir, FontSize -> 9]}],
+        Row[{Style["Example file:", Plain], " ", Style[FileNameTake[file], FontSize -> 9]}],
+        "",
+        Column[Style[#, FontSize -> 9] & /@ lines, Spacings -> 0.1]
+      },
+      Spacings -> 0.3
+    ]
+  ]
+];
+
+(* ===================== Add to your existing paramSection ===================== *)
+
+paramSection = Column[
+  {
+    Style["Simulation Parameters", 14, Bold],
+
+    Style["Common Parameters", 12, Bold],
+    Style[formatParamAssoc[commonParams], FontSize -> 10],
+
+    Style["Differing Parameters by File", 12, Bold],
+    Column[
+      KeyValueMap[
+        Function[{file, paramAssoc},
+          Column[
+            {
+              Style[file, FontSize -> 10, Bold],
+              Style[formatParamAssoc[paramAssoc], FontSize -> 10]
+            },
+            Spacings -> 0.5
+          ]
+        ],
+        differingParams
+      ],
+      Spacings -> 1
+    ],
+
+    Style["Analytical Theory Parameters", 14, Bold],
+    Column[
+      KeyValueMap[
+        Function[{label, paramAssoc},
+          Column[
+            {
+              Style[label, FontSize -> 10, Bold],
+              Style[formatParamAssoc[paramAssoc], FontSize -> 10]
+            },
+            Spacings -> 0.5
+          ]
+        ],
+        <|
+          "Low R (no added resistor)" -> bestFitParameters,
+          "High R (added resistor)"   -> bestFitParametersHighR
+        |>
+      ],
+      Spacings -> 1
+    ],
+
+    (* NEW: experimental preamble pulled from the first .txt in voltammogramPath *)
+    Style["Experimental Data Info", 14, Bold],
+    experimentalPreambleSection[voltammogramPath, 8]
   },
   Spacings -> 2
 ]
-
-
-
-
 
 
 
@@ -1293,24 +1306,33 @@ Export[
 
 
 (* ============================================================ *)
-(* EXPORT RAW PLOTTED DATA (NO INTERPOLATION) TO A TXT FILE       *)
-(* Two sections:                                                  *)
-(*   1) Non-faradaic baseline current (\[Micro]A)                         *)
-(*   2) Faradaic peak \[CapitalDelta]I (\[Micro]A)                                      *)
-(* Each table row is one frequency from the UNION of all series.  *)
-(* Missing values are written as NaN.                              *)
-(* Faradaic section has separate columns for LOW (0 mM) and HIGH (9.3 mM). *)
+(* THEORY-ONLY RAW EXPORT (NO INTERPOLATION) + PARAMETER HEADER  *)
+(* Includes:                                                     *)
+(*  - Baseline non-faradaic: TIME-DOMAIN + ANALYTICAL            *)
+(*  - Faradaic peak \[CapitalDelta]I: TIME-DOMAIN + ANALYTICAL                 *)
+(*  - Analytical parameter blocks in header                      *)
+(* Missing values written as NaN.                                *)
 (* ============================================================ *)
 
-ClearAll[cleanPairs, toAssoc, unionFreqs, buildUnionTable, fmt, tableToLines, colNamesBaseline, colNamesFaradaic];
+ClearAll[
+  cleanPairs, toAssoc, unionFreqs, buildUnionTable,
+  numStr, paramLine, paramBlockLines,
+  tableToLines,
+  (* tables + columns *)
+  colBaselineTD, colBaselineANA, colFarTD, colFarANA,
+  tableBaselineTD, tableBaselineANA, tableFarTD, tableFarANA,
+  (* output *)
+  baseDir, fileOut, headerLines, dataLines
+];
+
+(* ---------- helpers ---------- *)
 
 cleanPairs[data_] :=
   Select[data, VectorQ[#, NumericQ] && Length[#] == 2 && #[[1]] > 0 &];
 
-(* Map exact frequency -> value; if duplicates exist at same f, average them *)
 toAssoc[data_] := Module[{pairs = cleanPairs[data], groups},
   groups = GatherBy[pairs, First];
-  Association @ ( (First@First[#] -> Mean[#[[All, 2]]]) & /@ groups )
+  Association @ ((First@First[#] -> Mean[#[[All, 2]]]) & /@ groups)
 ];
 
 unionFreqs[assocs_List] :=
@@ -1322,117 +1344,153 @@ buildUnionTable[freqs_List, assocs_List] :=
     {f, freqs}
   ];
 
-fmt[x_] := Which[
-  MissingQ[x] || x === Indeterminate || x === ComplexInfinity || x === Infinity || x === -Infinity,
+numStr[v_] := Which[
+  MissingQ[v] || v === Indeterminate || v === ComplexInfinity || v === Infinity || v === -Infinity,
     "NaN",
   True,
-    ToString[NumberForm[N@x, {Infinity, 12}], InputForm]
+    ToString[FortranForm @ N @ v]
 ];
 
 tableToLines[header_String, colNames_List, table_List] :=
   Join[
     {header},
     {StringRiffle[colNames, "\t"]},
-    (StringRiffle[fmt /@ #, "\t"] & /@ table),
+    (StringRiffle[(numStr /@ #), "\t"] & /@ table),
     {""}
   ];
 
-(* ------------------------------------------------------------ *)
-(* SECTION 1: Non-faradaic baseline current (\[Micro]A)                 *)
-(* ------------------------------------------------------------ *)
+paramLine[key_, val_] := "# " <> ToString[key] <> " = " <> numStr[val];
 
-colNamesBaseline =
-  {"Frequency_Hz",
-   "Baseline_Exp_LowR_uA", "Baseline_Exp_HighR_uA",
-   "Baseline_TimeDomain_LowR_uA", "Baseline_TimeDomain_HighR_uA",
-   "Baseline_Analytic_LowR_uA", "Baseline_Analytic_HighR_uA"};
+paramBlockLines[title_, assoc_Association] := Module[{keys},
+  keys = Keys[assoc];
+  Join[
+    {"# ------------------------------------------------------------",
+     "# " <> title},
+    paramLine[#, assoc[#]] & /@ keys,
+    {"# ------------------------------------------------------------", ""}
+  ]
+];
 
-expBaselineLowR  = baselineVsFrequencyMicroASorted;
-expBaselineHighR = baselineVsFrequencyMicroASortedWithResistor;
+(* ============================================================ *)
+(* SECTION A: BASELINE (Non-faradaic) TIME-DOMAIN theory          *)
+(* ============================================================ *)
+
+colBaselineTD = {
+  "Frequency_Hz",
+  "Baseline_TimeDomain_LowR_uA",
+  "Baseline_TimeDomain_HighR_uA"
+};
 
 tdBaselineLowR  = theoryCurve[0, parsedBaselineDataLowResistor];
 tdBaselineHighR = theoryCurve[0, parsedBaselineDataHighResistor];
 
-chiNFmicroA[f_?NumericQ, params_Association] :=
-  Quiet @ Chop @ N[
-    10^6*(CHISignalDiffNonFaradaic /. {
-        fSWV -> f,
-        CDL  -> params["CDL"],
-        Rsol -> params["Rsol"],
-        V0   -> params["V0"]
-      })
-  ];
+assocsBaselineTD = toAssoc /@ {tdBaselineLowR, tdBaselineHighR};
+freqsBaselineTD  = unionFreqs[assocsBaselineTD];
+tableBaselineTD  = buildUnionTable[freqsBaselineTD, assocsBaselineTD];
 
-(* use the SAME dense analytic grid you used for the plot *)
-nAna = 300;
-freqGridNF = 10^Subdivide[log10[plotRanges[[1, 1]]], log10[plotRanges[[1, 2]]], nAna];
+(* ============================================================ *)
+(* SECTION B: BASELINE (Non-faradaic) ANALYTICAL theory           *)
+(* ============================================================ *)
 
-anaBaselineLowR  = Select[{#, chiNFmicroA[#, bestFitParameters]}      & /@ freqGridNF, VectorQ[#, NumericQ] &];
-anaBaselineHighR = Select[{#, chiNFmicroA[#, bestFitParametersHighR]} & /@ freqGridNF, VectorQ[#, NumericQ] &];
+colBaselineANA = {
+  "Frequency_Hz",
+  "Baseline_Analytic_LowR_uA",
+  "Baseline_Analytic_HighR_uA"
+};
 
-assocsNF = toAssoc /@ {expBaselineLowR, expBaselineHighR, tdBaselineLowR, tdBaselineHighR, anaBaselineLowR, anaBaselineHighR};
-freqsNF  = unionFreqs[assocsNF];
-tableNF  = buildUnionTable[freqsNF, assocsNF];
+(* analytic baseline curves (already computed earlier in your notebook): *)
+(* anaBaselineLowR, anaBaselineHighR *)
 
-(* ------------------------------------------------------------ *)
-(* SECTION 2: Faradaic peak \[CapitalDelta]I (\[Micro]A)                               *)
-(* Columns are split into LOW (0 mM) and HIGH (9.3 mM)            *)
-(* ------------------------------------------------------------ *)
+assocsBaselineANA = toAssoc /@ {anaBaselineLowR, anaBaselineHighR};
+freqsBaselineANA  = unionFreqs[assocsBaselineANA];
+tableBaselineANA  = buildUnionTable[freqsBaselineANA, assocsBaselineANA];
 
-colNamesFaradaic =
-  {"Frequency_Hz",
+(* ============================================================ *)
+(* SECTION C: FARADAIC (peak \[CapitalDelta]I) TIME-DOMAIN theory               *)
+(* ============================================================ *)
 
-   "FaradaicLowConc_Exp_LowR_uA",  "FaradaicLowConc_Exp_HighR_uA",
-   "FaradaicLowConc_TimeDomain_LowR_uA", "FaradaicLowConc_TimeDomain_HighR_uA",
-   "FaradaicLowConc_Analytic_LowR_uA",   "FaradaicLowConc_Analytic_HighR_uA",
+colFarTD = {
+  "Frequency_Hz",
+  "FaradaicLowConc_TimeDomain_LowR_uA",
+  "FaradaicLowConc_TimeDomain_HighR_uA",
+  "FaradaicHighConc_TimeDomain_LowR_uA",
+  "FaradaicHighConc_TimeDomain_HighR_uA"
+};
 
-   "FaradaicHighConc_Exp_LowR_uA", "FaradaicHighConc_Exp_HighR_uA",
-   "FaradaicHighConc_TimeDomain_LowR_uA", "FaradaicHighConc_TimeDomain_HighR_uA",
-   "FaradaicHighConc_Analytic_LowR_uA",   "FaradaicHighConc_Analytic_HighR_uA"
-  };
+tdFar0LowR      = simLowCurves[[1]];
+tdFar0HighR     = simLowCurves[[2]];
+tdFarHighLowR   = simHighCurves[[1]];
+tdFarHighHighR  = simHighCurves[[2]];
 
-(* ---- low concentration (0 mM) curves ---- *)
-expFar0LowR  = deltaIVsFrequencyNoResistorLowConc;
-expFar0HighR = deltaIVsFrequencyWithResistorLowConc;
+assocsFarTD = toAssoc /@ {tdFar0LowR, tdFar0HighR, tdFarHighLowR, tdFarHighHighR};
+freqsFarTD  = unionFreqs[assocsFarTD];
+tableFarTD  = buildUnionTable[freqsFarTD, assocsFarTD];
 
-tdFar0LowR  = simLowCurves[[1]];
-tdFar0HighR = simLowCurves[[2]];
+(* ============================================================ *)
+(* SECTION D: FARADAIC (peak \[CapitalDelta]I) ANALYTICAL theory                *)
+(* (4 columns: low/high conc \[Times] low/high R)                        *)
+(* ============================================================ *)
 
-anaFar0LowR  = analyticLowNoR;
-anaFar0HighR = analyticLowAddR;
+colFarANA = {
+  "Frequency_Hz",
+  "FaradaicLowConc_Analytic_LowR_uA",
+  "FaradaicLowConc_Analytic_HighR_uA",
+  "FaradaicHighConc_Analytic_LowR_uA",
+  "FaradaicHighConc_Analytic_HighR_uA"
+};
 
-(* ---- high concentration (9.3 mM) curves ---- *)
-expFarHighLowR  = deltaIVsFrequencyNoResistorHighConc;
-expFarHighHighR = deltaIVsFrequencyWithResistorHighConc;
+(* analytic faradaic curves (already computed earlier in your notebook): *)
+(* analyticLowNoR, analyticLowAddR, analyticHighNoR, analyticHighAddR *)
 
-tdFarHighLowR  = simHighCurves[[1]];
-tdFarHighHighR = simHighCurves[[2]];
+anaFar0LowR      = analyticLowNoR;
+anaFar0HighR     = analyticLowAddR;
+anaFarHighLowR   = analyticHighNoR;
+anaFarHighHighR  = analyticHighAddR;
 
-anaFarHighLowR  = analyticHighNoR;
-anaFarHighHighR = analyticHighAddR;
+assocsFarANA = toAssoc /@ {anaFar0LowR, anaFar0HighR, anaFarHighLowR, anaFarHighHighR};
+freqsFarANA  = unionFreqs[assocsFarANA];
+tableFarANA  = buildUnionTable[freqsFarANA, assocsFarANA];
 
-(* build union table across BOTH concentrations: *)
-assocsFar = Join[
-  toAssoc /@ {expFar0LowR, expFar0HighR, tdFar0LowR, tdFar0HighR, anaFar0LowR, anaFar0HighR},
-  toAssoc /@ {expFarHighLowR, expFarHighHighR, tdFarHighLowR, tdFarHighHighR, anaFarHighLowR, anaFarHighHighR}
+(* ============================================================ *)
+(* HEADER: Analytical parameter blocks                            *)
+(* ============================================================ *)
+
+paramsBaselineAnalyticLowR  = KeyTake[bestFitParameters,      {"CDL", "Rsol", "V0"}];
+paramsBaselineAnalyticHighR = KeyTake[bestFitParametersHighR, {"CDL", "Rsol", "V0"}];
+
+paramsFaradaicAnalytic = <|
+  "Analytical FARADAIC (Low conc, low R)"   -> paramsLowNoR,
+  "Analytical FARADAIC (Low conc, high R)"  -> paramsLowAddR,
+  "Analytical FARADAIC (High conc, low R)"  -> paramsHighNoR,
+  "Analytical FARADAIC (High conc, high R)" -> paramsHighAddR
+|>;
+
+headerLines = Join[
+  {
+    "# export_theory_only_raw.txt",
+    "# Units: Frequency in Hz, currents in microA (uA)",
+    ""
+  },
+  paramBlockLines["Analytical NON-FARADAIC baseline parameters (low R)",  paramsBaselineAnalyticLowR],
+  paramBlockLines["Analytical NON-FARADAIC baseline parameters (high R)", paramsBaselineAnalyticHighR],
+  Flatten @ (paramBlockLines[##] & @@@ Normal[paramsFaradaicAnalytic])
 ];
 
-freqsFar = unionFreqs[assocsFar];
-tableFar = buildUnionTable[freqsFar, assocsFar];
+(* ============================================================ *)
+(* DATA LINES + EXPORT                                            *)
+(* ============================================================ *)
 
-(* ------------------------------------------------------------ *)
-(* Write the TXT file                                            *)
-(* ------------------------------------------------------------ *)
+dataLines = Join[
+  tableToLines["## Non-faradaic baseline (TIME-DOMAIN theory) [microA]", colBaselineTD,  tableBaselineTD],
+  tableToLines["## Non-faradaic baseline (ANALYTICAL theory) [microA]",  colBaselineANA, tableBaselineANA],
+  tableToLines["## Faradaic peak \[CapitalDelta]I (TIME-DOMAIN theory) [microA]",      colFarTD,       tableFarTD],
+  tableToLines["## Faradaic peak \[CapitalDelta]I (ANALYTICAL theory) [microA]",       colFarANA,      tableFarANA]
+];
 
 baseDir = Quiet @ Check[NotebookDirectory[], $TemporaryDirectory];
-fileOut = FileNameJoin[{baseDir, "export_plot_data_raw.txt"}];
+fileOut = FileNameJoin[{baseDir, "export_theory_only_raw.txt"}];
 
-lines = Join[
-  tableToLines["## Non-faradaic baseline current (microA)", colNamesBaseline, tableNF],
-  tableToLines["## Faradaic peak \[CapitalDelta]I (microA) - low and high concentration columns", colNamesFaradaic, tableFar]
-];
-
-Export[fileOut, StringRiffle[lines, "\n"], "Text"];
+Export[fileOut, StringRiffle[Join[headerLines, dataLines], "\n"], "Text"];
 
 fileOut
 
