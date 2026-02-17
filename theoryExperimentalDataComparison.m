@@ -1529,7 +1529,7 @@ Module[
   ];
 
   baseDir = Quiet @ Check[NotebookDirectory[], $TemporaryDirectory];
-  fileOut = FileNameJoin[{baseDir, "export_theory_only_raw.txt"}];
+  fileOut = FileNameJoin[{baseDir, "export_simulation_and_theory_results.txt"}];
 
   Export[fileOut, StringRiffle[Join[headerWithParams, dataLines], "\n"], "Text"];
 
