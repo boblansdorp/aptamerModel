@@ -7,39 +7,28 @@
 (* ::Input:: *)
 (*(* Load TXT files *)*)
 (**)
-(*experimentalDataWithNoResistor=Import["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\E4Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt","Table"];*)
+(*(* voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\voltammograms\\" *)*)
+(*voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\spikeVoltammograms\\"*)
 (**)
-(*experimentalDataWithResistor=Import["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\E6Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt","Table"];*)
+(*(* in voltammogram we need to pick which channels correspond to high and low resistance experiments from voltammogramPath *)*)
+(*channelLowResistor = 5;*)
+(*channelHighResistor = 2;*)
+(*channelHighResistor = 6;*)
+(*(* dataSeriesToUseNoResistor = 7; (* which column of data (e.g. which recorded potentiostat channel *)*)
+(*dataSeriesToUseWithResistor = 4; (* which column of data (e.g. which recorded potentiostat channel *) *)*)
+(**)
+(*dataSeriesToUseLowConc = 2; (* which filename (e.g. S1_5Hz__1.txt would be 1 *)*)
+(*dataSeriesToUseHighConc = 18; (* which filename (e.g. S1_5Hz__18.txt would be 18 *)*)
+(**)
 (**)
 (*(* simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_highRhighKet3.txt" *)*)
 (**)
-(*simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_R1580_FreqScan.txt"*)
+(*simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-1620 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"*)
 (*simulationDataWithResistor=Import[simulationDataWithResistorFilePath,"Table"];*)
 (*(* simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_lowRhighKet2.txt" *)*)
 (**)
-(*simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_RSmall_FreqScan.txt"*)
+(*simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-294 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"*)
 (*simulationDataWithNoResistor=Import[simulationDataWithNoResistorFilePath,"Table"];*)
-(**)
-(*simulationCalDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_cal_k0u60k0b160largeR.txt"*)
-(*simulationCalDataWithResistor = Import[simulationCalDataWithResistorFilePath,"Table"];*)
-(**)
-(*simulationCalDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_cal_R238.txt"*)
-(*simulationCalDataWithNoResistor = Import[simulationCalDataWithNoResistorFilePath,"Table"];*)
-(**)
-(*simulationCalDataWithResistor10000FilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_cal_R10000.txt"*)
-(*simulationCalDataWithResistor10000 = Import[simulationCalDataWithResistor10000FilePath,"Table"];*)
-(**)
-(*simulationCalDataWithResistor3000FilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_cal_R3000.txt"*)
-(*simulationCalDataWithResistor3000 = Import[simulationCalDataWithResistor3000FilePath,"Table"];*)
-(**)
-(*simulationCalDataWithResistor6000FilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_cal_R6000.txt"*)
-(*simulationCalDataWithResistor6000 = Import[simulationCalDataWithResistor6000FilePath,"Table"];*)
-(**)
-(*simulationCalDataWithResistor4000FilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_cal_R4000.txt"*)
-(*simulationCalDataWithResistor4000 = Import[simulationCalDataWithResistor4000FilePath,"Table"];*)
-(**)
-(*simulationCalDataWithResistor5000FilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_cal_R5000.txt"*)
-(*simulationCalDataWithResistor5000 = Import[simulationCalDataWithResistor5000FilePath,"Table"];*)
 (**)
 (**)
 
@@ -195,30 +184,23 @@ simulationDataWithNoResistorFilePath
 theoryVoltammogramsConc0withNoResistor
 
 
-Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\testLoad.wl"]
-
-
-TestLoad`helloWorld[]
-
-
 Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\loadExperimentalVoltammogramGeneratePlots.m"]
 
 
-Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\testLoad.m"]
+(* Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\testLoad.m"] *)
 
 
-rawData = LoadVoltammogramData`loadAllVoltammograms["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\voltammograms\\"];
-
-
-
-
-
-experimentalVoltmammogramdata = LoadVoltammogramData`reshapeVoltammogramData[rawData, "IDiff", 4];
+rawData = LoadVoltammogramData`loadAllVoltammograms[voltammogramPath];
 
 
 
 
-experimentalVoltmammogramdataWithResistor = LoadVoltammogramData`reshapeVoltammogramData[rawData, "IDiff", 1];
+
+
+experimentalVoltammogramdataWithResistorLowConc = selectVoltammogramCurve[rawData, dataSeriesToUseLowConc, "IDiff", channelHighResistor];
+experimentalVoltammogramdataNoResistorLowConc = selectVoltammogramCurve[rawData, dataSeriesToUseLowConc, "IDiff", channelLowResistor];
+experimentalVoltammogramdataWithResistorHighConc = selectVoltammogramCurve[rawData, dataSeriesToUseHighConc, "IDiff", channelHighResistor];
+experimentalVoltammogramdataNoResistorHighConc = selectVoltammogramCurve[rawData, dataSeriesToUseHighConc, "IDiff", channelLowResistor];
 
 
 
@@ -262,13 +244,13 @@ makeVoltammogramPlot[dataAssoc_, conc_, label_, isPending_: False, showLegend_: 
 voltammogramPlots = Grid[
   {
     {
-     makeVoltammogramPlot[experimentalVoltmammogramdata, 0, "Exp5 (Standard, 0 mM)", False, False  (* no Legend *)],
-     makeVoltammogramPlot[theoryVoltammogramsConc0withNoResistor, 0, "Theory (Standard, 0 mM)", False, True]
+     makeVoltammogramPlot[experimentalVoltammogramdataNoResistorLowConc, 0, "Experimental, no added resistor, 0mM target", False, False  (* no Legend *)],
+     makeVoltammogramPlot[theoryVoltammogramsConc0withNoResistor, 0, "Simulation, no added resistor, 0mM target", False, True]
     },
     {
-     makeVoltammogramPlot[experimentalVoltmammogramdataWithResistor, 0, "Exp6 (Resistor, 0 mM)", False, False (* no Legend *)],
+     makeVoltammogramPlot[experimentalVoltammogramdataWithResistorLowConc, 0, "Experimental, with added resistor, 0mM target", False, False (* no Legend *)],
      makeVoltammogramPlot[theoryVoltammogramsConc0withResistor, 0, 
-       "Theory (added Resistor, 0 mM)", False, True]
+       "Simulation, with added resistor, 0mM target", False, True]
     }
   },
   Spacings -> {2, 2}
@@ -279,7 +261,7 @@ Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\Anal
 AppendTo[$ContextPath, "AnalyzeVoltammogram`"];
 
 
-experimentalVoltmammogramdata
+experimentalVoltammogramdataNoResistorLowConc
 
 
 (* reshape the voltammogram data for the form required by analyzeVoltammogram*)
@@ -292,9 +274,9 @@ curvesByConc = <|
         "Freq_" <> StringPadLeft[ToString[freq], 3, "0"] <> "_Conc_0e",
       "freq" -> freq,
       "conc" -> 0,
-      "diff" -> experimentalVoltmammogramdata[freq]
+      "diff" -> experimentalVoltammogramdataNoResistorLowConc[freq]
     |>,
-    {freq, Keys[experimentalVoltmammogramdata]}
+    {freq, Keys[experimentalVoltammogramdataNoResistorLowConc]}
   ]
 |>;
 
@@ -322,7 +304,7 @@ Show[
       "Peak: ", 
         ToString[NumberForm[result["PeakCurrent"], {5, 3}]], " \[Micro]A"
     ],
-    PlotRange->{Automatic,{0,0.5}},
+    PlotRange->{Automatic,Automatic},
     ImageSize -> Large
   ],
   Plot[
@@ -342,13 +324,13 @@ baselineVsFrequency =
       {freq, data, result},
       
       freq = f;
-      data = experimentalVoltmammogramdata[freq];
+      data = experimentalVoltammogramdataNoResistorLowConc[freq];
       
       result = analyzeVoltammogram[data];
       
       {freq, result["Baseline"]}
     ],
-    {f, Keys[experimentalVoltmammogramdata]}
+    {f, Keys[experimentalVoltammogramdataNoResistorLowConc]}
   ];
 
 (* Convert to microamps *)
@@ -372,51 +354,6 @@ ListLogLogPlot[
 
 
 
-(* Transform to 1/f *)
-transformedData = {1.0/#1, #2} & @@@ baselineVsFrequencyMicroASorted;
-
-(* Transform to 1/f *)
-transformedData = {#1, #2} & @@@ baselineVsFrequencyMicroASorted;
-
-(* Fit power law: I = a * (1/f)^b *)
-fit = FindFit[
-  transformedData,
-  a * x^b,
-  {{a, 0.01}, {b, 0.5}},
-  x
-];
-
-Print["Fitted slope: ", b /. fit];
-
-(* Generate points for the fitted curve *)
-xVals = 
-  Subdivide[
-    Min[transformedData[[All, 1]]],
-    Max[transformedData[[All, 1]]],
-    200
-  ];
-
-fitCurve = {#, (a /. fit) * #^(b /. fit)} & /@ xVals;
-
-(* Plot data and fit together *)
-ListLogLogPlot[
-  {
-    transformedData,
-    fitCurve
-  },
-  PlotStyle -> {
-    {Red, PointSize[0.015]},
-    {Blue, Dashed, Thick}
-  },
-  Joined -> {False, True},
-  Frame -> True,
-  FrameLabel -> {"f (Hz)", "Current (A)"},
-  PlotLabel -> "Current vs f on Log-Log Scale",
-  PlotLegends -> {"Data", "Fit"},
-  ImageSize -> 400
-]
-
-
 (* Iterate over all frequencies in experimentalVoltmammogramdata *)
 baselineVsFrequencyWithResistor = 
   Table[
@@ -424,13 +361,13 @@ baselineVsFrequencyWithResistor =
       {freq, data, result},
       
       freq = f;
-      data = experimentalVoltmammogramdataWithResistor[freq];
+      data = experimentalVoltammogramdataWithResistorLowConc[freq];
       
       result = analyzeVoltammogram[data];
       
       {freq, result["Baseline"]}
     ],
-    {f, Keys[experimentalVoltmammogramdataWithResistor]}
+    {f, Keys[experimentalVoltammogramdataWithResistorLowConc]}
   ];
 
 (* Convert to microamps *)
@@ -443,51 +380,13 @@ baselineVsFrequencyMicroASortedWithResistor =
 
 
 
-(* Transform to 1/f *)
-transformedData = {#1, #2} & @@@ baselineVsFrequencyMicroASortedWithResistor;
-
-(* Fit power law: I = a * (1/f)^b *)
-fit = FindFit[
-  transformedData,
-  a * x^b,
-  {{a, 0.01}, {b, 0.5}},
-  x
-];
-
-Print["Fitted slope: ", b /. fit];
-
-(* Generate points for the fitted curve *)
-xVals = 
-  Subdivide[
-    Min[transformedData[[All, 1]]],
-    Max[transformedData[[All, 1]]],
-    200
-  ];
-
-fitCurve = {#, (a /. fit) * #^(b /. fit)} & /@ xVals;
-
-(* Plot data and fit together *)
-ListLogLogPlot[
-  {
-    transformedData,
-    fitCurve
-  },
-  PlotStyle -> {
-    {Red, PointSize[0.015]},
-    {Blue, Dashed, Thick}
-  },
-  Joined -> {False, True},
-  Frame -> True,
-  FrameLabel -> {"1/f (s)", "Current (A)"},
-  PlotLabel -> "1/f vs. Current on Log-Log Scale",
-  PlotLegends -> {"Data", "Fit"},
-  ImageSize -> 400
-]
-
-
 (* ::Input:: *)
 (*(* Currents vs Freq  *)*)
+(*(* replace below with voltammogram derived data *)*)
 (**)
+(**)
+(**)
+(*(* *)
 (*columnHeaders=experimentalDataWithNoResistor[[1]];*)
 (*data1=experimentalDataWithNoResistor[[2;;]];*)
 (*frequencies=ToExpression[StringReplace[columnHeaders,"Current_"->""]];*)
@@ -504,7 +403,7 @@ ListLogLogPlot[
 (*(*Identify min and max concentration*)*)
 (*minConc=Min[Keys[grouped1]];*)
 (*maxConc=Max[Keys[grouped1]];*)
-(**)
+(**)*)
 (**)
 (*(* Baseline *)*)
 (*importLabeledTheoryBlock[simulationDataWithResistorFilePath,"## === Baseline Current vs Frequency ===",parsedBaselineDataHighResistor];*)
@@ -528,14 +427,15 @@ ListLogLogPlot[
 (*};*)
 (**)
 (*lineStyles={Thick,Thick};*)
-(*plotRanges = {{5,700}, {0,20}};*)
+(*plotRanges = {{5,700}, {-2,20}};*)
 (*plotRangesNoResistor = {{5,700}, {0,1}};*)
-(*makeConsistentBaselinePlot[data_,label_, plotRanges_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->{"0 mM","9.3 mM"}];*)
-(**)
+(*makeConsistentBaselinePlot[data_,label_, plotRanges_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},FrameTicks->{{True, False}, {True, False}},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->{"0 mM","9.3 mM"}]; *)
 (**)
 (*baselineStandardPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASorted},"Exp5 (Standard, Baseline)", plotRangesNoResistor];*)
 (*baselineResistorPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASortedWithResistor},"Exp6 (Added Resistor, Baseline)", plotRanges];*)
 (*makePendingPlot[label_]:=Show[makeConsistentBaselinePlot[{{},{}},label],Graphics[{Text[Style["Pending data",20,Bold,Gray],Scaled[{0.5,0.5}]]}]]*)
+(**)
+(**)
 (*(* *)
 (*baselineStandardPlot=makePendingPlot["Exp5 (Standard, Baseline)"];*)
 (*baselineResistorPlot=makePendingPlot["Exp6 (Added Resistor, Baseline)"];*)
@@ -556,24 +456,244 @@ ListLogLogPlot[
 (*baselinePlots = Grid[{{baselineStandardPlot,theoryBaselineStandardPlot},{baselineResistorPlot,theoryBaselineResistorPlot}},Spacings->{2,2}]*)
 (**)
 (**)
+(**)
+
+
+Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\CustomTicks\\CustomTicks.m"]
+Needs["CustomTicks`"]
+(* { NameQ["CustomTicks`LinTicks"], NameQ["CustomTicks`LogTicks"] } *)
+Options[CustomTicks`LinTicks]
+
+
+Options[CustomTicks`LogTicks]
+
+
+CHISignalDiffNonFaradaic=4 CDL E^(-(3/(CDL fSWV Rsol))) (1-E^(1/(4 CDL fSWV Rsol))-3 E^(1/(2 CDL fSWV Rsol))+3 E^(3/(4 CDL fSWV Rsol))+4 E^(1/(CDL fSWV Rsol))-4 E^(5/(4 CDL fSWV Rsol))-4 E^(3/(2 CDL fSWV Rsol))+4 E^(7/(4 CDL fSWV Rsol))+4 E^(2/(CDL fSWV Rsol))-4 E^(9/(4 CDL fSWV Rsol))-4 E^(5/(2 CDL fSWV Rsol))+4 E^(11/(4 CDL fSWV Rsol))) fSWV V0
+
+
+
+(* --- best-fit parameters (no added resistor) --- *)
+bestFitParameters = <|
+  "CDL" -> 71/200000000,
+  "Rsol" -> 294,
+  "Rct0" -> 17021.386901767124`,
+  "Rct1" -> 6573.064966390861`,
+  "kD" -> 0.017733158127065773`,
+  "Capt" -> 2.2012032765291434`*^-7,
+  "V0" -> 0.025
+|>;
+
+(* --- added resistor (ohms) --- *)
+RfromEIS = 1619;
+
+bestFitParametersHighR =
+  Association[
+    bestFitParameters,
+    <|"Rsol" -> RfromEIS|>
+  ];
+
+
+plotStyles = {
+  RGBColor @@ ({31, 119, 180}/255.),  (* blue *)
+  RGBColor @@ ({125, 61, 152}/255.)   (* purple *)
+};
+
+lineStyles={Thick,{Medium, Dashed}};
+
+(* 2) Helper: transform a dataset {x,y} -> {log10(x), y} *)
+log10[x_] := Log[10, x];
+logXData[data_] := data /. {x_?NumericQ, y_?NumericQ} :> {log10[x], y};
+
+(* 3) Your plotting function: linear plot with x scaled by log10 *)
+makeConsistentBaselinePlot[data_, label_, plotRanges_] := Module[
+  {
+    dataLog = logXData /@ data,                 (* transform each series *)
+    xRangeLog = log10 /@ plotRanges[[1]],       (* transform x-range *)
+    yRange    = plotRanges[[2]]
+  },
+  ListLinePlot[
+    dataLog,
+    Joined -> True,
+    PlotMarkers->Automatic,
+    PlotStyle -> MapThread[{#1, #2} &, {plotStyles[[{1, 2, 1, 2}]], lineStyles[[{1, 1, 1,1}]]}],
+    Axes -> False,
+    Frame -> True,
+    FrameLabel -> {"Frequency (Hz)", "Current (\[Micro]A)"},
+    PlotLabel -> label,
+    PlotRange -> {xRangeLog, yRange},
+    BaseStyle -> {FontSize -> 10},
+    (* {{yLeft, yRight}, {xBottom, xTop}} *)
+    FrameTicks -> {{CustomTicks`LinTicks[0,20,TickDirection->Out], None}, {CustomTicks`LogTicks[1,2,TickDirection->Out], None}},
+    PlotLegends -> Placed[LineLegend[{"low resistance", "high resistance","low resistance (experiment)","low resistance (theory)"}], {1.02, .5}],
+    ImagePadding -> {{All, Scaled[.12]}, {All, All}},  (* reserve room at right *)
+    ImageSize -> 600
+  ]
+];
+
+(* plotStyles={
+RGBColor[0.1216,0.4667,0.7059],(*Muted blue*)
+RGBColor[0.1725,0.6275,0.1725]   (*Muted green*)
+}; *)
+
+(* Top: experimental data only *)
+baselineStandardPlot2Exp =
+  makeConsistentBaselinePlot[
+    {
+      baselineVsFrequencyMicroASorted,
+      baselineVsFrequencyMicroASortedWithResistor
+    },
+    "Experimental",
+    plotRanges
+  ];
+
+(* Bottom: theory only *)
+baselineStandardPlot2Theory =
+  makeConsistentBaselinePlot[
+    {
+      theoryCurve[0, parsedBaselineDataLowResistor],
+      theoryCurve[0, parsedBaselineDataHighResistor]
+    },
+    "Theory",
+    plotRanges
+  ];
+
+(* Stack vertically *)
+baselineStandardPlot2 =
+  Column[
+    {
+      baselineStandardPlot2Exp,
+      baselineStandardPlot2Theory
+    },
+    Spacings -> 1
+  ]
+
+
+(* ============================================================ *)
+(* Replace ONLY the bottom theory plot with a 4-series version:  *)
+(*   1) sim low R  (unjoined dots)                               *)
+(*   2) sim high R (unjoined dots)                               *)
+(*   3) analytic low R  from CHISignalDiffNonFaradaic (joined)    *)
+(*   4) analytic high R from CHISignalDiffNonFaradaic (joined)    *)
+(* Top experimental plot stays exactly as-is.                     *)
+(* ============================================================ *)
+
+baselineStandardPlot2Theory := Module[
+  {
+    simLow, simHigh, freqLow, freqHigh,
+    chiNFmicroA, anaLow, anaHigh,
+    data, dataLog, xRangeLog, yRange
+  },
+
+  (* time-domain sim curves you already plot *)
+  simLow  = theoryCurve[0, parsedBaselineDataLowResistor];
+  simHigh = theoryCurve[0, parsedBaselineDataHighResistor];
+
+  freqLow  = simLow[[All, 1]];
+  freqHigh = simHigh[[All, 1]];
+
+  (* analytic expression in microamps *)
+  chiNFmicroA[f_?NumericQ, params_Association] :=
+    Quiet @ Chop @ N[
+      10^6*(CHISignalDiffNonFaradaic /. {
+          fSWV -> f,
+          CDL  -> params["CDL"],
+          Rsol -> params["Rsol"],
+          V0   -> params["V0"]
+        })
+    ];
+
+	
+	(* Replace ONLY the analytic frequency-grid part with a denser grid. *)
+	
+	(* choose how many analytic points you want *)
+	nAna = 300;  (* try 300\[Dash]800 *)
+	
+	(* dense log-spaced frequency grids spanning your plot range *)
+	freqGridLow  = 10^Subdivide[log10[plotRanges[[1, 1]]], log10[plotRanges[[1, 2]]], nAna];
+	freqGridHigh = freqGridLow;  (* same range is fine *)
+	
+	(* build analytic curves on the dense grids (instead of using simLow/simHigh freqs) *)
+	anaLow  = Select[{#, chiNFmicroA[#, bestFitParameters]}      & /@ freqGridLow,  VectorQ[#, NumericQ] &];
+	anaHigh = Select[{#, chiNFmicroA[#, bestFitParametersHighR]} & /@ freqGridHigh, VectorQ[#, NumericQ] &];
+
+  (* 4 series total *)
+  data = {simLow, simHigh, anaLow, anaHigh};
+
+  (* apply your exact x-log transform and ranges *)
+  dataLog   = logXData /@ data;
+  xRangeLog = log10 /@ plotRanges[[1]];
+  yRange    = plotRanges[[2]];
+
+  ListLinePlot[
+    dataLog,
+
+    (* sim: dots only, analytic: joined lines *)
+    Joined       -> {False, False, True, True},
+    PlotMarkers  -> {Automatic, Automatic, None, None},
+
+    (* reuse your two colors; analytic is thicker *)
+    PlotStyle -> {
+      Directive[plotStyles[[1]]],              (* sim low R *)
+      Directive[plotStyles[[2]]],              (* sim high R *)
+      Directive[plotStyles[[1]], Thick],       (* analytic low R *)
+      Directive[plotStyles[[2]], Thick]        (* analytic high R *)
+    },
+
+    Axes -> False,
+    Frame -> True,
+    FrameLabel -> {"Frequency (Hz)", "Current (\[Micro]A)"},
+    PlotLabel -> "Theory",
+    PlotRange -> {xRangeLog, yRange},
+    BaseStyle -> {FontSize -> 10},
+
+    FrameTicks -> {
+      {CustomTicks`LinTicks[0, 20, TickDirection -> Out], None},
+      {CustomTicks`LogTicks[1, 2, TickDirection -> Out], None}
+    },
+
+    PlotLegends -> Placed[
+      LineLegend[{
+        "sim low resistance",
+        "sim high resistance",
+        "analytic low resistance",
+        "analytic high resistance"
+      }],
+      {1.02, .5}
+    ],
+
+    ImagePadding -> {{All, Scaled[.12]}, {All, All}},
+    ImageSize -> 600
+  ]
+];
+
+(* re-make the stacked plot; top stays unchanged *)
+baselineStandardPlot2 =
+  Column[
+    {baselineStandardPlot2Exp, baselineStandardPlot2Theory},
+    Spacings -> 1
+  ];
+
+baselineStandardPlot2
+
+
 
 
 (* ::Input:: *)
 (*(* deltaI *)*)
-(*(* Iterate over all frequencies in experimentalVoltmammogramdata *)*)
+(*(* Iterate over all frequencies in experimentalVoltammogramdataNoResistorLowConc *)*)
 (*deltaIVsFrequencyMicroA = *)
 (*  Table[*)
 (*    Module[*)
 (*      {freq, data, result},*)
 (*      *)
 (*      freq = f;*)
-(*      data = experimentalVoltmammogramdata[freq];*)
+(*      data = experimentalVoltammogramdataNoResistorLowConc[freq];*)
 (*      *)
 (*      result = analyzeVoltammogram[data];*)
 (*      *)
 (*      {freq, result["DeltaI"]}*)
 (*    ],*)
-(*    {f, Keys[experimentalVoltmammogramdata]}*)
+(*    {f, Keys[experimentalVoltammogramdataNoResistorLowConc]}*)
 (*  ];*)
 (**)
 (*(* Sort by frequency for nice plotting *)*)
@@ -583,25 +703,122 @@ ListLogLogPlot[
 (**)
 
 
-deltaIVsFrequencyMicroAWithResistor = 
+(* Iterate over all frequencies in experimentalVoltmammogramdata *)
+(* first the low conc (no target *)
+deltaIVsFrequencyNoResistorLowConc = 
   Table[
     Module[
       {freq, data, result},
       
       freq = f;
-      data = experimentalVoltmammogramdataWithResistor[freq];
+      data = experimentalVoltammogramdataNoResistorLowConc[freq];
       
       result = analyzeVoltammogram[data];
       
       {freq, result["DeltaI"]}
     ],
-    {f, Keys[experimentalVoltmammogramdataWithResistor]}
-  ];
-
+    {f, Keys[experimentalVoltammogramdataNoResistorLowConc]}
+  ]
+ 
+(* Convert to microamps *)
+(* deltaIStandardVsFrequencyMicroAWithResistor = deltaIStandardVsFrequencyWithResistor;
+*)
 (* Sort by frequency for nice plotting *)
-deltaIVsFrequencyMicroASortedWithResistor = 
-  SortBy[deltaIVsFrequencyMicroAWithResistor, First]
+deltaIVsFrequencyNoResistorLowConc = 
+  SortBy[deltaIVsFrequencyNoResistorLowConc, First];
 
+deltaIVsFrequencyWithResistorLowConc = 
+  Table[
+    Module[
+      {freq, data, result},
+      
+      freq = f;
+      data = experimentalVoltammogramdataWithResistorLowConc[freq];
+      
+      result = analyzeVoltammogram[data];
+      
+      {freq, result["DeltaI"]}
+    ],
+    {f, Keys[experimentalVoltammogramdataWithResistorLowConc]}
+  ]
+ 
+(* Convert to microamps *)
+(* deltaIStandardVsFrequencyMicroAWithResistor = deltaIStandardVsFrequencyWithResistor;
+*)
+(* Sort by frequency for nice plotting *)
+deltaIVsFrequencyWithResistorLowConc = 
+  SortBy[deltaIVsFrequencyWithResistorLowConc, First];
+
+
+deltaILowConcPlotExp =
+  makeConsistentBaselinePlot[
+    {
+      deltaIVsFrequencyNoResistorLowConc,
+      deltaIVsFrequencyWithResistorLowConc
+    },
+    "Exp5 (Standard, Baseline) \[Dash] Experimental",
+    plotRanges
+  ]
+
+
+
+
+(* Iterate over all frequencies in experimentalVoltmammogramdata *)
+(* first the low conc (no target *)
+deltaIVsFrequencyNoResistorHighConc = 
+  Table[
+    Module[
+      {freq, data, result},
+      
+      freq = f;
+      data = experimentalVoltammogramdataNoResistorHighConc[freq];
+      
+      result = analyzeVoltammogram[data];
+      
+      {freq, result["DeltaI"]}
+    ],
+    {f, Keys[experimentalVoltammogramdataNoResistorHighConc]}
+  ]
+ 
+(* Convert to microamps *)
+(* deltaIStandardVsFrequencyMicroAWithResistor = deltaIStandardVsFrequencyWithResistor;
+*)
+(* Sort by frequency for nice plotting *)
+deltaIVsFrequencyNoResistorHighConc = 
+  SortBy[deltaIVsFrequencyNoResistorHighConc, First];
+
+deltaIVsFrequencyWithResistorHighConc = 
+  Table[
+    Module[
+      {freq, data, result},
+      
+      freq = f;
+      data = experimentalVoltammogramdataWithResistorHighConc[freq];
+      
+      result = analyzeVoltammogram[data];
+      
+      {freq, result["DeltaI"]}
+    ],
+    {f, Keys[experimentalVoltammogramdataWithResistorHighConc]}
+  ]
+ 
+(* Convert to microamps *)
+(* deltaIStandardVsFrequencyMicroAWithResistor = deltaIStandardVsFrequencyWithResistor;
+*)
+(* Sort by frequency for nice plotting *)
+deltaIVsFrequencyWithResistorHighConc = 
+  SortBy[deltaIVsFrequencyWithResistorHighConc, First];
+
+
+deltaIHighConcPlotExp =
+  makeConsistentBaselinePlot[
+    {
+      deltaIVsFrequencyNoResistorHighConc,
+      deltaIVsFrequencyWithResistorHighConc
+    },
+    "Exp5 (Standard, Baseline) \[Dash] Experimental",
+    plotRanges
+  ]
 
 
 (* ::Input:: *)
@@ -611,245 +828,292 @@ deltaIVsFrequencyMicroASortedWithResistor =
 
 
 (* ::Input:: *)
-(*(*Compute lines*)*)
-(*(*Helper to compute average current at each frequency for a group*)*)
-(*meanLine[group_,conc_]:=Transpose[{frequencies,10^6*Mean/@Transpose[group[conc]]}];*)
 (**)
-(*lineStandardLowConc=meanLine[grouped1,minConc];*)
-(*lineAddedResistorLowConc=meanLine[grouped2,minConc];*)
-(*lineStandardHighConc=meanLine[grouped1,maxConc];*)
-(*lineAddedResistorHighConc=meanLine[grouped2,maxConc];*)
+
+
+(* ::Input:: *)
+(*plotRanges = {{5,700}, {-2,10}};*)
 (**)
 (**)
 (*(* ===Function to make consistent plots===*)*)
-(*makeConsistentPlot[data_,label_, legendLabel_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->legendLabel];*)
-(*legendLabel={"0 mM","9.3 mM"};*)
+(*makeConsistentPlot[data_,label_, legendLabel_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],PlotMarkers->Automatic, Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->legendLabel];*)
+(*legendLabel={"no added R","added resistor"};*)
 (*(* ===Create each plot===*)*)
-(*theoryStandardPlot=makeConsistentPlot[{theoryCurve[0, parsedTheoryDataLowResistor],theoryCurve[0.0093, parsedTheoryDataLowResistor]},"Theory (Standard)", legendLabel];*)
-(*theoryResistorPlot=makeConsistentPlot[{theoryCurve[0, parsedTheoryDataHighResistor],theoryCurve[0.0093, parsedTheoryDataHighResistor]},"Theory (added resistor)", legendLabel];*)
+(*(* theoryStandardPlot=makeConsistentPlot[{theoryCurve[0, parsedTheoryDataLowResistor],theoryCurve[0.0093, parsedTheoryDataLowResistor]},"Theory (Standard)", legendLabel]; *)*)
+(*theoryLowConcPlot = makeConsistentPlot[{theoryCurve[0, parsedTheoryDataLowResistor],theoryCurve[0, parsedTheoryDataHighResistor]},"Simulation - no added target", legendLabel];*)
+(*theoryHighConcPlot = makeConsistentPlot[{theoryCurve[0.0093, parsedTheoryDataLowResistor],theoryCurve[0.0093, parsedTheoryDataHighResistor]},"High Concentration", legendLabel];*)
+(**)
+(**)
+(*(* theoryResistorPlot=makeConsistentPlot[{theoryCurve[0, parsedTheoryDataHighResistor],theoryCurve[0.0093, parsedTheoryDataHighResistor]},"Theory (added resistor)", legendLabel]; *)*)
 (**)
 (*(* lowResistorDeltaIPlot=makeConsistentPlot[{lineStandardLowConc,lineStandardHighConc},"Exp5 (Standard)", None]; *)*)
-(*lowResistorDeltaIPlot=makeConsistentPlot[{deltaIVsFrequencyMicroASorted},"Exp5 (Standard)", None];*)
+(*(*  lowResistorDeltaIPlot=makeConsistentPlot[{deltaIVsFrequencyMicroASorted},"Exp5 (Standard)", None];*)*)
 (**)
-(*highResistorDeltaIPlot=makeConsistentPlot[{deltaIVsFrequencyMicroASortedWithResistor},"Exp6 (Added Resistor)", None];*)
-(*highResistorDeltaIPlot=makeConsistentPlot[{lineAddedResistorLowConc,lineAddedResistorHighConc},"Exp6 (Added Resistor)", None];*)
+(*(* highResistorDeltaIPlot=makeConsistentPlot[{deltaIVsFrequencyMicroASortedWithResistor},"Exp6 (Added Resistor)", None];*)
+(*highResistorDeltaIPlot=makeConsistentPlot[{lineAddedResistorLowConc,lineAddedResistorHighConc},"Exp6 (Added Resistor)", None]; *)*)
+(*deltaIHighConcPlotExp =*)
+(*  makeConsistentPlot[*)
+(*    {*)
+(*      deltaIVsFrequencyNoResistorHighConc,*)
+(*      deltaIVsFrequencyWithResistorHighConc*)
+(*    },*)
+(*    "Experiment 9.3mM ",*)
+(*    legendLabel={"no added R","added resistor"}*)
+(*  ];*)
 (**)
-(**)
+(*deltaILowConcPlotExp =*)
+(*  makeConsistentPlot[*)
+(*    {*)
+(*      deltaIVsFrequencyNoResistorLowConc,*)
+(*      deltaIVsFrequencyWithResistorLowConc*)
+(*    },*)
+(*    "Experiment no added target",*)
+(*    legendLabel={"no added R","added resistor"}*)
+(*  ];*)
 (*(* ===Arrange in 2x2 Grid===*)*)
-(*deltaIPlots = Grid[{{lowResistorDeltaIPlot,theoryStandardPlot},{highResistorDeltaIPlot,theoryResistorPlot}},Spacings->{2,2}]*)
+(*deltaIPlots = Grid[{{deltaILowConcPlotExp,deltaIHighConcPlotExp},{theoryLowConcPlot,theoryHighConcPlot}},Spacings->{2,2}]*)
 (**)
 (**)
 (**)
 
 
-(* ::Input:: *)
-(*(* Lovric Plot  *)*)
-(*importLabeledTheoryBlock[simulationDataWithResistorFilePath,"## === Peak \[CapitalDelta]I vs Frequency ===",parsedTheoryDataHighResistor];*)
-(*importLabeledTheoryBlock[simulationDataWithNoResistorFilePath,"## === Peak \[CapitalDelta]I vs Frequency ===",parsedTheoryDataLowResistor];*)
-(**)
-(*legendLabels={"0 mM","9.3 mM"};*)
-(**)
-(**)
-(*lovricCurve[conc_,parsedData_]:=Module[{entry},entry=SelectFirst[parsedData,#[[1]]==conc&];*)
-(*If[ListQ[entry]&&Length[entry]==2,entry[[2]]/. {f_,i_}:>{f,i/(f)},Missing["NotFound"]]];*)
-(*(*Experimental Lovri\[CAcute] curves*)*)
-(*parsedTheoryDataLowResistor;*)
-(*(*Theory Lovri\[CAcute] curves*)*)
-(*lovricTheoryLow=lovricCurve[0,parsedTheoryDataLowResistor];*)
-(*lovricTheoryHigh=lovricCurve[0.0093,parsedTheoryDataLowResistor];*)
-(**)
-(*(* ===Plot all normalized Lovri\[CAcute] curves===*)*)
-(*lovricPlotRanges={{10,600},{0,0.05}};*)
-(*TheoryPlot=ListLogLinearPlot[{lovricTheoryLow,lovricTheoryHigh},Joined->True,PlotMarkers->False,PlotStyle->plotStyles,PlotRange->lovricPlotRanges,PlotLegends->LineLegend[plotStyles,legendLabels],Frame->True,FrameLabel->{"Frequency (Hz)","\!\(\*FractionBox[\(i\), \(f\)]\) (microA/Hz)"},PlotLabel->"Lovri\[CAcute] Plot: i/f vs Frequency",ImageSize->300];*)
-(**)
-(**)
-(*(* ===Step 1:Create raw Lovri\[CAcute] data from each curve (i/f)===*)*)
-(*lovricStandardLowConcRaw=lineStandardLowConc/. {f_,i_}:>{f,i/f};*)
-(*lovricStandardHighConcRaw=lineStandardHighConc/. {f_,i_}:>{f,i/f};*)
-(*(* ===Plot all normalized Lovri\[CAcute] curves===*)*)
-(*ExperimentPlot=ListLogLinearPlot[{lovricStandardLowConcRaw,lovricStandardHighConcRaw},Joined->True,PlotMarkers->None,PlotStyle->plotStyles,PlotRange->lovricPlotRanges,Frame->True,FrameLabel->{"Frequency (Hz)","\!\(\*FractionBox[\(i\), \(f\)]\) (microA/Hz)"},PlotLabel->"Lovri\[CAcute] Plot: i/f vs Frequency",ImageSize->300, PlotLegends->None];*)
-(**)
-(*LovricPlots = Grid[ {{ExperimentPlot, TheoryPlot}}]*)
-(**)
+CHISignalBaselineSubtractedExpr=-4 CDL E^(-(5/(2 CDL fSWV Rsol))) (-1+E^(1/(4 CDL fSWV Rsol))+2 E^(1/(2 CDL fSWV Rsol))-2 E^(3/(4 CDL fSWV Rsol))-2 E^(1/(CDL fSWV Rsol))+2 E^(5/(4 CDL fSWV Rsol))+2 E^(3/(2 CDL fSWV Rsol))-2 E^(7/(4 CDL fSWV Rsol))-2 E^(2/(CDL fSWV Rsol))+2 E^(9/(4 CDL fSWV Rsol))) fSWV V0-4 CDL E^(-(3/(CDL fSWV Rsol))) (1-E^(1/(4 CDL fSWV Rsol))-2 E^(1/(2 CDL fSWV Rsol))+2 E^(3/(4 CDL fSWV Rsol))+2 E^(1/(CDL fSWV Rsol))-2 E^(5/(4 CDL fSWV Rsol))-2 E^(3/(2 CDL fSWV Rsol))+2 E^(7/(4 CDL fSWV Rsol))+2 E^(2/(CDL fSWV Rsol))-2 E^(9/(4 CDL fSWV Rsol))-2 E^(5/(2 CDL fSWV Rsol))+2 E^(11/(4 CDL fSWV Rsol))) fSWV V0+(2 E^(-((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(2 Capt CDL fSWV Rct Rsol))) fSWV (CDL^2 (-1+E^((3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))+E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))+3 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))-3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol))+4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))-4 E^((7 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))+4 E^((9 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))-4 E^((11 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+2 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+5 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol))+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))-3 E^((CDL Rsol+Capt (Rct+Rsol)+11 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))+4 E^((11 CDL Rsol+11 Capt (Rct+Rsol)+13 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-4 E^((9 CDL Rsol+9 Capt (Rct+Rsol)+15 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))+4 E^((7 CDL Rsol+7 Capt (Rct+Rsol)+17 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+19 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-E^((CDL Rsol+Capt (Rct+Rsol)+23 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))) Rsol+Capt CDL (Rct-E^((3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rct-E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct-3 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rct+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rct-4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rct+4 E^((7 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rct-4 E^((9 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rct+4 E^((11 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((CDL Rsol+Capt (Rct+Rsol)+2 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rct+4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rct-4 E^((CDL Rsol+Capt (Rct+Rsol)+5 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rct-3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rct+3 E^((CDL Rsol+Capt (Rct+Rsol)+11 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rct-4 E^((11 CDL Rsol+11 Capt (Rct+Rsol)+13 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((9 CDL Rsol+9 Capt (Rct+Rsol)+15 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((7 CDL Rsol+7 Capt (Rct+Rsol)+17 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+19 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct+E^((CDL Rsol+Capt (Rct+Rsol)+23 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct-2 Rsol+2 E^((3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rsol+2 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol+6 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rsol-6 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol-8 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rsol+8 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol+8 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rsol-8 E^((7 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol-8 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rsol+8 E^((9 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol+8 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rsol-8 E^((11 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol+8 E^((CDL Rsol+Capt (Rct+Rsol)+2 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rsol-8 E^((3 (CDL Rsol+Capt (Rct+Rsol)+3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rsol+8 E^((CDL Rsol+Capt (Rct+Rsol)+5 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rsol+6 E^((3 (CDL Rsol+Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol-8 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rsol-6 E^((CDL Rsol+Capt (Rct+Rsol)+11 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rsol+8 E^((11 CDL Rsol+11 Capt (Rct+Rsol)+13 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol-8 E^((9 CDL Rsol+9 Capt (Rct+Rsol)+15 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol+8 E^((7 CDL Rsol+7 Capt (Rct+Rsol)+17 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol-8 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+19 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol-2 E^((CDL Rsol+Capt (Rct+Rsol)+23 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol)+Capt^2 (-Rct+E^((3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rct+E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct+3 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rct-3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rct+4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rct-4 E^((7 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rct+4 E^((9 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rct-4 E^((11 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((CDL Rsol+Capt (Rct+Rsol)+2 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rct-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rct+4 E^((CDL Rsol+Capt (Rct+Rsol)+5 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rct+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rct-3 E^((CDL Rsol+Capt (Rct+Rsol)+11 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rct+4 E^((11 CDL Rsol+11 Capt (Rct+Rsol)+13 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((9 CDL Rsol+9 Capt (Rct+Rsol)+15 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct+4 E^((7 CDL Rsol+7 Capt (Rct+Rsol)+17 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+19 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct-E^((CDL Rsol+Capt (Rct+Rsol)+23 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rct-Rsol+E^((3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rsol+E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol+3 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rsol-3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol-4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rsol+4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol+4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rsol-4 E^((7 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol-4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rsol+4 E^((9 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol+4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rsol-4 E^((11 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol+4 E^((CDL Rsol+Capt (Rct+Rsol)+2 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol)) Rsol-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol)) Rsol+4 E^((CDL Rsol+Capt (Rct+Rsol)+5 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol)) Rsol+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol)) Rsol-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rsol-3 E^((CDL Rsol+Capt (Rct+Rsol)+11 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol)) Rsol+4 E^((11 CDL Rsol+11 Capt (Rct+Rsol)+13 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol-4 E^((9 CDL Rsol+9 Capt (Rct+Rsol)+15 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol+4 E^((7 CDL Rsol+7 Capt (Rct+Rsol)+17 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+19 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol-E^((CDL Rsol+Capt (Rct+Rsol)+23 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol)) Rsol)+Capt (1+E^((3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))-E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-3 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol))-4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))+4 E^((7 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))-4 E^((9 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))+4 E^((11 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+2 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+5 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol))+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))-3 E^((CDL Rsol+Capt (Rct+Rsol)+11 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))+4 E^((11 CDL Rsol+11 Capt (Rct+Rsol)+13 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-4 E^((9 CDL Rsol+9 Capt (Rct+Rsol)+15 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))+4 E^((7 CDL Rsol+7 Capt (Rct+Rsol)+17 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+19 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-E^((CDL Rsol+Capt (Rct+Rsol)+23 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))) Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]+CDL (1+E^((3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))-E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-3 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol))-4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))+4 E^((7 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))-4 E^((9 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))+4 E^((11 (CDL Rsol+Capt (Rct+Rsol)+Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+2 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(Capt CDL fSWV Rct Rsol))-4 E^((3 (CDL Rsol+Capt (Rct+Rsol)+3 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(4 Capt CDL fSWV Rct Rsol))+4 E^((CDL Rsol+Capt (Rct+Rsol)+5 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(2 Capt CDL fSWV Rct Rsol))+3 E^((3 (CDL Rsol+Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]))/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+7 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))-3 E^((CDL Rsol+Capt (Rct+Rsol)+11 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(4 Capt CDL fSWV Rct Rsol))+4 E^((11 CDL Rsol+11 Capt (Rct+Rsol)+13 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-4 E^((9 CDL Rsol+9 Capt (Rct+Rsol)+15 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))+4 E^((7 CDL Rsol+7 Capt (Rct+Rsol)+17 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-4 E^((5 CDL Rsol+5 Capt (Rct+Rsol)+19 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))-E^((CDL Rsol+Capt (Rct+Rsol)+23 Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2])/(8 Capt CDL fSWV Rct Rsol))) Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]) V0)/(Sqrt[CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]);
 
 
-(* ::Input:: *)
-(**)
+(* ============================================================= *)
+(* CLEAN VERSION: NO UNDERSCORES IN VARIABLE NAMES               *)
+(* ============================================================= *)
 
 
-(* iNorm Gain vs Freq  *)
-iNormLine[highData_,lowData_]:=If[highData[[All,1]]===lowData[[All,1]],Module[{f=highData[[All,1]],iHigh=highData[[All,2]],iLow=lowData[[All,2]]},Transpose[{f,iHigh/iLow-1}]],Print["\:26a0\:fe0f Frequency mismatch in iNormLine"];$Failed];
+(* ---- analytical current (\[Micro]A), numeric only ---- *)
+chiAnalytical[f_?NumericQ, params_Association] :=
+ Quiet @ Chop @ N[
+   10^6*
+    (CHISignalBaselineSubtractedExpr /. {
+       fSWV -> f,
+       CDL  -> params["CDL"],
+       Rsol -> params["Rsol"],
+       Capt -> params["Capt"],
+       Rct  -> params["Rct"],
+       V0   -> params["V0"]
+     })
+ ];
+ (* --- use the same Rct mixing logic as ModelFunction --- *)
+theta[c_, p_Association] := c/(p["kD"] + c);
 
-(*Experimental \[CapitalDelta]I*)
-iNormExpStandard=iNormLine[lineStandardHighConc,lineStandardLowConc];
-iNormExpResistor=iNormLine[lineAddedResistorHighConc,lineAddedResistorLowConc];
+rctEff[c_, p_Association] :=
+  1/((1 - theta[c, p])/p["Rct0"] + theta[c, p]/p["Rct1"]);
 
-(*Theory \[CapitalDelta]I*)
-iNormTheoryStandard=iNormLine[theoryCurve[0.0093,parsedTheoryDataLowResistor],theoryCurve[0,parsedTheoryDataLowResistor]];
+(* choose the concentrations you want *)
+cLow  = 0.0;
+cHigh = 0.0093;
 
-iNormTheoryResistor=iNormLine[theoryCurve[0.0093,parsedTheoryDataHighResistor],theoryCurve[0,parsedTheoryDataHighResistor]];
+(* ---- parameter sets (Rct computed from Rct0/Rct1/kD and concentration) ---- *)
+paramsLowNoR  = Association[bestFitParameters,      <|"Rct" -> rctEff[cLow,  bestFitParameters]|>];
+paramsLowAddR = Association[bestFitParametersHighR, <|"Rct" -> rctEff[cLow,  bestFitParametersHighR]|>];
 
-makeINormPlot[data_,label_]:=
-ListLogLinearPlot[data,Joined->True,PlotStyle->plotStyles,
-Frame->True,FrameLabel->{"Frequency (Hz)","\[CapitalDelta]Inorm - 1 (\[Micro]A)"},PlotLabel->label,PlotRange->{Automatic, {-1,2}},ImageSize->300,BaseStyle->{FontSize->10}];
-
-iNormStandardPlot=makeINormPlot[iNormExpStandard,"\[CapitalDelta]Inorm-1 Exp5 (Standard)"];
-iNormResistorPlot=makeINormPlot[iNormExpResistor,"\[CapitalDelta]Inorm-1 Exp6 (Resistor)\n compared with low conc high resistance"];
-iNormTheoryStandardPlot=makeINormPlot[iNormTheoryStandard,"\[CapitalDelta]Inorm-1 Theory (Standard)"];
-iNormTheoryResistorPlot=makeINormPlot[iNormTheoryResistor,"\[CapitalDelta]Inorm-1 Theory (Resistor) \n compared with low conc high resistance"];
-
-iNormPlots = Grid[{{iNormStandardPlot,iNormTheoryStandardPlot},{iNormResistorPlot,iNormTheoryResistorPlot}},Spacings->{2,2}]
-
-
-(* ::InheritFromParent:: *)
-(**)
-
-
-(* now repeat, but compare against the original low reisstance value *)
-(*Experimental \[CapitalDelta]I*)
-iNormExpStandard=iNormLine[lineStandardHighConc,lineStandardLowConc];
-iNormExpResistor=iNormLine[lineAddedResistorHighConc,lineStandardLowConc];
-
-(*Theory \[CapitalDelta]I*)
-iNormTheoryStandard=iNormLine[theoryCurve[0.0093,parsedTheoryDataLowResistor],theoryCurve[0,parsedTheoryDataLowResistor]];
-iNormTheoryResistor=iNormLine[theoryCurve[0.0093,parsedTheoryDataHighResistor],theoryCurve[0,parsedTheoryDataLowResistor]];
-
-iNormStandardPlot=makeINormPlot[iNormExpStandard,"\[CapitalDelta]Inorm-1 Exp5 (Standard)"];
-iNormResistorPlot=makeINormPlot[iNormExpResistor,"\[CapitalDelta]Inorm-1 Exp6 (Resistor) \n compared with low conc low resistance"];
-iNormTheoryStandardPlot=makeINormPlot[iNormTheoryStandard,"\[CapitalDelta]Inorm-1 Theory (Standard)"];
-iNormTheoryResistorPlot=makeINormPlot[iNormTheoryResistor,"\[CapitalDelta]Inorm-1 Theory (Resistor) \n compared with low conc low resistance"];
-
-iNormPlots2 = Grid[{{iNormStandardPlot,iNormTheoryStandardPlot},{iNormResistorPlot,iNormTheoryResistorPlot}},Spacings->{2,2}]
+paramsHighNoR  = Association[bestFitParameters,      <|"Rct" -> rctEff[cHigh, bestFitParameters]|>];
+paramsHighAddR = Association[bestFitParametersHighR, <|"Rct" -> rctEff[cHigh, bestFitParametersHighR]|>];
 
 
-(* ::InheritFromParent:: *)
-(**)
+(* ---- frequency grids ---- *)
+freqLow  = theoryCurve[0.0,   parsedTheoryDataLowResistor][[All, 1]];
+freqHigh = theoryCurve[0.0093, parsedTheoryDataLowResistor][[All, 1]];
+
+(* ---- analytical curves ---- *)
+analyticLowNoR  = Select[{#, chiAnalytical[#, paramsLowNoR]} & /@ freqLow,  VectorQ[#, NumericQ] &];
+analyticLowAddR = Select[{#, chiAnalytical[#, paramsLowAddR]} & /@ freqLow, VectorQ[#, NumericQ] &];
+
+analyticHighNoR  = Select[{#, chiAnalytical[#, paramsHighNoR]} & /@ freqHigh,  VectorQ[#, NumericQ] &];
+analyticHighAddR = Select[{#, chiAnalytical[#, paramsHighAddR]} & /@ freqHigh, VectorQ[#, NumericQ] &];
+
+(* ---- simulation curves ---- *)
+simLowCurves = {
+  theoryCurve[0.0, parsedTheoryDataLowResistor],
+  theoryCurve[0.0, parsedTheoryDataHighResistor]
+};
+
+simHighCurves = {
+  theoryCurve[0.0093, parsedTheoryDataLowResistor],
+  theoryCurve[0.0093, parsedTheoryDataHighResistor]
+};
+
+(* ---- overlay helper ---- *)
+makeSimAnalyticPlot[simData_, anaData_, title_] :=
+ ListLogLinearPlot[
+  Join[simData, anaData],
+
+  (* simulation = points, analytical = lines *)
+  Joined -> Join[
+    ConstantArray[False, Length@simData],
+    ConstantArray[True, Length@anaData]
+  ],
+
+  PlotMarkers -> Join[
+    ConstantArray[Automatic, Length@simData],
+    ConstantArray[None, Length@anaData]
+  ],
+
+  PlotStyle -> Join[
+    MapThread[{#1, #2} &, {plotStyles, lineStyles}][[;; Length@simData]],
+    (Directive[#, Thick] & /@ plotStyles[[;; Length@anaData]])
+  ],
+
+  Frame -> True,
+  FrameLabel -> {"Frequency (Hz)", "Current (\[Micro]A)"},
+  PlotLabel -> title,
+  PlotRange -> plotRanges,
+  ImageSize -> 300,
+  BaseStyle -> {FontSize -> 10},
+
+  PlotLegends -> Join[
+    {"Sim: no added R", "Sim: added resistor"},
+    {"Analytical: no added R", "Analytical: added resistor"}
+  ]
+];
 
 
-(* ::Input:: *)
-(**)
+(* ---- bottom plots ---- *)
+theoryLowConcPlot =
+  makeSimAnalyticPlot[
+    simLowCurves,
+    {analyticLowNoR, analyticLowAddR},
+    "Simulation vs Analytical (Low Concentration)"
+  ];
+
+theoryHighConcPlot =
+  makeSimAnalyticPlot[
+    simHighCurves,
+    {analyticHighNoR, analyticHighAddR},
+    "Simulation vs Analytical (High Concentration)"
+  ];
+
+(* ---- final grid ---- *)
+finalComparisonGrid =
+ Grid[
+  {
+    {deltaILowConcPlotExp, deltaIHighConcPlotExp},
+    {theoryLowConcPlot,    theoryHighConcPlot}
+  },
+  Spacings -> {2, 2}
+ ];
+
+finalComparisonGrid
 
 
-(* ::Input:: *)
-(*(* Calibration Curve  *)*)
-(*(* ===KDM Frequencies===*)*)
-(*KDMLowFreq=25;*)
-(*KDMHighFreq=200;*)
-(*(* ===Helper to extract mean \[CapitalDelta]I line for each concentration===*)*)
-(*extractDeltaILine[group_,conc_]:=Module[{rows=group[conc]},Transpose[{frequencies,10^6*Mean/@Transpose[rows]}]];*)
-(**)
-(*(* ===Build delta I lines per condition===*)*)
-(*deltaILinesLowResistor=AssociationMap[extractDeltaILine[grouped1,#]&,Keys[grouped1]];*)
-(**)
-(*deltaILinesHighResistor=AssociationMap[extractDeltaILine[grouped2,#]&,Keys[grouped2]];*)
-(**)
-(*(* ===Extract 0 mM Baselines===*)*)
-(*baselineLowResistor=deltaILinesLowResistor[0.0];*)
-(*baselineHighResistor=deltaILinesHighResistor[0.0];*)
-(**)
-(**)
 
 
-(* ::Input:: *)
-(*(* ===Robust iNorm computation===*)*)
-(*iNormLineRelative[baseline_,target_]:=Module[{fBase,iBase,iTarget},{fBase,iBase}=Transpose[baseline];*)
-(*{_,iTarget}=Transpose[target];*)
-(*If[Length[iBase]=!=Length[iTarget],Print["\:26a0\:fe0f Mismatch in current vector lengths"];*)
-(*Return[$Failed];];*)
-(*Transpose[{fBase,iTarget/iBase}]];*)
-(**)
-(*(* ===Compute KDM from iNorm===*)*)
-(*getKDMValueFixed[group_,baseline_]:=Function[conc,Module[{line,normLine,iLow,iHigh},line=group[conc];*)
-(*normLine=iNormLineRelative[baseline,line];*)
-(*If[normLine===$Failed,Return[$Failed]];*)
-(*iLow=Interpolation[normLine][KDMLowFreq];*)
-(*iHigh=Interpolation[normLine][KDMHighFreq];*)
-(*(iHigh-iLow)/(0.5*(iHigh+iLow))]];*)
-(**)
-(*(* ===Compute KDM values per concentration===*)*)
-(*nonzeroConcsLow=DeleteCases[Keys[deltaILinesLowResistor],0.0];*)
-(*nonzeroConcsHigh=DeleteCases[Keys[deltaILinesHighResistor],0.0];*)
-(**)
-(*kdmDataExpLow=Transpose@{nonzeroConcsLow,getKDMValueFixed[deltaILinesLowResistor,baselineLowResistor]/@nonzeroConcsLow};*)
-(**)
-(*kdmDataExpHigh=Transpose@{nonzeroConcsHigh,getKDMValueFixed[deltaILinesHighResistor,baselineHighResistor]/@nonzeroConcsHigh};*)
-(**)
-(*plotStyles2={*)
-(*RGBColor[0.1216,0.4667,0.7059],(*Muted blue*)*)
-(*RGBColor[0.5804,0.4039,0.7412],  (*Soft purple*)*)
-(*RGBColor[0.1725,0.6275,0.1725],(*Muted green*)*)
-(*RGBColor[0.8392,0.1529,0.1569]  (*Muted red*)*)
-(*};*)
-(*calibrationPlotLinearRanges = {{5*10^-6,10^-2},{0,2}}*)
-(*kdmPlotExp=ListLogLinearPlot[{kdmDataExpLow,kdmDataExpHigh},Joined->True,PlotStyle->plotStyles2,PlotMarkers->Automatic,Frame->True,FrameLabel->{"Concentration (M)","KDM Signal"},PlotLabel->"Experimental KDM vs Concentration",PlotRange->calibrationPlotLinearRanges,ImageSize->300,PlotLegends->{"Low R","High R"}]*)
-(*kdmPlotExpLogLog=ListLogLogPlot[{kdmDataExpLow,kdmDataExpHigh},Joined->True,PlotStyle->plotStyles2,PlotMarkers->Automatic,Frame->True,FrameLabel->{"Concentration (M)","KDM Signal"},PlotLabel->"Experimental KDM vs Concentration",PlotRange->{{10^-6,10^-2},All},ImageSize->300,PlotLegends->{"Low R","High R"}]*)
-(**)
+(* ============================================================ *)
+(* Lovri\[CAcute] plots laid out like your current grid:                  *)
+(*   top row  = experiments (low, high)                           *)
+(*   bottom   = theory (sim+analytical) (low, high)               *)
+(* Lovri\[CAcute] = (current / frequency) vs frequency                    *)
+(* ============================================================ *)
 
+ClearAll[lovricTransform, filterLogPairs, makeLovricExpPlot, makeLovricTheoryPlot];
 
-simulationCalDataWithNoResistorFilePath
+lovricTransform[data_] := ({#[[1]], #[[2]]/#[[1]]} & /@ data);
 
+filterLogPairs[data_] :=
+  Select[
+    data,
+    VectorQ[#, NumericQ] && Length[#] == 2 && #[[1]] > 0 &&
+      FreeQ[#[[2]], Indeterminate | Infinity | ComplexInfinity] &
+  ];
 
-(* ::Input:: *)
-(*(* theory *)*)
-(*kdmDataHigh=importCalibrationBlock[simulationCalDataWithResistorFilePath,"## === Calibration Curve (KDM vs Concentration) ==="];*)
-(*kdmDataLow=importCalibrationBlock[simulationCalDataWithNoResistorFilePath,"## === Calibration Curve (KDM vs Concentration) ==="];*)
-(*kdMData10000 = importCalibrationBlock[simulationCalDataWithResistor10000FilePath,"## === Calibration Curve (KDM vs Concentration) ==="];*)
-(*kdMData3000 = importCalibrationBlock[simulationCalDataWithResistor3000FilePath,"## === Calibration Curve (KDM vs Concentration) ==="]*)
-(*kdMData6000 = importCalibrationBlock[simulationCalDataWithResistor6000FilePath,"## === Calibration Curve (KDM vs Concentration) ==="]*)
-(*kdMData4000 = importCalibrationBlock[simulationCalDataWithResistor4000FilePath,"## === Calibration Curve (KDM vs Concentration) ==="]*)
-(*kdMData5000 = importCalibrationBlock[simulationCalDataWithResistor5000FilePath,"## === Calibration Curve (KDM vs Concentration) ==="]*)
-(**)
-(*(* ===Pending Placeholder===*)pendingPlot=Show[ListLogLinearPlot[{},Frame->True,PlotRange->calibrationPlotLinearRanges],Graphics[{Text[Style["Pending data",20,Bold,Gray],Scaled[{0.5,0.5}]]}],ImageSize->300];*)
-(**)
-(*(* ===Theory Plot===*)*)
-(*theoryPlot=ListLogLinearPlot[{kdmDataLow,kdmDataHigh},Joined->True,PlotStyle->plotStyles2,PlotMarkers->Automatic,Frame->True,FrameLabel->{"Concentration (M)","KDM Signal"},PlotLabel->"KDM vs Concentration",ImageSize->300,PlotRange->calibrationPlotLinearRanges,PlotLegends->{"238","1580"}];*)
-(**)
-(**)
-(**)
-(*(* ===Combine Side by Side===*)*)
-(*calibrationPlots=Grid[{{kdmPlotExp,theoryPlot}},Spacings->{2,2}]*)
-(**)
+(* --- EXP only: two curves, styling like your exp deltaI plots --- *)
+makeLovricExpPlot[data_, label_, legendLabel_] :=
+  ListLogLinearPlot[
+    filterLogPairs /@ (lovricTransform /@ data),
+    Joined -> True,
+    PlotStyle -> MapThread[{#1, #2} &, {plotStyles, lineStyles}],
+    PlotMarkers -> Automatic,
+    Frame -> True,
+    FrameLabel -> {"Frequency (Hz)", "\!\(\*FractionBox[\(i\), \(f\)]\) (\[Micro]A/Hz)"},
+    PlotLabel -> label,
+    PlotRange -> All,
+    ImageSize -> 300,
+    BaseStyle -> {FontSize -> 10},
+    PlotLegends -> legendLabel
+  ];
 
+(* --- THEORY: sim (points) + analytical (lines), like your overlay helper --- *)
+makeLovricTheoryPlot[simData_, anaData_, title_] :=
+  ListLogLinearPlot[
+    Join[
+      filterLogPairs /@ (lovricTransform /@ simData),
+      filterLogPairs /@ (lovricTransform /@ anaData)
+    ],
 
-theoryPlotLogLog = ListLogLogPlot[{kdmDataLow,kdmDataHigh},
-Joined->True,PlotStyle->plotStyles2,PlotMarkers->Automatic,Frame->True,FrameLabel->{"Concentration (M)","KDM Signal"},
-PlotLabel->"KDM vs Concentration",ImageSize->300,PlotRange->{{10^-6,10^-2},All},PlotLegends->{"238","1580", "3000", "4000", "6000", "10000"}];
-calibrationPlotsLogLog=Grid[{{kdmPlotExpLogLog,theoryPlotLogLog}},Spacings->{2,2}]
+    (* simulation = points, analytical = lines *)
+    Joined -> Join[
+      ConstantArray[False, Length@simData],
+      ConstantArray[True,  Length@anaData]
+    ],
 
+    PlotMarkers -> Join[
+      ConstantArray[Automatic, Length@simData],
+      ConstantArray[None,      Length@anaData]
+    ],
 
-(* ===Theory Plot===*)
-(* Generate a gradient of colors from blue to green *)
-plotStyles3 = 
- ColorData["BlueGreenYellow"] /@ 
-    Rescale[Reverse@Range[
-      Length[{kdmDataLow, kdmDataHigh, kdMData3000, kdMData4000, 
-        kdMData5000, kdMData6000, kdMData10000}]]];
+    PlotStyle -> Join[
+      MapThread[{#1, #2} &, {plotStyles, lineStyles}][[;; Length@simData]],
+      (Directive[#, Thick] & /@ plotStyles[[;; Length@anaData]])
+    ],
 
+    Frame -> True,
+    FrameLabel -> {"Frequency (Hz)", "\!\(\*FractionBox[\(i\), \(f\)]\) (\[Micro]A/Hz)"},
+    PlotLabel -> title,
+    PlotRange -> All,
+    ImageSize -> 300,
+    BaseStyle -> {FontSize -> 10},
 
-theoryPlot2=
-ListLogLinearPlot[{kdmDataLow,kdmDataHigh, kdMData3000, kdMData4000, kdMData5000, kdMData6000, kdMData10000},
-	Joined->True,
-	PlotStyle->plotStyles3,
-	PlotMarkers->Automatic,
-	Frame->True,
-	FrameLabel->{"Concentration (M)","KDM Signal"},PlotLabel->"KDM vs Concentration for various solution resistance",
-	ImageSize->600,
-	PlotRange->{{8*10^-6,1*10^-2}, {0,1.6}},
-	PlotLegends->{"238 \[CapitalOmega]","1580 \[CapitalOmega]", "3000 \[CapitalOmega]","4000 \[CapitalOmega]", "5000 \[CapitalOmega]","6000 \[CapitalOmega]", "10000 \[CapitalOmega]"}
-	]
+    PlotLegends -> Join[
+      {"Sim: no added R", "Sim: added resistor"},
+      {"Analytical: no added R", "Analytical: added resistor"}
+    ]
+  ];
 
-theoryPlot3=
-ListPlot[{kdmDataLow,kdmDataHigh, kdMData3000, kdMData4000, kdMData5000, kdMData6000, kdMData10000},
-	Joined->True,
-	PlotStyle->plotStyles3,
-	PlotMarkers->Automatic,
-	Frame->True,
-	FrameLabel->{"Concentration (M)","KDM Signal"},PlotLabel->"KDM vs Concentration for various solution resistance zoomed in",
-	ImageSize->600,
-	PlotRange->{{8*10^-6,1*10^-4}, {0,0.1}},
-	PlotLegends->{"238 \[CapitalOmega]","1580 \[CapitalOmega]", "3000 \[CapitalOmega]","4000 \[CapitalOmega]", "5000 \[CapitalOmega]","6000 \[CapitalOmega]", "10000 \[CapitalOmega]"}
-	]
+legendLabelLovric = {"no added R", "added resistor"};
 
+(* ---- Top row: experiments ---- *)
+lovricLowConcPlotExp =
+  makeLovricExpPlot[
+    {deltaIVsFrequencyNoResistorLowConc, deltaIVsFrequencyWithResistorLowConc},
+    "Lovri\[CAcute] (Experiment, 0 mM)",
+    legendLabelLovric
+  ];
+
+lovricHighConcPlotExp =
+  makeLovricExpPlot[
+    {deltaIVsFrequencyNoResistorHighConc, deltaIVsFrequencyWithResistorHighConc},
+    "Lovri\[CAcute] (Experiment, 9.3 mM)",
+    legendLabelLovric
+  ];
+
+(* ---- Bottom row: theory (sim + analytical) ---- *)
+lovricLowConcPlotTheory =
+  makeLovricTheoryPlot[
+    simLowCurves,
+    {analyticLowNoR, analyticLowAddR},
+    "Lovri\[CAcute] (Theory, 0 mM)"
+  ];
+
+lovricHighConcPlotTheory =
+  makeLovricTheoryPlot[
+    simHighCurves,
+    {analyticHighNoR, analyticHighAddR},
+    "Lovri\[CAcute] (Theory, 9.3 mM)"
+  ];
+
+LovricPlots =
+  Grid[
+    {
+      {lovricLowConcPlotExp,    lovricHighConcPlotExp},
+      {lovricLowConcPlotTheory, lovricHighConcPlotTheory}
+    },
+    Spacings -> {2, 2}
+  ]
 
 
 
@@ -894,16 +1158,21 @@ extractParams[file_] := Module[
 (* Read all four parameter blocks *)
 params1 = extractParams[simulationDataWithResistorFilePath];
 params2 = extractParams[simulationDataWithNoResistorFilePath];
-params3 = extractParams[simulationCalDataWithResistorFilePath];
-params4 = extractParams[simulationCalDataWithNoResistorFilePath];
+(* params3 = extractParams[simulationCalDataWithResistorFilePath];
+params4 = extractParams[simulationCalDataWithNoResistorFilePath]; *)
 
+allParams = <|
+  "simulationDataWithResistorFilePath" -> params1,
+  "simulationDataWithNoResistorFilePath" -> params2
+|>;
+(* 
 allParams = <|
   "simulationDataWithResistorFilePath" -> params1,
   "simulationDataWithNoResistorFilePath" -> params2,
   "simulationCalDataWithResistorFilePath" -> params3,
   "simulationCalDataWithNoResistorFilePath" -> params4
 |>;
-
+*)
 
 
 allKeys = Union[Flatten[Keys /@ Values[allParams]]];
@@ -985,15 +1254,10 @@ paramSection = Column[{
 
 allPlots = {
 	voltammogramPlots,
-  baselinePlots,
+  (* baselinePlots, *)
+  baselineStandardPlot2,
   deltaIPlots,
-  LovricPlots,
-  iNormPlots,
-  iNormPlots2,
-  calibrationPlots,
-  calibrationPlotsLogLog,
-  theoryPlot2,
-  theoryPlot3
+  LovricPlots, 
 };
 (* Export["all_experiment_plots2.pdf",
   Column[allPlots, Spacings -> 2],
@@ -1024,5 +1288,151 @@ Export[
     Spacings -> 2
   ],
   "PDF"
+]
+
+
+
+(* ============================================================ *)
+(* EXPORT RAW PLOTTED DATA (NO INTERPOLATION) TO A TXT FILE       *)
+(* Two sections:                                                  *)
+(*   1) Non-faradaic baseline current (\[Micro]A)                         *)
+(*   2) Faradaic peak \[CapitalDelta]I (\[Micro]A)                                      *)
+(* Each table row is one frequency from the UNION of all series.  *)
+(* Missing values are written as NaN.                              *)
+(* Faradaic section has separate columns for LOW (0 mM) and HIGH (9.3 mM). *)
+(* ============================================================ *)
+
+ClearAll[cleanPairs, toAssoc, unionFreqs, buildUnionTable, fmt, tableToLines, colNamesBaseline, colNamesFaradaic];
+
+cleanPairs[data_] :=
+  Select[data, VectorQ[#, NumericQ] && Length[#] == 2 && #[[1]] > 0 &];
+
+(* Map exact frequency -> value; if duplicates exist at same f, average them *)
+toAssoc[data_] := Module[{pairs = cleanPairs[data], groups},
+  groups = GatherBy[pairs, First];
+  Association @ ( (First@First[#] -> Mean[#[[All, 2]]]) & /@ groups )
 ];
+
+unionFreqs[assocs_List] :=
+  Sort @ DeleteDuplicates @ Flatten[Keys /@ assocs];
+
+buildUnionTable[freqs_List, assocs_List] :=
+  Table[
+    Join[{f}, Lookup[assocs, f, Missing["NoData"]] /. Missing[__] -> Missing["NoData"]],
+    {f, freqs}
+  ];
+
+fmt[x_] := Which[
+  MissingQ[x] || x === Indeterminate || x === ComplexInfinity || x === Infinity || x === -Infinity,
+    "NaN",
+  True,
+    ToString[NumberForm[N@x, {Infinity, 12}], InputForm]
+];
+
+tableToLines[header_String, colNames_List, table_List] :=
+  Join[
+    {header},
+    {StringRiffle[colNames, "\t"]},
+    (StringRiffle[fmt /@ #, "\t"] & /@ table),
+    {""}
+  ];
+
+(* ------------------------------------------------------------ *)
+(* SECTION 1: Non-faradaic baseline current (\[Micro]A)                 *)
+(* ------------------------------------------------------------ *)
+
+colNamesBaseline =
+  {"Frequency_Hz",
+   "Baseline_Exp_LowR_uA", "Baseline_Exp_HighR_uA",
+   "Baseline_TimeDomain_LowR_uA", "Baseline_TimeDomain_HighR_uA",
+   "Baseline_Analytic_LowR_uA", "Baseline_Analytic_HighR_uA"};
+
+expBaselineLowR  = baselineVsFrequencyMicroASorted;
+expBaselineHighR = baselineVsFrequencyMicroASortedWithResistor;
+
+tdBaselineLowR  = theoryCurve[0, parsedBaselineDataLowResistor];
+tdBaselineHighR = theoryCurve[0, parsedBaselineDataHighResistor];
+
+chiNFmicroA[f_?NumericQ, params_Association] :=
+  Quiet @ Chop @ N[
+    10^6*(CHISignalDiffNonFaradaic /. {
+        fSWV -> f,
+        CDL  -> params["CDL"],
+        Rsol -> params["Rsol"],
+        V0   -> params["V0"]
+      })
+  ];
+
+(* use the SAME dense analytic grid you used for the plot *)
+nAna = 300;
+freqGridNF = 10^Subdivide[log10[plotRanges[[1, 1]]], log10[plotRanges[[1, 2]]], nAna];
+
+anaBaselineLowR  = Select[{#, chiNFmicroA[#, bestFitParameters]}      & /@ freqGridNF, VectorQ[#, NumericQ] &];
+anaBaselineHighR = Select[{#, chiNFmicroA[#, bestFitParametersHighR]} & /@ freqGridNF, VectorQ[#, NumericQ] &];
+
+assocsNF = toAssoc /@ {expBaselineLowR, expBaselineHighR, tdBaselineLowR, tdBaselineHighR, anaBaselineLowR, anaBaselineHighR};
+freqsNF  = unionFreqs[assocsNF];
+tableNF  = buildUnionTable[freqsNF, assocsNF];
+
+(* ------------------------------------------------------------ *)
+(* SECTION 2: Faradaic peak \[CapitalDelta]I (\[Micro]A)                               *)
+(* Columns are split into LOW (0 mM) and HIGH (9.3 mM)            *)
+(* ------------------------------------------------------------ *)
+
+colNamesFaradaic =
+  {"Frequency_Hz",
+
+   "FaradaicLowConc_Exp_LowR_uA",  "FaradaicLowConc_Exp_HighR_uA",
+   "FaradaicLowConc_TimeDomain_LowR_uA", "FaradaicLowConc_TimeDomain_HighR_uA",
+   "FaradaicLowConc_Analytic_LowR_uA",   "FaradaicLowConc_Analytic_HighR_uA",
+
+   "FaradaicHighConc_Exp_LowR_uA", "FaradaicHighConc_Exp_HighR_uA",
+   "FaradaicHighConc_TimeDomain_LowR_uA", "FaradaicHighConc_TimeDomain_HighR_uA",
+   "FaradaicHighConc_Analytic_LowR_uA",   "FaradaicHighConc_Analytic_HighR_uA"
+  };
+
+(* ---- low concentration (0 mM) curves ---- *)
+expFar0LowR  = deltaIVsFrequencyNoResistorLowConc;
+expFar0HighR = deltaIVsFrequencyWithResistorLowConc;
+
+tdFar0LowR  = simLowCurves[[1]];
+tdFar0HighR = simLowCurves[[2]];
+
+anaFar0LowR  = analyticLowNoR;
+anaFar0HighR = analyticLowAddR;
+
+(* ---- high concentration (9.3 mM) curves ---- *)
+expFarHighLowR  = deltaIVsFrequencyNoResistorHighConc;
+expFarHighHighR = deltaIVsFrequencyWithResistorHighConc;
+
+tdFarHighLowR  = simHighCurves[[1]];
+tdFarHighHighR = simHighCurves[[2]];
+
+anaFarHighLowR  = analyticHighNoR;
+anaFarHighHighR = analyticHighAddR;
+
+(* build union table across BOTH concentrations: *)
+assocsFar = Join[
+  toAssoc /@ {expFar0LowR, expFar0HighR, tdFar0LowR, tdFar0HighR, anaFar0LowR, anaFar0HighR},
+  toAssoc /@ {expFarHighLowR, expFarHighHighR, tdFarHighLowR, tdFarHighHighR, anaFarHighLowR, anaFarHighHighR}
+];
+
+freqsFar = unionFreqs[assocsFar];
+tableFar = buildUnionTable[freqsFar, assocsFar];
+
+(* ------------------------------------------------------------ *)
+(* Write the TXT file                                            *)
+(* ------------------------------------------------------------ *)
+
+baseDir = Quiet @ Check[NotebookDirectory[], $TemporaryDirectory];
+fileOut = FileNameJoin[{baseDir, "export_plot_data_raw.txt"}];
+
+lines = Join[
+  tableToLines["## Non-faradaic baseline current (microA)", colNamesBaseline, tableNF],
+  tableToLines["## Faradaic peak \[CapitalDelta]I (microA) - low and high concentration columns", colNamesFaradaic, tableFar]
+];
+
+Export[fileOut, StringRiffle[lines, "\n"], "Text"];
+
+fileOut
 
