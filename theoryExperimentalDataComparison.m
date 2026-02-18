@@ -1267,22 +1267,11 @@ paramSection = Column[
 
 allPlots = {
 	voltammogramPlots,
-  (* baselinePlots, *)
   baselineStandardPlot2,
-  deltaIPlots,
+  finalComparisonGrid,
   LovricPlots, 
 };
-(* Export["all_experiment_plots2.pdf",
-  Column[allPlots, Spacings -> 2],
-  "PDF"
-] 
-Export["all_experiment_plots_with_params.pdf",
-  Column[
-    Append[allPlots, paramSection],
-    Spacings -> 2
-  ],
-  "PDF"
-];*)
+
 header = Graphics[
   Text[
     Style["EXPERIMENT                       THEORY", 20, Bold, FontFamily -> "Helvetica"],
