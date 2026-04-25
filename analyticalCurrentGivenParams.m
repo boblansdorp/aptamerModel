@@ -1,0 +1,576 @@
+(* ::Package:: *)
+
+(* ::Input:: *)
+(*ClearAll["Global`*"]*)
+(*(*Create functions to compute impedance*)*)
+(*ZDL[w_, CDL_]:=1/(I*w*CDL);*)
+(**)
+(*(* ZFaradaic[w_,RCT_, CApt_]:=RCT+1/(I*w*CApt);*)
+(*Y0=1.10*10^-6;*)
+(*Nexponent=0.873;*)
+(*ZFaradaic[w_,RCT_, Capt_]:=RCT+1/(Y0*(I*w)^Nexponent); *) (* constant phase element *)*)
+(**)
+(*ZFaradaic[w_,RCT_, CApt_]:=RCT+1/(I*w*CApt); *)
+(**)
+(*ZParallel[w_,CDL_, RCT_, CApt_]:=1/(1/ZDL[w, CDL]+1/ZFaradaic[w,RCT, CApt]); *)
+(**)
+(*ZTotalNonFaradaic[w_,CDL_, RCT_, Rsol_, Capt_]:=ZDL[w, CDL]+Rsol; *)
+(**)
+(* ZTotal[w_,CDL_, RCT_, Rsol_, CApt_]:=Rsol+ZParallel[w,CDL, RCT, CApt];  (* PREVIOUS DEFINITION! *)*)
+(* *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*(*Compute Laplace-domain current for step*)*)
+(*(*Time-domain voltage*)*)
+(*(* V0=0.025; *)(*volts*)*)
+(**)
+(**)
+(**)
+(*V0FWD=   V0 ; (* In SWV,the instrument \[OpenCurlyDoubleQuote]Amplitude\[CloseCurlyDoubleQuote] (V0) is the pulse height E_sw, so total should be twice this *)*)
+(*NSTEPS = 3; (* how many square wave steps is enough? *)*)
+(**)
+(**)
+(*(* vtime[t_,nSteps_, fSWV_]:=V0FWD (UnitStep[t] + Sum[ UnitStep[t+n/fSWV]+UnitStep[t+(n+1)/fSWV]-2UnitStep[t+(n+1/2)/fSWV], {n,0,nSteps-1}]) *)*)
+(*vtime[t_,nSteps_, fSWV_]:=V0FWD (- Sum[ HeavisideTheta[t-n/fSWV]+HeavisideTheta[t-(n+1)/fSWV]-2HeavisideTheta[t-(n+1/2)/fSWV ] -(VDELTA /V0FWD)HeavisideTheta[t-(n+1)/fSWV], {n,0,nSteps-1}])*)
+(**)
+
+
+(* ::Input:: *)
+(*Plot[{vtime[t,NSTEPS, fSWV]/.{V0FWD->0.025, fSWV->100, VDELTA->0.00}}, {t,-0.01,0.03}, PlotRange->Automatic, AxesLabel->{"Time (s)", "Applied SWV Potential (V)"}]*)
+(**)
+
+
+(* ::Input:: *)
+(*vtime[t,3, 600]*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*(*Laplace transform*)*)
+(*VofS=LaplaceTransform[vtime[t, NSTEPS, fSWV],t,s,Assumptions->{ V0\[Element]Reals, VDELTA->0, fSWV>0}]*)
+(**)
+
+
+(* ::Input:: *)
+(*VofS=LaplaceTransform[vtime[t, NSTEPS, fSWV]/.{VDELTA->0},t,s,Assumptions->{ V0\[Element]Reals, fSWV>0}]*)
+
+
+(* ::Input:: *)
+(*VofS=Simplify[VofS, Assumptions->{fSWV>0}]*)
+
+
+(* ::Input:: *)
+(*IsNonFaradaic = VofS/(ZTotalNonFaradaic[-I s,CDL, Rct, Rsol, Capt])*)
+
+
+(* ::Input:: *)
+(*Simplify[IsNonFaradaic,Assumptions->{fSWV>0}]*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*itNonFaradaic =InverseLaplaceTransform[IsNonFaradaic,s,t,Assumptions->{CDL Rsol!=0,fSWV>0}] (* the current versus time in response to a step of amplitude V0 *)*)
+
+
+(* ::Input:: *)
+(*itNonFaradaic=Simplify[itNonFaradaic, Assumptions->{V0>0,fSWV>0, t>0}]*)
+
+
+(* ::Input:: *)
+(*itNonFaradaic/.{VDELTA->0}*)
+
+
+(* ::Input:: *)
+(*itNonFaradaic/.{fSWV->400, V0->0.025, Rsol->1540, CDL->394*10^-9}*)
+
+
+(* ::Input:: *)
+(*10^6 itNonFaradaic/.{fSWV->600, V0->0.025,  Rsol->1540, CDL->394*10^-9}*)
+
+
+(* ::Input:: *)
+(*frequenciesList = {5, 10,50,100,208.33333333333334`,250.`,277.77777777777777`,312.5`,357.14285714285717`,416.6666666666667`,500.`,625.`,833.3333333333334`,1250.`}*)
+(**)
+
+
+(* ::Input:: *)
+(*Plot[{2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/500,fSWV->500, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9},2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/625,fSWV->625, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9},2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/833.3333333333334`,fSWV->833.3333333333334`, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9},2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/1250,fSWV->1250, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9}}, {time,-2,0}, PlotRange->{Automatic, {0,40}}, Ticks->{{-2,-1.8,-1.6,-1.4,-1.2,-1,-0.8,-0.6,-0.4,-0.2,0},Automatic}]*)
+
+
+(* ::Input:: *)
+(*(* itNonFaradaicInfinite=itNonFaradaic-(itNonFaradaic/.{t->1/(2fSWV)}  )/2 *)     (*current at end of forward half-pulse*)*)
+
+
+(* ::Input:: *)
+(*(* attempt to quantify Bioligic discrete measuremnet *)*)
+(**)
+(*(* *)
+(*BiologicSampleRate = 5000; (* actually 4 measurements per sample *)*)
+(*BiologicNpoints = Round[BiologicSampleRate*BiologicDutyCycle*(1/(2*fSWV))]*4*)
+(*BiologicNpoints/.{BiologicDutyCycle->0.6, fSWV->625}*)
+(*BiologicNpoints/.{BiologicDutyCycle->0.6, fSWV->1250}*)
+(*BiologicNpoints/.{BiologicDutyCycle->0.6,fSWV->frequenciesList}*)
+(*N[1000(NSTEPS/fSWV-(n-50/100)/BiologicSampleRate)/.{fSWV->500, n->2}]*)
+(*BiologicSignalNonFaradaicFWD = Sum[itNonFaradaic/.{t->(NSTEPS/fSWV-(n+0)/(4*BiologicSampleRate))},{n,BiologicNpoints}]/BiologicNpoints*)
+(*BiologicSignalNonFaradaicREV= Sum[itNonFaradaic/.{t->(NSTEPS/fSWV-1/(2*fSWV)-(n+0)/(4*BiologicSampleRate))},{n,BiologicNpoints}]/BiologicNpoints*)
+(*(* BiologicSignalNonFaradaicFWD=Integrate[itNonFaradaic,{t,NSTEPS/fSWV-(BiologicNpoints+1/2)/BiologicSampleRate, NSTEPS/fSWV-(1/2)/BiologicSampleRate}, Assumptions->{ fSWV>0, fSWV\[Element]Reals}]/(BiologicNpoints/BiologicSampleRate) *)*)
+(*BiologicSignalNonFaradaicDIFF = BiologicSignalNonFaradaicFWD-BiologicSignalNonFaradaicREV*)
+(*10^6BiologicSignalNonFaradaicDIFF/.{CDL->220*10^-9, Rsol->2200, BiologicDutyCycle->0.6, fSWV->500, V0->0.025}*)
+(*10^6BiologicSignalNonFaradaicDIFF/.{CDL->220*10^-9, Rsol->2200, BiologicDutyCycle->0.6, fSWV->625, V0->0.025}*)
+(*10^6BiologicSignalNonFaradaicDIFF/.{CDL->220*10^-9, Rsol->2200, BiologicDutyCycle->0.6, fSWV->833.33333, V0->0.025}*)
+(*10^6BiologicSignalNonFaradaicDIFF/.{CDL->220*10^-9, Rsol->2200, BiologicDutyCycle->0.6, fSWV->1250, V0->0.025}*)
+(*ListPlot[2*10^6BiologicSignalNonFaradaicFWD/.{CDL->220*10^-9, Rsol->2200, BiologicDutyCycle->0.6, V0->0.025,SWV/.frequenciesList}]  *)*)
+
+
+(* ::Text:: *)
+(* *)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*(* CHISignalDiffNonFaradaic = CHISignalNonFaradaic-CHISignalNonFaradaicRev *) *)
+(*(* SWVPulseAvg =1/4; *) (* expressed as a fraction. so max is 1, represents aveging entire pulse. 0.5 is CHI spec, 50% of pulse *)*)
+(*CHISignalNonFaradaicFWD = Integrate[itNonFaradaic, {t,NSTEPS/fSWV-SWVPulseAvg/(2 fSWV), NSTEPS/fSWV}, Assumptions->{ fSWV>0, fSWV\[Element]Reals}]/(SWVPulseAvg/(2 fSWV))*)
+(*CHISignalNonFaradaicREV = Integrate[itNonFaradaic, {t,NSTEPS/fSWV-2/(4 fSWV)-SWVPulseAvg/(2 fSWV), NSTEPS/fSWV-2/(4 fSWV)}, Assumptions->{fSWV>0, fSWV\[Element]Reals}]/(SWVPulseAvg/(2 fSWV))*)
+(**)
+(**)
+(*CHISignalDiffNonFaradaic =  CHISignalNonFaradaicFWD-CHISignalNonFaradaicREV (* since it's symmetric and we are waiting infinite time, forward minus reverse is double just the forward step size *)*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*LogLinearPlot[{10^6CHISignalDiffNonFaradaic/.{V0 ->0.025,VDELTA->0.000, Rsol->2200, CDL->220*10^-9, SWVPulseAvg->1/4}, 10^6CHISignalDiffNonFaradaic/.{V0 ->0.025,VDELTA->0.000, Rsol->2200, CDL->220*10^-9, SWVPulseAvg->1/2}, 10^6CHISignalDiffNonFaradaic/.{V0 ->0.025,VDELTA->0.000, Rsol->2200, CDL->220*10^-9, SWVPulseAvg->3/4},10^6CHISignalDiffNonFaradaic/.{V0 ->0.025,VDELTA->0.000, Rsol->2200, CDL->220*10^-9, SWVPulseAvg->1}}, {fSWV, 10,600}, AxesLabel->{"Frequency [Hz]", "Difference Current [microA]"}, PlotLegends->{"25%", "50%",  "75%",  "100%"}]*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*CHISignalDiffNonFaradaic=CHISignalDiffNonFaradaic/.{VDELTA->0 ,SWVPulseAvg->1/2} (* use the CHI potentiostat settings *)*)
+
+
+(* ::Input:: *)
+(*CHISignalDiffNonFaradaic=Simplify[CHISignalDiffNonFaradaic, Assumptions->{fSWV>0}]*)
+
+
+(* ::Input:: *)
+(*(* VofSRev=LaplaceTransform[vtimeRev[t],t,s] *)*)
+(*(*Laplace current*)*)
+(*Is=(VofS/ZTotal[-I s,CDL,Rct,Rsol,Capt])/.{VDELTA->0}*)
+(*(* IsRev=VofSRev/ZTotal[-I s,CDL,Rct,Rsol,Capt]; *)*)
+(**)
+(**)
+(*(*Compute time-domain current*)*)
+(*(*Inverse Laplace*)*)
+(*it=InverseLaplaceTransform[Is,s,t, Assumptions->{fSWV>0}]*)
+
+
+(* ::Input:: *)
+(*it/.{fSWV->100, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->100000, t->0.001};*)
+
+
+(* ::Input:: *)
+(*vtime[t,NSTEPS, fSWV]*)
+
+
+(* ::Input:: *)
+(*voltageOnCapacitor = (vtime[t,NSTEPS, fSWV]-it *Rsol);*)
+
+
+(* ::Input:: *)
+(*Plot[{10^3 voltageOnCapacitor/.{fSWV->40, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.01,0.08}, PlotRange->{Automatic, {-50,50}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*residualCapacitive = CDL D[voltageOnCapacitor,t];*)
+
+
+(* ::Input:: *)
+(*10^6 residualCapacitive/.{fSWV->100, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->100000, V0->0.025, t->0.0055}*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.005,0.035}, PlotRange->{Automatic, {-4,4}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, V0->0.025, Rct->6000}, 10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->6000}}, {t,-0.005,0.015}, PlotRange->{Automatic, {-2,2}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->6000}, 10^6 residualCapacitive/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->6000}}, {t,-0.005,0.015}, PlotRange->{Automatic, {-1,1}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*fSWVTemp = 400;*)
+(*RctTemp = 10000;*)
+(**)
+(*Plot[{10^6 it/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->RctTemp, V0->0.025}, 10^6 residualCapacitive/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->RctTemp, V0->0.025},10^6 it/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->RctTemp, V0->0.025}, 10^6 residualCapacitive/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->RctTemp, V0->0.025},10^6 it/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->1000*RctTemp, V0->0.025}}, {t,-0.005,0.01}, PlotRange->{Automatic, {-12,12}}, PlotLegends->{"Total current - low R",  "Residual double layer capacitive charging current - low R","Total current - high R", "Residual double layer capacitive charging current - high R","nonFaradaic - high R"}, AxesLabel->{"time (s)", "current (microA)"}, ImageSize->Large]*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.005,0.015}, PlotRange->{Automatic, {-7,7}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.01,0.04}, PlotRange->{Automatic, {-2,2}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 residualCapacitive/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}}, {t,-0.01,0.04}, PlotRange->{Automatic, {-2,2}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}, 10^6 residualCapacitive/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.002,0.01}, PlotRange->{Automatic, {-4,4}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*(* is the residual double laye rcharging current different than the non-faradaic baseline? *)*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 itNonFaradaic/.{fSWV->300, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.002,0.01}, PlotRange->{Automatic, {-10,10}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 residualCapacitive/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}, 10^6 itNonFaradaic/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.002,0.08}, PlotRange->{Automatic, {-0.2,0.2}}, PlotLegends->{"Residual double layer capacitive charging current", "non-faradaic baseline"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*(* it = it//FullSimplify *)*)
+(**)
+
+
+10^6 itNonFaradaic/.{fSWV->80,  CDL->300*10^-9, Rsol->1000,  V0->0.025}
+
+
+(* ::Input:: *)
+(*Plot[{10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))}, 10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
+(*10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}, *)
+(*10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
+(**)
+(*( *)
+(*10^6( it-itNonFaradaic)/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}*)
+(**)
+(*)*)
+(**)
+(**)
+(*} , {time,0,0.005}, PlotRange->{Automatic, {0,4}}, PlotLegends->{"non-faradaic baseline","Residual double layer capacitive charging current", "non-faradaic baseline","Residual double layer capacitive charging current", "Garb"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Code:: *)
+(**)
+
+
+(* ::Input:: *)
+(*Plot[{10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))}, 10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
+(*10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}, *)
+(*10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
+(**)
+(*( *)
+(*10^6( it-itNonFaradaic)/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}*)
+(**)
+(*)*)
+(**)
+(**)
+(*} , {time,0,0.005}, PlotRange->{Automatic, {0,4}}, PlotLegends->{"non-faradaic baseline","Residual double layer capacitive charging current", "non-faradaic baseline","Residual double layer capacitive charging current", "Garb"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*(* itInfinite=it-(it/.{t->1/(2fSWV)}  )/2  ;   *)   (*current at end of forward half-pulse*)*)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*(* IsNonFaradaicRev = VofSRev/(ZTotalNonFaradaic[-I s,CDL, Rct, Rsol, Capt]); *)*)
+(**)
+(**)
+(*(* *)
+(*Is=V0/(s*ZTotal[-I s,CDL, Rct, Rsol, Capt]);*)
+(*IsNonFaradaic = V0/(s*ZTotalNonFaradaic[-I s,CDL, Rct, Rsol, Capt]);*)
+(**) *)
+
+
+(* ::Input:: *)
+(*(* itRev=FullSimplify[InverseLaplaceTransform[IsRev,s,t]] *)*)
+
+
+(* ::Input:: *)
+(*(* itNonFaradaicRev =FullSimplify[InverseLaplaceTransform[IsNonFaradaicRev,s,t]] *)*)
+
+
+(* ::Input:: *)
+(*(*make it exact,then integrate*)*)
+(*(* itExact=Rationalize[it,0];   (*kills 0.25,0.5,etc and makes them rationals*)*)
+(*itExact=Simplify[itExact, Assumptions->{fSWV>0 && t>(NSTEPS-3/4)/fSWV, t<(NSTEPS)/fSWV}] *)*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*expr1=it/. {(CDL Rsol+Capt (Rct+Rsol))->\[Lambda]1};*)
+(*expr2=expr1/.{Sqrt[ CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2]->\[Lambda]2};*)
+(*expr3=expr2/.{ Capt CDL Rct Rsol->\[Lambda]3} ;*)
+(*Simplify[expr3]*)
+(**)
+(**)
+
+
+(* ::Input:: *)
+(*CHISignalFWD = Integrate[expr3, {t,NSTEPS/fSWV-(1/fSWV)/4, NSTEPS/fSWV}, Assumptions->{fSWV>0, fSWV\[Element]Reals, Capt>0, CDL>0,  Rct>0, Rsol>0,\[Lambda]1>0, \[Lambda]2>0, \[Lambda]3>0}]/(1/(4 fSWV))*)
+
+
+(* ::Input:: *)
+(*CHISignalREV = Integrate[expr3, {t,NSTEPS/fSWV-(3/fSWV)/4, NSTEPS/fSWV-(2/fSWV)/4}, Assumptions->{fSWV>0, fSWV\[Element]Reals, Capt>0, CDL>0,  Rct>0, Rsol>0,\[Lambda]1>0, \[Lambda]2>0, \[Lambda]3>0}]/(1/(4 fSWV))*)
+
+
+(* ::Input:: *)
+(*CHISignalRefactoredFWD=CHISignalFWD/.{\[Lambda]1->(CDL Rsol+Capt (Rct+Rsol)),\[Lambda]2->Sqrt[ CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2], \[Lambda]3-> Capt CDL Rct Rsol}*)
+(*CHISignalRefactoredREV=CHISignalREV/.{\[Lambda]1->(CDL Rsol+Capt (Rct+Rsol)),\[Lambda]2->Sqrt[ CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2], \[Lambda]3-> Capt CDL Rct Rsol}*)
+(**)
+
+
+(* ::Input:: *)
+(*(* CHISignalFWD = Integrate[it, {t,NSTEPS/fSWV-(1/fSWV)/4, NSTEPS/fSWV}, Assumptions->{NSTEPS\[Element]PositiveIntegers, fSWV>0, fSWV\[Element]Reals, Capt>0, CDL>0,  Rct>0, Rsol>0, t<NSTEPS/fSWV, t>(NSTEPS-1/4)/fSWV}]/(1/(4 fSWV)) *)*)
+
+
+(* ::Input:: *)
+(* (* CHISignalREV= Integrate[it, {t,NSTEPS/fSWV-(3/fSWV)/4, NSTEPS/fSWV-(2/fSWV)/4}, Assumptions->{NSTEPS\[Element]PositiveIntegers, fSWV>0, fSWV\[Element]Reals, Capt>0, CDL>0,  Rct>0, Rsol>0, \[Lambda]1>0, \[Lambda]2>0, \[Lambda]3>0}]/(1/(4 fSWV)) *)*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*(* CHISignalRefactored=CHISignal/.{\[Lambda]1->(CDL Rsol+Capt (Rct+Rsol)),\[Lambda]2->Sqrt[ CDL^2 Rsol^2+2 Capt CDL Rsol (-Rct+Rsol)+Capt^2 (Rct+Rsol)^2], \[Lambda]3-> Capt CDL Rct Rsol} *)*)
+
+
+(* ::Input:: *)
+(*(* CHISignal = Integrate[itExact/.{fSWV->t1}, {t,t1/2, t1}]/(t1-t1/2) *)*)
+
+
+(* ::Input:: *)
+(*(* CHISignal = Integrate[itExact, {t,NSTEPS/fSWV-(1/fSWV)/4, NSTEPS/fSWV}, Assumptions->{NSTEPS\[Element]Integers, fSWV>0, fSWV\[Element]Reals}]/(1/(4 fSWV)); *)*)
+
+
+(* ::Input:: *)
+(*(* CHISignalRev= Integrate[-itExact, {t,t1/2, t1}]/(t1-t1/2) *)*)
+
+
+(* ::Input:: *)
+(*(* CHISignalNonFaradaicRev = Integrate[itNonFaradaicRev, {t,t1/2, t1}]/(t1-t1/2); *)*)
+(*(* CHISignalDiff =  CHISignal-CHISignalRev *)*)
+(*(* CHISignalDiff =  2 CHISignalRefactored *) (* With a linear circuit model, forward and reverse steps are symmetric so we can do this! *)*)
+
+
+(* ::Input:: *)
+(*CHISignalDiff = CHISignalRefactoredFWD-CHISignalRefactoredREV*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*CHISignalDiffSimple = Simplify[CHISignalDiff, Assumptions->{CDL>0,Rsol>0 , Capt>0, Rct>0, V0>0,fSWV>0 }]*)
+
+
+(* ::Input:: *)
+(*CHISignalBaselineSubtracted = CHISignalDiffSimple-CHISignalDiffNonFaradaic*)
+(**)
+
+
+(* ::Input:: *)
+(* Simplify[CHISignalBaselineSubtracted, Assumptions->{fSWV>0}]*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,  V0->0.025, fSWV->500}*)
+
+
+(* ::Input:: *)
+(*Plot[CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,  V0->0.025}, {t1,10^-5,10^-2}]*)
+(**)
+
+
+(* ::Input:: *)
+(*itNonFaradaic*)
+
+
+(* ::Input:: *)
+(*CHISignalDiffNonFaradaic/.{ Rsol->1300,  CDL->250*10^-9,  V0->0.025, t1->(1/(2*600))}*)
+
+
+(* ::Input:: *)
+(*LogLinearPlot[{10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,t1->1/f},10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9,t1->1/f}}, {f,10,10^4}, Frame->True, FrameLabel->{"frequency (Hz)", "current (microA)"},PlotLegends->Placed[LineLegend[{"Rsol = 300 \[CapitalOmega]","Rsol = 3000 \[CapitalOmega]"},LegendLabel->"Series Resistance",LabelStyle->Directive[14]],{0.75,0.85}  (*top-right corner*)]]*)
+(**)
+
+
+(* ::Input:: *)
+(*LogLinearPlot[{(10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,t1->1/f})/f,(10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9,t1->1/f})/f}, {f,10,10^4}]*)
+
+
+(* ::Input:: *)
+(*(* integrate total charge *)*)
+(**)
+(*LogPlot[{CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}}, {t1,10^-5,10^-1}, PlotRange->{{0,5*10^-2}, {1*10^-9,4*10^-6}}, PlotLegends->Placed[LineLegend[{"Rsol = 300 \[CapitalOmega]","Rsol = 3000 \[CapitalOmega]"},LegendLabel->"Series Resistance",LabelStyle->Directive[14]],{0.75,0.85}]]*)
+
+
+(* ::Input:: *)
+(*Integrate[CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, {t1,0,1}]*)
+
+
+(* ::Input:: *)
+(*Integrate[CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}, {t1,0,1}]*)
+
+
+(* ::Input:: *)
+(*LogPlot[{10^6(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, 10^6(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}}, {t,10^-5,10^-1}, PlotRange->{{0,5*10^-2}, {1*10^-3,4*10^-0}}, Frame->True, FrameLabel->{"time (s)", "current (microA)"}]*)
+
+
+(* ::Input:: *)
+(*Integrate[(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}, {t,0,1}]*)
+
+
+(* ::Input:: *)
+(*Integrate[(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, {t,0,1}]*)
+
+
+(* ::Input:: *)
+(*LogLogPlot[{(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, (it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}}, {t,10^-5,10^-1}, PlotRange->{{0,5*10^-2}, {1*10^-9,4*10^-6}}]*)
+
+
+(* ::Input:: *)
+(*Vaptamer = Rsol*(it)*)
+
+
+(* ::Input:: *)
+(*Vaptamer/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}*)
+
+
+(* ::Input:: *)
+(*V0*)
+(*Plot[{UnitStep[t]V0,UnitStep[t]V0*(1-Exp[-t/(100*300*10^-9)]),UnitStep[t]V0*(1-Exp[-t/(900*300*10^-9)]), UnitStep[t](V0-Vaptamer/.{Capt->300*10^-9, Rsol->100, Rct->10000, CDL->300*10^-9}),UnitStep[t](V0-Vaptamer/.{Capt->300*10^-9, Rsol->1000, Rct->10000, CDL->300*10^-9})}, {t,-3*10^-4,1 10^-3}, PlotRange->{Automatic,{-0.01,0.03}}, Frame->True,FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"Step (V0)","RC = 100\[CapitalOmega]\[CenterDot]300nF","RC = 900\[CapitalOmega]\[CenterDot]300nF","Aptamer model, Rsol = 100\[CapitalOmega]","Aptamer model, Rsol = 1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}], ImageSize->Large]*)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::Input:: *)
+(*outwardTicks[min_,max_]:=Table[{i,i,{0,0.02}},(*{position,label,{plus_length,minus_length}}*){i,FindDivisions[{min,max},5]}]*)
+(*Plot[{UnitStep[t] V0,UnitStep[t] V0*(1-Exp[-t/(100*300*10^-9)]),UnitStep[t] V0*(1-Exp[-t/(900*300*10^-9)]),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9})},{t,-3*10^-4,1*10^-3},PlotRange->{Automatic,{-0.01,0.03}},Frame->True,FrameTicks->{{outwardTicks[##]&,outwardTicks[##]&},{outwardTicks[##]&,outwardTicks[##]&}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"Step (V0)","RC = 100\[CapitalOmega]\[CenterDot]300nF","RC = 900\[CapitalOmega]\[CenterDot]300nF","Aptamer model, Rsol = 100\[CapitalOmega]","Aptamer model, Rsol = 1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
+(**)
+
+
+(* ::Input:: *)
+(*outwardTicks[min_,max_]:=Table[{i,i,{0,0.01}},(*{position,label,{plus_length,minus_length}}*){i,FindDivisions[{min,max},5]}]*)
+(*Plot[{UnitStep[t] V0,UnitStep[t] V0*(1-Exp[-t/(100*300*10^-9)]),UnitStep[t] V0*(1-Exp[-t/(900*300*10^-9)]),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9})},{t,-3*10^-4,2*10^-3},PlotRange->{Automatic,{-0.01,0.03}},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{TraditionalForm[Subscript[V,WE]-Subscript[V,RE]],"Rs = 100\[CapitalOmega]","Rs = 900\[CapitalOmega]","Aptamer model, Rsol = 100\[CapitalOmega]","Aptamer model, Rsol = 1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large, PlotStyle->{Directive[Thick,RGBColor[1,0.84,0]],(*gold*)Directive[Medium,Dashed, RGBColor["#F2AA84"]],Directive[Thick,Dashed, RGBColor["#F2AA84"]],Directive[Medium,RGBColor["#F2AA84"]],Directive[Thick,RGBColor["#F2AA84"]]}]*)
+
+
+(* ::Input:: *)
+(*outwardTicks[min_,max_]:=Module[{divs},divs=FindDivisions[{min,max},5];(*choose~5 divisions*)Table[{i,NumberForm[i,{5,4}],{0,0.015}},{i,divs}]];*)
+(**)
+(*Plot[{*)
+(*10^3 UnitStep[(t1/1000)] V0,*)
+(*10^3 UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(100*300*10^-9)]),*)
+(*10^3UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(900*300*10^-9)]),*)
+(*10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9, t->t1/1000}),10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9,t->t1/1000})*)
+(*},*)
+(*{t1,-3*10^-1,1*10^0},PlotRange->{Automatic,{-5, 30}},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (ms)","potential (mV)"},PlotLegends->Placed[LineLegend[{TraditionalForm[Subscript[V,WE]-Subscript[V,RE]],"Rs = 100\[CapitalOmega], Exponential model","Rs = 1000\[CapitalOmega], , Exponential model","Rsol = 100\[CapitalOmega], Aptamer model","Rsol = 1000\[CapitalOmega], Aptamer model"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large, PlotStyle->{Directive[Thick,RGBColor[1,0.84,0]],(*gold*)Directive[Medium,Dashed, RGBColor["#F2AA84"]],Directive[Thick,Dashed, RGBColor["#D87A4D"]],Directive[Medium,RGBColor["#F2AA84"]],Directive[Thick,RGBColor["#D87A4D"]]}]*)
+
+
+(* ::Input:: *)
+(*Plot[{*)
+(*10^3 UnitStep[(t1/1000)] V0,*)
+(*10^3 UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(100*300*10^-9)]),*)
+(*10^3UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(900*300*10^-9)]),*)
+(*10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9, t->t1/1000}),10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9,t->t1/1000})*)
+(*},*)
+(*{t1,-3*10^-1,1*10^0},PlotRange->{Automatic,{-5, 30}},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (ms)","potential (mV)"},ImageSize->Large, PlotStyle->{Directive[Thick,RGBColor[1,0.84,0]],(*gold*)Directive[Medium,Dashed, RGBColor["#F2AA84"]],Directive[Thick,Dashed, RGBColor["#D87A4D"]],Directive[Medium,RGBColor["#F2AA84"]],Directive[Thick,RGBColor["#D87A4D"]]}]*)
+
+
+(* ::Input:: *)
+(*Plot[{ ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->30000,CDL->300*10^-9}), ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->2000,Rct->30000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->30000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->2000,Rct->30000,CDL->300*10^-9}), (itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->30000,CDL->300*10^-9}, (itNonFaradaic)/. {Capt->300*10^-9,Rsol->2000,Rct->30000,CDL->300*10^-9}},{t,0,1*10^-2},PlotRange->{Automatic,Automatic},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","current"},PlotLegends->Placed[LineLegend[{"100\[CapitalOmega]", "1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
+
+
+(* ::Input:: *)
+(*LogLinearPlot[{ ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9})},{t,0,1*10^-2},PlotRange->{Automatic,Automatic},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"100\[CapitalOmega]", "1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
+
+
+(* ::Input:: *)
+(*LogLogPlot[{ ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9})},{t,0,1*10^-2},PlotRange->{Automatic,Automatic},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"100\[CapitalOmega]", "1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
