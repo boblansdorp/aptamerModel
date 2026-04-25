@@ -1,0 +1,98 @@
+############################################
+# Wolfram / Mathematica
+############################################
+
+# Notebooks and packages (keep tracked by default)
+# *.nb
+# *.wl
+# *.wls
+# *.m
+
+# Autosave / backups / temp
+*.nb~
+*.wl~
+*.wls~
+*.m~
+*.bak
+*.backup
+*.autosave
+*.tmp
+*.swp
+*.swo
+
+# Wolfram Cloud / CDF artifacts (often generated)
+*.cdf
+*.cdf~
+*.nbp
+
+# Notebook cache / front end leftovers (common in project dirs)
+*.mx
+*.m~*
+*.ma
+*.tr
+*.wlt
+*.wxf
+*.wdx
+
+# Some people generate compiled artifacts or library outputs
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.o
+*.obj
+
+
+# txt files
+*.txt
+
+# Build / output folders (rename to whatever you use)
+build/
+dist/
+out/
+output/
+tmp/
+
+# sandbox folder
+sandbox/
+
+# data folders
+experimentalData/
+fracpole/
+oldResults/
+results/
+
+# Mathematica "Working" scratch folders you might create
+Scratch/
+scratch/
+Cache/
+cache/
+
+############################################
+# OS junk
+############################################
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+############################################
+# Editors / IDEs
+############################################
+.vscode/
+.idea/
+*.code-workspace
+
+############################################
+# Logs
+############################################
+*.log
+
+############################################
+# Jupyter (if you sometimes export or mix)
+############################################
+.ipynb_checkpoints/
+
+##################################
