@@ -172,8 +172,8 @@
 (* ::Input:: *)
 (*(* CHISignalDiffNonFaradaic = CHISignalNonFaradaic-CHISignalNonFaradaicRev *) *)
 (*(* SWVPulseAvg =1/4; *) (* expressed as a fraction. so max is 1, represents aveging entire pulse. 0.5 is CHI spec, 50% of pulse *)*)
-(*CHISignalNonFaradaicFWD = Integrate[itNonFaradaic, {t,NSTEPS/fSWV-SWVPulseAvg/(2 fSWV), NSTEPS/fSWV}, Assumptions->{ fSWV>0, fSWV\[Element]Reals}]/(SWVPulseAvg/(2 fSWV))*)
-(*CHISignalNonFaradaicREV = Integrate[itNonFaradaic, {t,NSTEPS/fSWV-2/(4 fSWV)-SWVPulseAvg/(2 fSWV), NSTEPS/fSWV-2/(4 fSWV)}, Assumptions->{fSWV>0, fSWV\[Element]Reals}]/(SWVPulseAvg/(2 fSWV))*)
+(*CHISignalNonFaradaicFWD = Integrate[itNonFaradaic, {t,NSTEPS/fSWV-SWVPulseAvg/(2 fSWV), NSTEPS/fSWV}, Assumptions->{ fSWV>0, fSWV\[Element]Reals}]/(SWVPulseAvg/(2 fSWV));*)
+(*CHISignalNonFaradaicREV = Integrate[itNonFaradaic, {t,NSTEPS/fSWV-2/(4 fSWV)-SWVPulseAvg/(2 fSWV), NSTEPS/fSWV-2/(4 fSWV)}, Assumptions->{fSWV>0, fSWV\[Element]Reals}]/(SWVPulseAvg/(2 fSWV));*)
 (**)
 (**)
 (*CHISignalDiffNonFaradaic =  CHISignalNonFaradaicFWD-CHISignalNonFaradaicREV (* since it's symmetric and we are waiting infinite time, forward minus reverse is double just the forward step size *)*)
@@ -453,6 +453,9 @@
 (*CHISignalDiffSimple = Simplify[CHISignalDiff, Assumptions->{CDL>0,Rsol>0 , Capt>0, Rct>0, V0>0,fSWV>0 }]*)
 
 
+Simplify[CHISignalDiffSimple/.{V0->0.025}]
+
+
 (* ::Input:: *)
 (*CHISignalBaselineSubtracted = CHISignalDiffSimple-CHISignalDiffNonFaradaic*)
 (**)
@@ -460,125 +463,3 @@
 
 (* ::Input:: *)
 (* Simplify[CHISignalBaselineSubtracted, Assumptions->{fSWV>0}]*)
-
-
-(* ::Input:: *)
-(**)
-
-
-(* ::Input:: *)
-(*CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,  V0->0.025, fSWV->500}*)
-
-
-(* ::Input:: *)
-(*Plot[CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,  V0->0.025}, {t1,10^-5,10^-2}]*)
-(**)
-
-
-(* ::Input:: *)
-(*itNonFaradaic*)
-
-
-(* ::Input:: *)
-(*CHISignalDiffNonFaradaic/.{ Rsol->1300,  CDL->250*10^-9,  V0->0.025, t1->(1/(2*600))}*)
-
-
-(* ::Input:: *)
-(*LogLinearPlot[{10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,t1->1/f},10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9,t1->1/f}}, {f,10,10^4}, Frame->True, FrameLabel->{"frequency (Hz)", "current (microA)"},PlotLegends->Placed[LineLegend[{"Rsol = 300 \[CapitalOmega]","Rsol = 3000 \[CapitalOmega]"},LegendLabel->"Series Resistance",LabelStyle->Directive[14]],{0.75,0.85}  (*top-right corner*)]]*)
-(**)
-
-
-(* ::Input:: *)
-(*LogLinearPlot[{(10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9,t1->1/f})/f,(10^6 CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9,t1->1/f})/f}, {f,10,10^4}]*)
-
-
-(* ::Input:: *)
-(*(* integrate total charge *)*)
-(**)
-(*LogPlot[{CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}}, {t1,10^-5,10^-1}, PlotRange->{{0,5*10^-2}, {1*10^-9,4*10^-6}}, PlotLegends->Placed[LineLegend[{"Rsol = 300 \[CapitalOmega]","Rsol = 3000 \[CapitalOmega]"},LegendLabel->"Series Resistance",LabelStyle->Directive[14]],{0.75,0.85}]]*)
-
-
-(* ::Input:: *)
-(*Integrate[CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, {t1,0,1}]*)
-
-
-(* ::Input:: *)
-(*Integrate[CHISignalBaselineSubtracted/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}, {t1,0,1}]*)
-
-
-(* ::Input:: *)
-(*LogPlot[{10^6(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, 10^6(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}}, {t,10^-5,10^-1}, PlotRange->{{0,5*10^-2}, {1*10^-3,4*10^-0}}, Frame->True, FrameLabel->{"time (s)", "current (microA)"}]*)
-
-
-(* ::Input:: *)
-(*Integrate[(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}, {t,0,1}]*)
-
-
-(* ::Input:: *)
-(*Integrate[(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, {t,0,1}]*)
-
-
-(* ::Input:: *)
-(*LogLogPlot[{(it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}, (it-itNonFaradaic)/.{Capt->200*10^-9, Rsol->3000, Rct->20000, CDL->300*10^-9}}, {t,10^-5,10^-1}, PlotRange->{{0,5*10^-2}, {1*10^-9,4*10^-6}}]*)
-
-
-(* ::Input:: *)
-(*Vaptamer = Rsol*(it)*)
-
-
-(* ::Input:: *)
-(*Vaptamer/.{Capt->200*10^-9, Rsol->300, Rct->20000, CDL->300*10^-9}*)
-
-
-(* ::Input:: *)
-(*V0*)
-(*Plot[{UnitStep[t]V0,UnitStep[t]V0*(1-Exp[-t/(100*300*10^-9)]),UnitStep[t]V0*(1-Exp[-t/(900*300*10^-9)]), UnitStep[t](V0-Vaptamer/.{Capt->300*10^-9, Rsol->100, Rct->10000, CDL->300*10^-9}),UnitStep[t](V0-Vaptamer/.{Capt->300*10^-9, Rsol->1000, Rct->10000, CDL->300*10^-9})}, {t,-3*10^-4,1 10^-3}, PlotRange->{Automatic,{-0.01,0.03}}, Frame->True,FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"Step (V0)","RC = 100\[CapitalOmega]\[CenterDot]300nF","RC = 900\[CapitalOmega]\[CenterDot]300nF","Aptamer model, Rsol = 100\[CapitalOmega]","Aptamer model, Rsol = 1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}], ImageSize->Large]*)
-
-
-(* ::Input:: *)
-(**)
-
-
-(* ::Input:: *)
-(*outwardTicks[min_,max_]:=Table[{i,i,{0,0.02}},(*{position,label,{plus_length,minus_length}}*){i,FindDivisions[{min,max},5]}]*)
-(*Plot[{UnitStep[t] V0,UnitStep[t] V0*(1-Exp[-t/(100*300*10^-9)]),UnitStep[t] V0*(1-Exp[-t/(900*300*10^-9)]),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9})},{t,-3*10^-4,1*10^-3},PlotRange->{Automatic,{-0.01,0.03}},Frame->True,FrameTicks->{{outwardTicks[##]&,outwardTicks[##]&},{outwardTicks[##]&,outwardTicks[##]&}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"Step (V0)","RC = 100\[CapitalOmega]\[CenterDot]300nF","RC = 900\[CapitalOmega]\[CenterDot]300nF","Aptamer model, Rsol = 100\[CapitalOmega]","Aptamer model, Rsol = 1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
-(**)
-
-
-(* ::Input:: *)
-(*outwardTicks[min_,max_]:=Table[{i,i,{0,0.01}},(*{position,label,{plus_length,minus_length}}*){i,FindDivisions[{min,max},5]}]*)
-(*Plot[{UnitStep[t] V0,UnitStep[t] V0*(1-Exp[-t/(100*300*10^-9)]),UnitStep[t] V0*(1-Exp[-t/(900*300*10^-9)]),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}),UnitStep[t] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9})},{t,-3*10^-4,2*10^-3},PlotRange->{Automatic,{-0.01,0.03}},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{TraditionalForm[Subscript[V,WE]-Subscript[V,RE]],"Rs = 100\[CapitalOmega]","Rs = 900\[CapitalOmega]","Aptamer model, Rsol = 100\[CapitalOmega]","Aptamer model, Rsol = 1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large, PlotStyle->{Directive[Thick,RGBColor[1,0.84,0]],(*gold*)Directive[Medium,Dashed, RGBColor["#F2AA84"]],Directive[Thick,Dashed, RGBColor["#F2AA84"]],Directive[Medium,RGBColor["#F2AA84"]],Directive[Thick,RGBColor["#F2AA84"]]}]*)
-
-
-(* ::Input:: *)
-(*outwardTicks[min_,max_]:=Module[{divs},divs=FindDivisions[{min,max},5];(*choose~5 divisions*)Table[{i,NumberForm[i,{5,4}],{0,0.015}},{i,divs}]];*)
-(**)
-(*Plot[{*)
-(*10^3 UnitStep[(t1/1000)] V0,*)
-(*10^3 UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(100*300*10^-9)]),*)
-(*10^3UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(900*300*10^-9)]),*)
-(*10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9, t->t1/1000}),10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9,t->t1/1000})*)
-(*},*)
-(*{t1,-3*10^-1,1*10^0},PlotRange->{Automatic,{-5, 30}},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (ms)","potential (mV)"},PlotLegends->Placed[LineLegend[{TraditionalForm[Subscript[V,WE]-Subscript[V,RE]],"Rs = 100\[CapitalOmega], Exponential model","Rs = 1000\[CapitalOmega], , Exponential model","Rsol = 100\[CapitalOmega], Aptamer model","Rsol = 1000\[CapitalOmega], Aptamer model"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large, PlotStyle->{Directive[Thick,RGBColor[1,0.84,0]],(*gold*)Directive[Medium,Dashed, RGBColor["#F2AA84"]],Directive[Thick,Dashed, RGBColor["#D87A4D"]],Directive[Medium,RGBColor["#F2AA84"]],Directive[Thick,RGBColor["#D87A4D"]]}]*)
-
-
-(* ::Input:: *)
-(*Plot[{*)
-(*10^3 UnitStep[(t1/1000)] V0,*)
-(*10^3 UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(100*300*10^-9)]),*)
-(*10^3UnitStep[(t1/1000)] V0*(1-Exp[-(t1/1000)/(900*300*10^-9)]),*)
-(*10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9, t->t1/1000}),10^3UnitStep[(t1/1000)] (V0-Vaptamer/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9,t->t1/1000})*)
-(*},*)
-(*{t1,-3*10^-1,1*10^0},PlotRange->{Automatic,{-5, 30}},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (ms)","potential (mV)"},ImageSize->Large, PlotStyle->{Directive[Thick,RGBColor[1,0.84,0]],(*gold*)Directive[Medium,Dashed, RGBColor["#F2AA84"]],Directive[Thick,Dashed, RGBColor["#D87A4D"]],Directive[Medium,RGBColor["#F2AA84"]],Directive[Thick,RGBColor["#D87A4D"]]}]*)
-
-
-(* ::Input:: *)
-(*Plot[{ ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->30000,CDL->300*10^-9}), ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->2000,Rct->30000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->30000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->2000,Rct->30000,CDL->300*10^-9}), (itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->30000,CDL->300*10^-9}, (itNonFaradaic)/. {Capt->300*10^-9,Rsol->2000,Rct->30000,CDL->300*10^-9}},{t,0,1*10^-2},PlotRange->{Automatic,Automatic},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","current"},PlotLegends->Placed[LineLegend[{"100\[CapitalOmega]", "1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
-
-
-(* ::Input:: *)
-(*LogLinearPlot[{ ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9})},{t,0,1*10^-2},PlotRange->{Automatic,Automatic},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"100\[CapitalOmega]", "1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
-
-
-(* ::Input:: *)
-(*LogLogPlot[{ ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it-itNonFaradaic)/. {Capt->300*10^-9,Rsol->1000,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9}), ((it)/. {Capt->300*10^-9,Rsol->100,Rct->10000,CDL->300*10^-9})},{t,0,1*10^-2},PlotRange->{Automatic,Automatic},Frame->True,FrameTicks->{{outwardTicks[##]&,None},{outwardTicks[##]&,None}},FrameTicksStyle->Thickness[0.002],(*optional:thicker ticks*)FrameLabel->{"time (s)","potential (V)"},PlotLegends->Placed[LineLegend[{"100\[CapitalOmega]", "1000\[CapitalOmega]"},LegendLabel->"Response curves",LabelStyle->14],{0.75,0.3}],ImageSize->Large]*)
