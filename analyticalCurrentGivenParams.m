@@ -33,7 +33,7 @@
 (**)
 (**)
 (*V0FWD=   V0 ; (* In SWV,the instrument \[OpenCurlyDoubleQuote]Amplitude\[CloseCurlyDoubleQuote] (V0) is the pulse height E_sw, so total should be twice this *)*)
-(*NSTEPS = 3; (* how many square wave steps is enough? *)*)
+(*NSTEPS = 2; (* how many square wave steps is enough? *)*)
 (**)
 (**)
 (*(* vtime[t_,nSteps_, fSWV_]:=V0FWD (UnitStep[t] + Sum[ UnitStep[t+n/fSWV]+UnitStep[t+(n+1)/fSWV]-2UnitStep[t+(n+1/2)/fSWV], {n,0,nSteps-1}]) *)*)
@@ -93,24 +93,43 @@
 
 
 (* ::Input:: *)
-(*itNonFaradaic/.{VDELTA->0}*)
+(**)
 
 
-(* ::Input:: *)
-(*itNonFaradaic/.{fSWV->400, V0->0.025, Rsol->1540, CDL->394*10^-9}*)
-
-
-(* ::Input:: *)
-(*10^6 itNonFaradaic/.{fSWV->600, V0->0.025,  Rsol->1540, CDL->394*10^-9}*)
-
-
-(* ::Input:: *)
-(*frequenciesList = {5, 10,50,100,208.33333333333334`,250.`,277.77777777777777`,312.5`,357.14285714285717`,416.6666666666667`,500.`,625.`,833.3333333333334`,1250.`}*)
+(* ::InheritFromParent:: *)
 (**)
 
 
 (* ::Input:: *)
-(*Plot[{2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/500,fSWV->500, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9},2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/625,fSWV->625, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9},2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/833.3333333333334`,fSWV->833.3333333333334`, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9},2 10^6 itNonFaradaic/.{t->time/1000+(NSTEPS)/1250,fSWV->1250, V0->0.025, VDELTA->0.0,  Rsol->2200, CDL->220*10^-9}}, {time,-2,0}, PlotRange->{Automatic, {0,40}}, Ticks->{{-2,-1.8,-1.6,-1.4,-1.2,-1,-0.8,-0.6,-0.4,-0.2,0},Automatic}]*)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
@@ -196,28 +215,8 @@
 (*it=InverseLaplaceTransform[Is,s,t, Assumptions->{fSWV>0}]*)
 
 
-(* ::Input:: *)
-(*it/.{fSWV->100, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->100000, t->0.001};*)
-
-
-(* ::Input:: *)
-(*vtime[t,NSTEPS, fSWV]*)
-
-
-(* ::Input:: *)
-(*voltageOnCapacitor = (vtime[t,NSTEPS, fSWV]-it *Rsol);*)
-
-
-(* ::Input:: *)
-(*Plot[{10^3 voltageOnCapacitor/.{fSWV->40, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.01,0.08}, PlotRange->{Automatic, {-50,50}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
-
-
-(* ::Input:: *)
-(*residualCapacitive = CDL D[voltageOnCapacitor,t];*)
-
-
-(* ::Input:: *)
-(*10^6 residualCapacitive/.{fSWV->100, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->100000, V0->0.025, t->0.0055}*)
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
@@ -225,50 +224,67 @@
 
 
 (* ::Input:: *)
-(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.005,0.035}, PlotRange->{Automatic, {-4,4}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
-
-
-(* ::Input:: *)
-(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, V0->0.025, Rct->6000}, 10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->6000}}, {t,-0.005,0.015}, PlotRange->{Automatic, {-2,2}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
-
-
-(* ::Input:: *)
-(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->6000}, 10^6 residualCapacitive/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->6000}}, {t,-0.005,0.015}, PlotRange->{Automatic, {-1,1}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
-
-
-(* ::Input:: *)
-(*fSWVTemp = 400;*)
-(*RctTemp = 10000;*)
 (**)
-(*Plot[{10^6 it/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->RctTemp, V0->0.025}, 10^6 residualCapacitive/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->RctTemp, V0->0.025},10^6 it/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->RctTemp, V0->0.025}, 10^6 residualCapacitive/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->RctTemp, V0->0.025},10^6 it/.{fSWV->fSWVTemp, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->1000*RctTemp, V0->0.025}}, {t,-0.005,0.01}, PlotRange->{Automatic, {-12,12}}, PlotLegends->{"Total current - low R",  "Residual double layer capacitive charging current - low R","Total current - high R", "Residual double layer capacitive charging current - high R","nonFaradaic - high R"}, AxesLabel->{"time (s)", "current (microA)"}, ImageSize->Large]*)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
-(*Plot[{10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.005,0.015}, PlotRange->{Automatic, {-7,7}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+(**)
 
 
 (* ::Input:: *)
-(*Plot[{10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.01,0.04}, PlotRange->{Automatic, {-2,2}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
-(*Plot[{10^6 it/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}, 10^6 residualCapacitive/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, Rct->30000, V0->0.025}}, {t,-0.01,0.04}, PlotRange->{Automatic, {-2,2}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
-(*Plot[{10^6 it/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}, 10^6 residualCapacitive/.{fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.002,0.01}, PlotRange->{Automatic, {-4,4}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+(*Plot[{10^6 it/.{t->(timems + 5)/1000,fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, V0->0.025, Rct->10000}, 10^6 it/.{t->(timems + 5)/1000,fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->10000}}, {timems,0,5}, PlotRange->{{0,5}, {-10,10}}, PlotLegends->{"Low Rs", "High Rs"}, AxesLabel->{"time (s)", "current (microA)"},AspectRatio->1]*)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
-(*(* is the residual double laye rcharging current different than the non-faradaic baseline? *)*)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
-(*Plot[{10^6 itNonFaradaic/.{fSWV->300, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.002,0.01}, PlotRange->{Automatic, {-10,10}}, PlotLegends->{"Total current", "Residual double layer capacitive charging current"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+(**)
 
 
 (* ::Input:: *)
-(*Plot[{10^6 residualCapacitive/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}, 10^6 itNonFaradaic/.{fSWV->80, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, Rct->30000, V0->0.025}}, {t,-0.002,0.08}, PlotRange->{Automatic, {-0.2,0.2}}, PlotLegends->{"Residual double layer capacitive charging current", "non-faradaic baseline"}, AxesLabel->{"time (s)", "current (microA)"}]*)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::Input:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
@@ -276,21 +292,19 @@
 (**)
 
 
-10^6 itNonFaradaic/.{fSWV->80,  CDL->300*10^-9, Rsol->1000,  V0->0.025}
+
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::Input:: *)
-(*Plot[{10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))}, 10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
-(*10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}, *)
-(*10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
 (**)
-(*( *)
-(*10^6( it-itNonFaradaic)/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}*)
+
+
+(* ::InheritFromParent:: *)
 (**)
-(*)*)
-(**)
-(**)
-(*} , {time,0,0.005}, PlotRange->{Automatic, {0,4}}, PlotLegends->{"non-faradaic baseline","Residual double layer capacitive charging current", "non-faradaic baseline","Residual double layer capacitive charging current", "Garb"}, AxesLabel->{"time (s)", "current (microA)"}]*)
 
 
 (* ::Code:: *)
@@ -298,17 +312,11 @@
 
 
 (* ::Input:: *)
-(*Plot[{10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))}, 10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->100, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
-(*10^6 itNonFaradaic/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}, *)
-(*10^6 it/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))},*)
 (**)
-(*( *)
-(*10^6( it-itNonFaradaic)/.{fSWV->100, Capt->500*10^-9, CDL->500*10^-9, Rsol->1500, Rct->30000, V0->0.025, t->(time+1/(2*100))}*)
+
+
+(* ::InheritFromParent:: *)
 (**)
-(*)*)
-(**)
-(**)
-(*} , {time,0,0.005}, PlotRange->{Automatic, {0,4}}, PlotLegends->{"non-faradaic baseline","Residual double layer capacitive charging current", "non-faradaic baseline","Residual double layer capacitive charging current", "Garb"}, AxesLabel->{"time (s)", "current (microA)"}]*)
 
 
 (* ::InheritFromParent:: *)
