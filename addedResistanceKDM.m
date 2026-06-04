@@ -51,12 +51,11 @@
 
 
 (* ::Input:: *)
-(**)
 (*(*Langmuir occupancy*)*)
 (*theta[C_,KD_]:=C/(C+KD);*)
 (**)
 (*(*Mix rates (conductances):1/Rct=(1-\[Theta])/RctU+\[Theta]/RctB*)*)
-(*RctEff[C_,KD_,RctU_,RctB_]:=1/((1-theta[C,KD])/RctU+theta[C,KD]/RctB);*)
+(*RctEff[C_,KD_,RctU_,RctB_]:=1/((1-theta[C,KD])/RctU+theta[C,KD]/RctB); *)
 (**)
 (**)
 
@@ -88,7 +87,8 @@
 (**)
 (**)
 (*calparams=pars;*)
-(*LogPlot[{kdm[calparams,Join[pars,<|"C"->0,"Rsol"->RsolToPlot|>]], kdm[calparams,Join[pars,<|"C"->(pars["KD"]/1000),"Rsol"->RsolToPlot|>]], kdm[calparams,Join[pars,<|"C"->(pars["KD"]/100),"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->(pars["KD"]/10),"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->pars["KD"]/1,"Rsol"->RsolToPlot|>]]},{RsolToPlot,1,5000}]*)
+(*(* *)
+(*LogPlot[{kdm[calparams,Join[pars,<|"C"->0,"Rsol"->RsolToPlot|>]], kdm[calparams,Join[pars,<|"C"->(pars["KD"]/1000),"Rsol"->RsolToPlot|>]], kdm[calparams,Join[pars,<|"C"->(pars["KD"]/100),"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->(pars["KD"]/10),"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->pars["KD"]/1,"Rsol"->RsolToPlot|>]]},{RsolToPlot,1,5000}] *)*)
 (**)
 
 
@@ -97,44 +97,6 @@
 
 
 (* ::Input:: *)
-(**)
-
-
-(* ::Input:: *)
-(**)
-
-
-(* ::Input:: *)
-(**)
-
-
-(* ::Input:: *)
-(*(* LogPlot[{kdm[calparams,Join[pars,<|"C"->0,"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->pars["KD"]/1000,"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->pars["KD"]/100,"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->pars["KD"]/10,"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->pars["KD"],"Rsol"->RsolToPlot|>]]},{RsolToPlot,1,5000},PlotRange->All,AxesLabel->{Style["Rsol (\[CapitalOmega])",14],Style["KDM (unitless)",14]},PlotLegends->Placed[LineLegend[{"C = 0","C = KD/1000","C = KD/100","C = KD/10","C = KD"}],{0.8,0.8}],PlotLabel->Style["KDM vs solution resistance (calibration RsolRef = "<>ToString[calparams["RsolRef"]]<>" \[CapitalOmega])",14]] *)
-(**)
-(*LogPlot[{kdm[Join[calparams,<|"C"->0,"RsolRef"->RsolToPlot|>],Join[pars,<|"C"->0,"Rsol"->RsolToPlot|>]],kdm[Join[calparams,<|"C"->0,"RsolRef"->RsolToPlot|>],Join[pars,<|"C"->pars["KD"]/1000,"Rsol"->RsolToPlot|>]],kdm[Join[calparams,<|"C"->0,"RsolRef"->RsolToPlot|>],Join[pars,<|"C"->pars["KD"]/100,"Rsol"->RsolToPlot|>]],kdm[Join[calparams,<|"C"->0,"RsolRef"->RsolToPlot|>],Join[pars,<|"C"->pars["KD"]/10,"Rsol"->RsolToPlot|>]],kdm[Join[calparams,<|"C"->0,"RsolRef"->RsolToPlot|>],Join[pars,<|"C"->pars["KD"],"Rsol"->RsolToPlot|>]]},{RsolToPlot,1,5000},PlotRange->All,AxesLabel->{Style["Rsol (\[CapitalOmega])",14],Style["KDM (unitless)",14]},PlotLegends->Placed[LineLegend[{"C = 0","C = KD/1000","C = KD/100","C = KD/10","C = KD"}],{0.8,0.8}],PlotLabel->Style["KDM vs solution resistance assuming perfect knowledge of solution resistance (calibration RsolRef = "<>ToString[calparams["RsolRef"]]<>" \[CapitalOmega])",14]]*)
-(**)
-(*Plot[{kdm[calparams,Join[pars,<|"C"->0,"Rsol"->RsolToPlot|>]], kdm[calparams,Join[pars,<|"C"->(pars["KD"]/1000),"Rsol"->RsolToPlot|>]], kdm[calparams,Join[pars,<|"C"->(pars["KD"]/100),"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->(pars["KD"]/10),"Rsol"->RsolToPlot|>]],kdm[calparams,Join[pars,<|"C"->pars["KD"]/1,"Rsol"->RsolToPlot|>]]},{RsolToPlot,1,5000}]*)
-(**)
-(*LogLinearPlot[{kdm[calparams,Join[pars,<|"C"->Concentration,"Rsol"->calparams["RsolRef"]|>]],kdm[calparams,Join[pars,<|"C"->Concentration,"Rsol"->2000|>]],kdm[calparams,Join[pars,<|"C"->Concentration,"Rsol"->4000|>]]},{Concentration,10^-8,10^-2},PlotRange->All,AxesLabel->{Style["Concentration",14],Style["KDM (unitless)",14]},PlotLegends->Placed[LineLegend[{"Rsol = RsolRef ("<>ToString[calparams["RsolRef"]]<>" \[CapitalOmega])","Rsol = 2000 \[CapitalOmega]","Rsol = 4000 \[CapitalOmega]"}],{0.8,0.8}],PlotLabel->Style["KDM vs concentration (normalized at RsolRef = "<>ToString[calparams["RsolRef"]]<>" \[CapitalOmega]) and moved to new Rsol",14]]*)
-(**)
-(*LogLinearPlot[{kdm[Join[calparams, <|"RsolRef"->calparams["RsolRef"]|>],Join[pars,<|"C"->Concentration,"Rsol"->calparams["RsolRef"]|>]],kdm[Join[calparams, <|"RsolRef"->2000|>],Join[pars,<|"C"->Concentration,"Rsol"->2000|>]],kdm[Join[calparams, <|"RsolRef"->4000|>],Join[pars,<|"C"->Concentration,"Rsol"->4000|>]]},{Concentration,10^-8,10^-2},PlotRange->All,AxesLabel->{Style["Concentration",14],Style["KDM",14]},PlotLegends->Placed[LineLegend[{"Rsol = 1000 \[CapitalOmega]","Rsol = 2000 \[CapitalOmega]","Rsol = 4000 \[CapitalOmega]"}],{0.8,0.8}],PlotLabel->Style["KDM vs concentration (normalized at correct solution resistance)",14]]*)
-(**)
-(**)
-(**)*)
-(**)
-
-
-(* ::Input:: *)
-(*(* calparams2=Join[calparams,<|"RsolRef"->100|>];LogLinearPlot[{kdm[Join[calparams2, <|"RsolRef"->calparams2["RsolRef"]|>],Join[pars,<|"C"->Concentration,"Rsol"->calparams2["RsolRef"]|>]],kdm[Join[calparams2, <|"RsolRef"->1000|>],Join[pars,<|"C"->Concentration,"Rsol"->1000|>]],kdm[Join[calparams2, <|"RsolRef"->2000|>],Join[pars,<|"C"->Concentration,"Rsol"->2000|>]]},{Concentration,10^-8,10^-2},PlotRange->All,AxesLabel->{Style["Concentration",14],Style["KDM",14]},PlotLegends->Placed[LineLegend[{"Rsol = 100 \[CapitalOmega]","Rsol = 1000 \[CapitalOmega]","Rsol = 2000 \[CapitalOmega]"}],{0.8,0.8}],PlotLabel->Style["KDM vs concentration (normalized at C=0 and correct solution resistance)",14], ImageSize->400] *)*)
-(**)
-
-
-(* ::Input:: *)
-(**)
-
-
-(* ::Input:: *)
-(*(* LogLinearPlot[{kdm[calparams,Join[pars,<|"C"->Concentration,"Rsol"->900|>]],kdm[calparams,Join[pars,<|"C"->Concentration,"Rsol"->calparams["RsolRef"]|>]],kdm[calparams,Join[pars,<|"C"->Concentration,"Rsol"->1100|>]]},{Concentration,10^-8,10^-2},PlotRange->All,AxesLabel->{Style["Concentration",14],Style["KDM (unitless)",14]},PlotLegends->Placed[LineLegend[{"Rsol = 900 \[CapitalOmega]","Rsol = RsolRef ("<>ToString[calparams["RsolRef"]]<>" \[CapitalOmega])","Rsol = 1100 \[CapitalOmega]"}],{0.8,0.8}],PlotLabel->Style["KDM vs concentration (normalized at C=0 at RsolRef = "<>ToString[calparams["RsolRef"]]<>" \[CapitalOmega]) and drifted to new Rsol",14], ImageSize->400] *)*)
 (**)
 
 
@@ -196,8 +158,8 @@
 (*rsolList={500,950,995,1000,1005,1050,1500};*)
 (**)
 (*colors=ColorData["Rainbow"]/@Rescale[Range[Length[rsolList]]];*)
-(**)
-(*Show[ListLogLogPlot[estData/@rsolList,Joined->True,PlotRange->All,PlotStyle->colors,AxesLabel->{Style["Actual concentration",14],Style["Estimated concentration",14]},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Actual vs estimated concentration (calibration and single-point normalization at "<>ToString[Rcal]<>" \[CapitalOmega]) and drift to Rsol",14],ImageSize->450],LogLogPlot[x,{x,10^-6,10^-2},PlotStyle->Dashed]]*)
+(*(* *)
+(*Show[ListLogLogPlot[estData/@rsolList,Joined->True,PlotRange->All,PlotStyle->colors,AxesLabel->{Style["Actual concentration",14],Style["Estimated concentration",14]},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Actual vs estimated concentration (calibration and single-point normalization at "<>ToString[Rcal]<>" \[CapitalOmega]) and drift to Rsol",14],ImageSize->450],LogLogPlot[x,{x,10^-6,10^-2},PlotStyle->Dashed]] *)*)
 
 
 (* ::Input:: *)
@@ -271,8 +233,8 @@
 (*rsolList={500,950,995,1000,1005,1050,1500, 5000};*)
 (**)
 (*colors=ColorData["Rainbow"]/@Rescale[Range[Length[rsolList]]];*)
-(**)
-(*Show[ListLogLogPlot[estData/@rsolList,Joined->True,PlotStyle->colors,AxesLabel->{Style["Actual concentration [M]",14],Style["Estimated concentration [M]",14]},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Actual vs estimated concentration (calibration and single-point normalization at "<>ToString[Rcal]<>" \[CapitalOmega]) and drift to Rsol",14],ImageSize->450, PlotRange->{{10^-6,10^-2},{10^-6,10^-2}}],LogLogPlot[x,{x,10^-6,10^-2},PlotStyle->Dashed], ImageSize->800]*)
+(*(* *)
+(*Show[ListLogLogPlot[estData/@rsolList,Joined->True,PlotStyle->colors,AxesLabel->{Style["Actual concentration [M]",14],Style["Estimated concentration [M]",14]},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Actual vs estimated concentration (calibration and single-point normalization at "<>ToString[Rcal]<>" \[CapitalOmega]) and drift to Rsol",14],ImageSize->450, PlotRange->{{10^-6,10^-2},{10^-6,10^-2}}],LogLogPlot[x,{x,10^-6,10^-2},PlotStyle->Dashed], ImageSize->800] *)*)
 
 
 (* ::Input:: *)
@@ -304,11 +266,58 @@
 
 
 (* ::Input:: *)
-(*driftFigureLinear = Show[ListPlot[estData/@rsolList,Joined->True,PlotStyle->colors,Frame->True,Axes->False,FrameLabel->{{Rotate[Style["Estimated concentration [M]",14],0],None},{Style["Actual concentration [M]",14],None}},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Solution resistance drift from "<>ToString[Rcal]<>" \[CapitalOmega] to Rsol",14],PlotRange->{{10^-6,10^-2},{10^-6,10^-2}}], Plot[x,{x,10^-6,10^-2},PlotStyle->Dashed,Frame->True,Axes->False,PlotRange->{{0,10^-2},{0,10^-2}}],AspectRatio->1,ImageSize->400]*)
+(*driftFigureLinear = Show[ListPlot[estData/@rsolList,Joined->True,PlotStyle->colors,Frame->True,Axes->False,FrameLabel->{{Rotate[Style["Estimated concentration [M]",14],0],None},{Style["Actual concentration [M]",14],None}},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Solution resistance drift from "<>ToString[Rcal]<>" \[CapitalOmega] to Rsol",14],PlotRange->{{0,10^-3},{0,10^-3}}], Plot[x,{x,0,10^-3},PlotStyle->Dashed,Frame->True,Axes->False,PlotRange->{{0,10^-3},{0,10^-3}}],AspectRatio->1,ImageSize->400]*)
 
 
 (* ::Input:: *)
 (*driftFigureLinearCompressed = Show[ListPlot[estData/@rsolList,Joined->True,PlotStyle->colors,Frame->True,Axes->False,FrameLabel->{{Rotate[Style["Estimated concentration [M]",14],0],None},{Style["Actual concentration [M]",14],None}},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Solution resistance drift from "<>ToString[Rcal]<>" \[CapitalOmega] to Rsol",14],PlotRange->{{10^-6,10^-3},{10^-6,10^-3}}], Plot[x,{x,10^-6,10^-3},PlotStyle->Dashed,Frame->True,Axes->False,PlotRange->{{0,10^-3},{0,10^-3}}],AspectRatio->1,ImageSize->400]*)
+
+
+scale = 1000; (* M -> mM *)
+(* 
+driftFigureLinearCompressed =
+ Show[
+  ListPlot[
+   (scale*# & /@ estData[#]) & /@ rsolList,
+   Joined -> True,
+   PlotStyle -> colors,
+   Frame -> True,
+   Axes -> False,
+   FrameLabel -> {{
+      Style["Estimated concentration [mM]", 14], None},
+     {Style["Actual concentration [mM]", 14], None}},
+   PlotLegends ->
+    Placed[
+     LineLegend[
+      colors,
+      ("Rsol = " <> ToString[#] <> " \[CapitalOmega]") & /@ rsolList
+     ],
+     {0.8, 0.2}
+    ],
+   PlotLabel ->
+    Style[
+     "Methotrexate sensor accuracy as a function of solution resistance drift from " <> ToString[Rcal] <>
+      " \[CapitalOmega] to Rsol",
+     14
+    ],
+   PlotRange -> {{10^-3, 1}, {10^-3, 1}}
+   ],
+
+  Plot[
+   x,
+   {x, 10^-3, 1},
+   PlotStyle -> Dashed,
+   Frame -> True,
+   Axes -> False,
+   PlotRange -> {{0, 1}, {0, 1}}
+   ],
+
+  AspectRatio -> 1,
+  ImageSize -> 400
+ ] *)
+
+
+(* Export["driftFigureLinearCompressed.png",Show[driftFigureLinearCompressed,ImageSize->400],ImageResolution->600] *)
 
 
 (* ::Input:: *)
@@ -391,7 +400,6 @@
 
 
 (* ::Input:: *)
-(**)
 (*stepChangeLowRLinear =Show[ListPlot[estData/@rsolList,Joined->True,PlotStyle->colors,Frame->True,Axes->False,FrameLabel->{{Rotate[Style["Estimated concentration [M]",14],0],None},{Style["Actual concentration [M]",14],None}},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["Calibrated at "<>ToString[Rcal]<>" \[CapitalOmega], normalized and measured at Rsol",14],PlotRange->{{10^-6,10^-2},{10^-6,10^-2}}],Plot[x,{x,0,10^-2},PlotStyle->Dashed,Frame->True,Axes->False,PlotRange->{{0,10^-2},{0,10^-2}}],AspectRatio->1,ImageSize->400]*)
 
 
@@ -492,9 +500,6 @@
 
 
 (* ::Input:: *)
-(**)
-(**)
-(**)
 (*(* Langmuir vs Hill *)*)
 
 
@@ -621,14 +626,12 @@
 
 
 (* ::Input:: *)
-(**)
-(**)
 (*(* Ratiometric KDM (rKDM)*)*)
 (**)
 (*(*----------Choose the calibration resistance for the KDM(C) calibration curve----------*)*)
 (*Rcal=200;   (*example:100 ohms calibration*)*)
 (**)
-(*calparamsCal=Join[pars,<|"RsolRef"->Rcal|>];(* this sets the normalization conditions *)*)
+(*calparamsCal=Join[\[AliasDelimiter],<|"RsolRef"->Rcal|>];(* this sets the normalization conditions *)*)
 (**)
 (*rKDM[calparams_Association,expParams_Association,eps_:10^-70]:=*)
 (*Module[{Rct0,RctC,Ratio,iH,iL,A,B,den},*)
@@ -689,4 +692,427 @@
 (*Show[ListLogLogPlot[estData/@rsolList,Joined->True,PlotRange->All,PlotStyle->colors,AxesLabel->{Style["Actual concentration [M]",14],Style["Estimated concentration [M]",14]},PlotLegends->Placed[LineLegend[colors,("Rsol = "<>ToString[#]<>" \[CapitalOmega]")&/@rsolList],{0.8,0.2}],PlotLabel->Style["rKDM, Ratio obtained at "<>ToString[Rcal]<> " \[CapitalOmega], measured at Rsol",14],ImageSize->450],LogLogPlot[x,{x,10^-6,10^-2},PlotStyle->Dashed]]*)
 
 
+(* ============================================================ *)
+(* KDM vs concentration                                          *)
+(* Black  = calibrated/normalized at 200 ohms, measured at 200  *)
+(* Purple = calibrated/normalized at 200 ohms, measured at 2000 *)
+(* Red    = calibrated/normalized at 2000 ohms, measured at 2000*)
+(* ============================================================ *)
 
+rsolList = {200, 2000};
+
+plotStyles = {
+   Directive[Black, Thick],
+   Directive[Purple, Thick],
+   Directive[Red, Thick]
+};
+
+(* ---------- calibration at 200 ohms ---------- *)
+
+calparams200 = Join[
+   pars,
+   <|"RsolRef" -> 200|>
+];
+
+kdmData200Norm[Rmeas_] :=
+  Select[
+    Table[
+      {
+        c,
+        kdm[
+          calparams200,
+          Join[
+            pars,
+            <|"C" -> c, "Rsol" -> Rmeas|>
+          ]
+        ]
+      },
+      {c, concList}
+    ],
+    NumericQ[#[[2]]] &
+  ];
+
+data200on200 = kdmData200Norm[200];
+data2000on200 = kdmData200Norm[2000];
+
+(* ---------- calibration at 2000 ohms ---------- *)
+
+calparams2000 = Join[
+   pars,
+   <|"RsolRef" -> 2000|>
+];
+
+data2000on2000 =
+  Select[
+    Table[
+      {
+        c,
+        kdm[
+          calparams2000,
+          Join[
+            pars,
+            <|"C" -> c, "Rsol" -> 2000|>
+          ]
+        ]
+      },
+      {c, concList}
+    ],
+    NumericQ[#[[2]]] &
+  ];
+
+(* ---------- plot ---------- *)
+
+kdmPlot =
+  ListLogLinearPlot[
+    {
+      data200on200,
+      data2000on200,
+      data2000on2000
+    },
+    Joined -> True,
+    PlotStyle -> plotStyles,
+    Frame -> True,
+    Axes -> False,
+    FrameLabel -> {
+      Style["Concentration [M]", 14],
+      Style["KDM", 14]
+    },
+    PlotLegends ->
+      Placed[
+        LineLegend[
+          plotStyles,
+          {
+            "200 \[CapitalOmega] calibrated, 200 \[CapitalOmega] measured",
+            "200 \[CapitalOmega] calibrated, 2000 \[CapitalOmega] measured",
+            "2000 \[CapitalOmega] calibrated, 2000 \[CapitalOmega] measured"
+          }
+        ],
+        {0.72, 0.25}
+      ],
+    PlotLabel ->
+      Style[
+        "Effect of solution resistance on KDM calibration",
+        14
+      ],
+    ImageSize -> 650,
+    PlotRange -> All
+  ];
+
+kdmPlot
+
+
+(* ============================================================ *)
+(* Print all current model parameters                           *)
+(* ============================================================ *)
+
+Print["---------------- PARAMETERS ----------------"];
+
+KeyValueMap[
+  Print[#1, " = ", #2] &,
+  pars
+];
+
+Print["--------------------------------------------"];
+
+
+
+pars2 = Join[
+    pars,
+    <|
+      "KD" -> pars["KD"]/1,
+      "CDL" -> pars["CDL"]/2
+    |>
+  ];
+
+
+(* ============================================================ *)
+(* KDM vs concentration with modified KD                         *)
+(* Here KD is changed to KD/3                                    *)
+(* Uses new variable names                                       *)
+(* ============================================================ *)
+
+parsKD3 =
+  Join[
+    pars,
+    <|
+      "KD" -> pars["KD"]/1
+    |>
+  ];
+rsolListKD3 = {200, 2000};
+
+plotStylesKD3 = {
+   Directive[Black, Thick],
+   Directive[Purple, Thick],
+   Directive[Red, Thick]
+};
+
+(* ---------- calibration at 200 ohms ---------- *)
+
+calparams200KD3 =
+  Join[
+    parsKD3,
+    <|"RsolRef" -> 200|>
+  ];
+
+kdmData200NormKD3[Rmeas_] :=
+  Select[
+    Table[
+      {
+        c,
+        kdm[
+          calparams200KD3,
+          Join[
+            parsKD3,
+            <|"C" -> c, "Rsol" -> Rmeas|>
+          ]
+        ]
+      },
+      {c, concList}
+    ],
+    NumericQ[#[[2]]] &
+  ];
+
+data200on200KD3 = kdmData200NormKD3[200];
+data2000on200KD3 = kdmData200NormKD3[2000];
+
+(* ---------- calibration at 2000 ohms ---------- *)
+
+calparams2000KD3 =
+  Join[
+    parsKD3,
+    <|"RsolRef" -> 2000|>
+  ];
+
+data2000on2000KD3 =
+  Select[
+    Table[
+      {
+        c,
+        kdm[
+          calparams2000KD3,
+          Join[
+            parsKD3,
+            <|"C" -> c, "Rsol" -> 2000|>
+          ]
+        ]
+      },
+      {c, concList}
+    ],
+    NumericQ[#[[2]]] &
+  ];
+
+(* ---------- plot ---------- *)
+
+kdmPlotKD3 =
+  ListLogLinearPlot[
+    {
+      data200on200KD3,
+      data2000on200KD3,
+      data2000on2000KD3
+    },
+    Joined -> True,
+    PlotStyle -> plotStylesKD3,
+    Frame -> True,
+    Axes -> False,
+    FrameLabel -> {
+      Style["Concentration [M]", 14],
+      Style["KDM", 14]
+    },
+    PlotLegends ->
+      Placed[
+        LineLegend[
+          plotStylesKD3,
+          {
+            "200 \[CapitalOmega] calibrated, 200 \[CapitalOmega] measured",
+            "200 \[CapitalOmega] calibrated, 2000 \[CapitalOmega] measured",
+            "2000 \[CapitalOmega] calibrated, 2000 \[CapitalOmega] measured"
+          }
+        ],
+        {0.72, 0.25}
+      ],
+    PlotLabel ->
+      Style[
+        "Effect of solution resistance on KDM calibration, KD/3",
+        14
+      ],
+    ImageSize -> 650,
+    PlotRange -> All
+  ];
+
+kdmPlotKD3
+
+
+kdmPlotKD3Linear =
+  ListPlot[
+    {
+      data200on200KD3,
+      data2000on200KD3,
+      data2000on2000KD3
+    },
+    Joined -> True,
+    PlotStyle -> plotStylesKD3,
+    Frame -> True,
+    Axes -> False,
+    FrameLabel -> {
+      Style["Concentration [M]", 14],
+      Style["KDM", 14]
+    },
+    PlotLegends ->
+      Placed[
+        LineLegend[
+          plotStylesKD3,
+          {
+            "200 \[CapitalOmega] calibrated, 200 \[CapitalOmega] measured",
+            "200 \[CapitalOmega] calibrated, 2000 \[CapitalOmega] measured",
+            "2000 \[CapitalOmega] calibrated, 2000 \[CapitalOmega] measured"
+          }
+        ],
+        {0.72, 0.25}
+      ],
+    PlotLabel ->
+      Style[
+        "Effect of solution resistance on KDM calibration, KD/3",
+        14
+      ],
+    ImageSize -> 650,
+    PlotRange -> All
+  ];
+
+kdmPlotKD3Linear
+
+
+pars
+
+
+(* ============================================================ *)
+(* KDM vs concentration                                          *)
+(* Calibrated/normalized at 1000 ohms                            *)
+(* Measured with Rsol drift from 900 to 1100 ohms                 *)
+(* Uses new variable names                                       *)
+(* ============================================================ *)
+
+rsolDriftList1000 =
+  Range[100, 2000, 100];
+
+plotStylesDrift1000 =
+  ColorData["Rainbow"] /@ Rescale[Range[Length[rsolDriftList1000]]];
+
+calparams1000Drift =
+  Join[
+    pars,
+    <|"RsolRef" -> 1000|>
+  ];
+
+kdmDataDrift1000[Rmeas_] :=
+  Select[
+    Table[
+      {
+        c,
+        kdm[
+          calparams1000Drift,
+          Join[
+            pars,
+            <|"C" -> c, "Rsol" -> Rmeas|>
+          ]
+        ]
+      },
+      {c, concList}
+    ],
+    NumericQ[#[[2]]] &
+  ];
+
+dataDrift1000 =
+  kdmDataDrift1000 /@ rsolDriftList1000;
+
+kdmPlotDrift1000 =
+  ListLogLinearPlot[
+    dataDrift1000,
+    Joined -> True,
+    PlotStyle -> plotStylesDrift1000,
+    Frame -> True,
+    Axes -> False,
+    FrameLabel -> {
+      Style["Concentration [M]", 14],
+      Style["KDM", 14]
+    },
+    PlotLegends ->
+      Placed[
+        LineLegend[
+          plotStylesDrift1000,
+          ("Rsol = " <> ToString[#] <> " \[CapitalOmega]") & /@
+            rsolDriftList1000
+        ],
+        {0.75, 0.25}
+      ],
+    PlotLabel ->
+      Style[
+        "KDM with calibration at 1000 \[CapitalOmega] and Rsol drift",
+        14
+      ],
+    ImageSize -> 650,
+    PlotRange -> All
+  ];
+
+kdmPlotDrift1000
+
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
+
+
+ListPlot[
+  dataDrift1000 /. {x_, y_} :> {x*10^3, y},
+  Joined -> True,
+  PlotStyle -> plotStylesDrift1000,
+  Frame -> True,
+  Axes -> False,
+  FrameLabel -> {
+    Style["Concentration [mM]", 14],
+    Style["KDM", 14]
+  },
+  PlotLegends ->
+    Placed[
+      LineLegend[
+        plotStylesDrift1000,
+        ("Rsol = " <> ToString[#] <> " \[CapitalOmega]") & /@
+          rsolDriftList1000
+      ],
+      {0.75, 0.25}
+    ],
+  PlotLabel ->
+    Style[
+      "KDM with calibration at 1000 \[CapitalOmega] and Rsol drift",
+      14
+    ],
+  ImageSize -> 650,
+  PlotRange -> All
+]
+
+
+(* ::InheritFromParent:: *)
+(**)
