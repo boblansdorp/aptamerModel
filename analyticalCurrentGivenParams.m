@@ -261,6 +261,11 @@
 
 (* ::Input:: *)
 (**)
+(**)
+
+
+(* ::InheritFromParent:: *)
+(**)
 
 
 (* ::InheritFromParent:: *)
@@ -268,6 +273,16 @@
 
 
 (* ::Input:: *)
+(*(*Fig 7C:Voltage at CDL node (=VWE-iRs) after step onset*)(*Laplace initial conditions give uncharged CDL at t=0;*)(*first vtime half-cycle is reverse,so sign is+*)*)
+(*cdlVal=300*10^-9;  (*300 nF double-layer capacitance*)*)
+(*captVal=300*10^-9;  (*300 nF aptamer capacitance*)*)
+(*rctVal=10000;      (*10 k\[CapitalOmega] charge transfer resistance*)*)
+(*v0Val=0.025;      (*25 mV step amplitude*)*)
+(*fSWVVal=200;        (*Hz\[LongDash]sets half-cycle duration*)*)
+(*rsLow=100;        (*\[CapitalOmega] low solution resistance*)*)
+(*rsHigh=1000;       (*\[CapitalOmega] high solution resistance*)*)
+(**)
+(*Plot[{25,1000*(v0Val+rsLow*it)/. {t->timems/1000,fSWV->fSWVVal,CDL->cdlVal,Capt->captVal,Rct->rctVal,Rsol->rsLow,V0->v0Val},1000*(v0Val+rsHigh*it)/. {t->timems/1000,fSWV->fSWVVal,CDL->cdlVal,Capt->captVal,Rct->rctVal,Rsol->rsHigh,V0->v0Val}},{timems,0,1},PlotRange->{{-0.2,1},{-5,30}},PlotStyle->{Yellow,Orange,Darker[Orange]},PlotLegends->{"V_WE - V_RE","Rs = "<>ToString[rsLow]<>" \[CapitalOmega]","Rs = "<>ToString[rsHigh]<>" \[CapitalOmega]"},AxesLabel->{"time (ms)","potential (mV)"},AspectRatio->1]*)
 (**)
 
 
@@ -290,9 +305,6 @@
 (* ::Input:: *)
 (*(* it = it//FullSimplify *)*)
 (**)
-
-
-
 
 
 (* ::InheritFromParent:: *)
