@@ -1,55 +1,117 @@
 # aptamerModel
-Physical electrochemistry model of aptamer sensor
+Physical electrochemistry model of aptamer-based electrochemical biosensors using Square Wave Voltammetry (SWV) and a Laplace equation solver for estimating solution resistance in a cylindrical geometry.
+
 ## Introduction
-These simulations are written in Mathematica (run version 13.1).
-The main goal of the simulations are to be able to reproduce Square Wave Voltammetry with different cell parameters.
 
-In addition, radialConductivity.m explores electrostatics to generate an effective resistance between two electrodes in a cylindrical geometry.
+These simulations are written in Mathematica (tested on version 13.1).
+
+The model combines a Butler–Volmer kinetic description of Methylene Blue electron transfer with an equivalent circuit (Randles cell: Rsol, CDL, Rct, Capt) to reproduce SWV measurements from aptamer-functionalized gold electrodes. It also provides an analytical Laplace-transform solution for the SWV response, and a time-domain Butler-Volmer model for estimating solution resistance in different geometries.
+
+The third-party [`CustomTicks`](CustomTicks/) package (Mark A. Caprio, MIT License) is included for publication-quality axis tick formatting.
+
+---
+
+## Repository structure
+
+| File | Purpose |
+|---|---|
+| `Aptamer-Model.m` | Main ODE simulation — sweeps frequency × concentration, exports `.mx` result files |
+| `analyticalCurrentGivenParams.m` | Laplace-transform SWV current: derives the analytical step-response expression for the 4-component circuit |
+| `theoryExperimentalDataComparison.m` | Loads simulation `.mx` files and experimental voltammogram data; generates all theory-vs-experiment comparison plots |
+| `loadExperimentalVoltammogramGeneratePlots.m` | Package `LoadVoltammogramData` — parses CHI potentiostat `.txt` files into frequency-indexed associations |
+| `AnalyzeVoltammogram.m` | Package `AnalyzeVoltammogram` — Gaussian peak fit to extract baseline, ΔI, and peak current from each voltammogram |
+| `loadMxGeneratePlots.m` | Loads a saved `.mx` result file and restores all simulation parameters and ODE definitions |
+| `addedResistanceKDM.m` | KDM (Kinetic Differentiation Metric) analysis — computes how solution resistance drift degrades concentration estimates; uses the closed-form `CHISignalBaselineSubtractedExpr` |
+| `radialConductivity.m` | Finite-element electrostatics (axisymmetric Laplace) — estimates solution resistance for different electrode geometries and tissue conductivities |
+| `fitRsolCDLfromData.m` | Fits CDL and Rsol from measured non-faradaic baseline current vs frequency |
+| `fitAptamerParametersLowResistanceKnownRsolandCapt.m` | Fits Rct and Capt from measured current vs frequency at zero target concentration |
+| `CustomTicks/` | Third-party tick-formatting package (MIT License, Mark A. Caprio) |
+
+---
+
+## Reproducing manuscript figures
 
 
-#### Goals: 
-1. Reproduce experimental data from different applied voltages using a single theoretical framework
-2. Test different types of noise on signal results
-3. Provide suggestions for experiments to run
-4. Improve on existing aptamer biosensors using insights obtained!
+### Figure 5 — Equivalent circuit model and Rs-dependent voltammogram distortion
+
+| Panel | Description | Code |
+|---|---|---|
+| 5A | Experimental voltammograms, low-Rs vs high-Rs (unbound state) | `theoryExperimentalDataComparison.m` → `voltammogramPlots` (top row) |
+| 5B | Simulated SWV voltammograms (Butler–Volmer + circuit) | `Aptamer-Model.m` (generates `.mx`); `theoryExperimentalDataComparison.m` → `voltammogramPlots` (bottom row) |
+
+### Figure 6 — Rs distorts the frequency response (experimental and model)
+
+| Panel | Description | Code |
+|---|---|---|
+| 6A | Experimental non-faradaic baseline current vs frequency | `theoryExperimentalDataComparison.m` → `baselineStandardPlot2Exp` |
+| 6B | Experimental faradaic peak current vs frequency, unbound (0 mM) | `theoryExperimentalDataComparison.m` → `deltaILowConcPlotExp` |
+| 6C | Experimental faradaic peak current vs frequency, bound (9.3 mM) | `theoryExperimentalDataComparison.m` → `deltaIHighConcPlotExp` |
+| 6D | Simulated + analytical baseline current vs frequency | `theoryExperimentalDataComparison.m` → `baselineStandardPlot2Theory` |
+| 6E | Simulated + analytical faradaic peak current vs frequency, unbound | `theoryExperimentalDataComparison.m` → `theoryLowConcPlot` |
+| 6F | Simulated + analytical faradaic peak current vs frequency, bound | `theoryExperimentalDataComparison.m` → `theoryHighConcPlot` |
+
+Analytical curves in 6D–F use `chiAnalytical[]` wrapping `CHISignalBaselineSubtractedExpr` from `analyticalCurrentGivenParams.m`. Simulation points come from `Aptamer-Model.m` outputs loaded via `loadMxGeneratePlots.m`.
+
+### Figure 7 — Elevated Rs delays potential transduction to the tunneling region
+
+| Panel | Description | Code |
+|---|---|---|
+| 7C | Potential step experienced by redox reporter vs time for different Rs | `analyticalCurrentGivenParams.m` — plots `1000*(v0Val + rsol*it)` at t=0 onset using `vtime` step
+
+### Figure S1 — Simulated potential field (in vitro and rat jugular vein)
+
+`radialConductivity.m` — solves the axisymmetric Laplace equation for two geometries (shot glass R = 15 mm; vein R = 1 mm), exports `potential_field_two_panel.png`.
+
+### Table S2 — In vivo solution resistance predictions
+
+`radialConductivity.m` — iterates over tissue conductivity values (PBS, blood, muscle, fat) and prints `Resistance (Ohms)` and `GeometryFactor` for each.
+
+### Figure S3 — Applied square wave potential vs time at 100 Hz
+
+`analyticalCurrentGivenParams.m` — `vtime[t, NSTEPS, fSWV]` defines the waveform; plot of applied voltage vs time at 100 Hz.
+
+### Figure S4 — Non-faradaic baseline current vs frequency; CDL and Rs fit
+
+`fitRsolCDLfromData.m` — fits the closed-form `CHISignalDiffNonFaradaic` expression to measured baseline current vs frequency to extract best-fit CDL and Rsol.
+
+### Figure S6 — Current vs frequency at zero concentration; Rct and Capt fit
+
+`fitAptamerParametersLowResistanceKnownRsolandCapt.m` — fits the full analytical expression (baseline-subtracted Faradaic current) to current vs frequency data at zero target concentration.
+
+### Figures S10–S11 — Experimental SWV with analytical theory fits
+
+| Figure | Parameters | Code |
+|---|---|---|
+| S10 | Rs = 2200 Ω, C = 220 nF | `fitRsolCDLfromData.m` |
+| S11 | Rs = 47 000 Ω, C = 220 nF (in-vivo condition) | `fitRsolCDLfromData.m` |
+
+---
 
 ## Assigning model parameters
-To assign parameters to the model, we do the following:
-- use EIS data and fit to equivalent circuit to obtain RSol (solution resistance) and C_DL (double layer capacitance)
-- use knowledge of redox reporter (Methylene Blue) to assume 2e- per aptamer
-- fit the KDM vs frequency to extract the dissociation constant Kd
-- use normalized Lovric plot to assign the electron transfer rates for unbound and bound states
-- use the current vs frequency to see if surface coverage is correct (e.g. molecules/cm^2)
 
+Parameters are assigned in the following order:
 
-## Remaining items to do
-- sanity check baseline vs frequency experiment vs theory
-- check triangle wave... and what is meant by "square wave potential is superimposed onto the base potential, which increments after each cycle of
-the square wave" (from manual https://www.chinstruments.com/openshare/Manual/Model_1000C_Series_User_Manual.pdf)
-- speed up the NDSolve loop
-- remove excessive definitions of VAptamerSol (code cleanup)
-- get the gain vs concentration curve for ACV
-- add noise to simulate drift in various parameters
-- simulate EIS
+1. **EIS fit** → Rsol and CDL (`fitRsolCDLfromData.m`)
+2. **Current vs frequency at zero concentration** → Rct (unbound) and Capt (`fitAptamerParametersLowResistanceKnownRsolandCapt.m`)
+3. **Lovric normalization** → electron transfer rates k0u and k0b (normalized Lovric plots in `theoryExperimentalDataComparison.m`)
+4. **Surface coverage** → Lambda from current amplitude (`Aptamer-Model.m` line 61: `Lambda = 4 R T Capt / ((nElec F)^2 A)`)
+5. **KDM vs frequency** → dissociation constant Kd (`addedResistanceKDM.m`)
 
-## Insights and thoughts
+Best-fit parameters (phenylalanine sensor, 1× PBS + 2 mM MgCl₂ + 35 mg/mL BSA at 37 °C):
 
-- because applied voltage is known, we are not in overdamped condition. \
- Fitting the noise spectrum alone is underutilizing the data - we must use \
-both the Applied Voltage and measured current to derive system parameters
+| Parameter | Value | Source |
+|---|---|---|
+| Rsol (no added resistor) | 294 Ω | EIS fit |
+| Rsol (added resistor) | 1620 Ω | EIS fit |
+| CDL | 355 nF | EIS fit |
+| Rct (unbound) | 17 021 Ω | Current vs freq fit |
+| Capt | 220 nF | Current vs freq fit |
+| kD | 17.7 mM | EIS/KDM fit |
+| k0u | 133 s⁻¹ | Lovric normalization |
+| k0b | 345 s⁻¹ | Lovric normalization |
 
-- should measure drift in peak redox potential vs time
-- if each aptamer can only undergo N redox cycles before bleaching \
-irreversibly, what is optimal signal profile V(t) and signal \
-extraction technique?
-- Square Wave Voltammetry where only 1 current is used and the rest \
-of the data is thrown away is extremely wasteful towards electrons 
-- gain is a strange metric. we should be optimizing SNR
-- Is capacitance of the gold with monolayer a function of applied \
-potential? Mott Schottky plot of gold suggests that: no it's \
-not!!
-- if the effective impedance contribution of the aptamers is small, \
-then most ions are related to nonspecific capacitance double layer \
-charge, and so the voltage that the aptamer experiences is equal to \
-the voltage over the capacitor
-- we are using Butler Volmer kinetics with n=2 for Methylene blue. What happens if we use Marcus theory instead?
+---
+
+## Acknowledgements
+
+Portions of this codebase were developed with assistance from ChatGPT (OpenAI) and Claude Code (Anthropic).
