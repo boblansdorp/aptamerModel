@@ -380,28 +380,9 @@ baselineLineAddedResistorLowConc=meanBaselineLine[grouped2,minConc];
 baselineLineAddedResistorHighConc=meanBaselineLine[grouped2,maxConc];
 
 
-(* plotRangesBaseline = {{5,700}, {0,20}}; *)
-(* ===Define reusable styles===*)
-plotStyles={
-RGBColor[0.1216,0.4667,0.7059],(*Muted blue*)
-RGBColor[0.1725,0.6275,0.1725]   (*Muted green*)
-};
-
-lineStyles={Thick,Thick};
 plotRanges = {{5,700}, {-2,20}};
-plotRangesNoResistor = {{5,700}, {0,1}};
-makeConsistentBaselinePlot[data_,label_, plotRanges_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},FrameTicks->{{True, False}, {True, False}},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->{"0 mM","9.3 mM"}]; 
 
-baselineStandardPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASorted},"Exp5 (Standard, Baseline)", plotRangesNoResistor];
-baselineResistorPlot=makeConsistentBaselinePlot[{baselineVsFrequencyMicroASortedWithResistor},"Exp6 (Added Resistor, Baseline)", plotRanges];
-makePendingPlot[label_]:=Show[makeConsistentBaselinePlot[{{},{}},label],Graphics[{Text[Style["Pending data",20,Bold,Gray],Scaled[{0.5,0.5}]]}]]
-
-
-(* 
-baselineStandardPlot=makePendingPlot["Exp5 (Standard, Baseline)"];
-baselineResistorPlot=makePendingPlot["Exp6 (Added Resistor, Baseline)"];
-*)
-(* ===Extract and plot theory lines===*)(* ===Extract theory curve data only===*)
+(* ===Extract theory curve data only===*)
 theoryCurve[conc_,data_]:=
 	Module[
 	{nearestConc,entry},
@@ -410,11 +391,6 @@ theoryCurve[conc_,data_]:=
 	    entry=SelectFirst[data,#[[1]]==nearestConc&];
         If[ListQ[entry]&&Length[entry]==2,entry[[2]],Missing["NotFound"]]
 ]
-
-theoryBaselineStandardPlot=makeConsistentBaselinePlot[{theoryCurve[0,parsedBaselineDataLowResistor]},"Theory (Standard, Baseline)", plotRangesNoResistor];
-theoryBaselineResistorPlot=makeConsistentBaselinePlot[{theoryCurve[0,parsedBaselineDataHighResistor]},"Theory (Added Resistor, Baseline)", plotRanges];
-
-baselinePlots = Grid[{{baselineStandardPlot,theoryBaselineStandardPlot},{baselineResistorPlot,theoryBaselineResistorPlot}},Spacings->{2,2}]
 
 
 
