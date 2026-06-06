@@ -4,78 +4,67 @@
 (* ClearAll["Global`*"]*)
 
 
-(* ::Input:: *)
-(*(* Load TXT files *)*)
-(**)
-(*(* voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\voltammograms\\" *)*)
-(*voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\spikeVoltammograms\\"*)
-(**)
-(*(* in voltammogram we need to pick which channels correspond to high and low resistance experiments from voltammogramPath *)*)
-(*channelLowResistor = 5;*)
-(*channelHighResistor = 2;*)
-(*channelHighResistor = 6;*)
-(*(* dataSeriesToUseNoResistor = 7; (* which column of data (e.g. which recorded potentiostat channel *)*)
-(*dataSeriesToUseWithResistor = 4; (* which column of data (e.g. which recorded potentiostat channel *) *)*)
-(**)
-(*dataSeriesToUseLowConc = 2; (* which filename (e.g. S1_5Hz__1.txt would be 1 *)*)
-(*dataSeriesToUseHighConc = 18; (* which filename (e.g. S1_5Hz__18.txt would be 18 *)*)
-(**)
-(**)
-(*(* simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_highRhighKet3.txt" *)*)
-(**)
-(*simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-1620 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"*)
-(*simulationDataWithResistor=Import[simulationDataWithResistorFilePath,"Table"];*)
-(*(* simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_lowRhighKet2.txt" *)*)
-(**)
-(*simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-294 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"*)
-(*simulationDataWithNoResistor=Import[simulationDataWithNoResistorFilePath,"Table"];*)
-(**)
-(**)
+(* ::Input::Initialization:: *)
+(* Load TXT files *)
+
+(* voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\voltammograms\\" *)
+voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\spikeVoltammograms\\"
+
+(* in voltammogram we need to pick which channels correspond to high and low resistance experiments from voltammogramPath *)
+channelLowResistor = 5;
+channelHighResistor = 2;
+channelHighResistor = 6;
+(* dataSeriesToUseNoResistor = 7; (* which column of data (e.g. which recorded potentiostat channel *)
+dataSeriesToUseWithResistor = 4; (* which column of data (e.g. which recorded potentiostat channel *) *)
+
+dataSeriesToUseLowConc = 2; (* which filename (e.g. S1_5Hz__1.txt would be 1 *)
+dataSeriesToUseHighConc = 18; (* which filename (e.g. S1_5Hz__18.txt would be 18 *)
 
 
-(* ::Input:: *)
-(*(* Preprocess experimental data into the plots of interest *)*)
-(**)
-(**)
-(*(* Preprocess theoretical data into the plots of interest *)*)
+(* simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_highRhighKet3.txt" *)
+
+simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-1620 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"
+simulationDataWithResistor=Import[simulationDataWithResistorFilePath,"Table"];
+(* simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_lowRhighKet2.txt" *)
+
+simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-294 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"
+simulationDataWithNoResistor=Import[simulationDataWithNoResistorFilePath,"Table"];
 
 
-(* ::Input:: *)
-(*importLabeledTheoryBlock[filePath_String,sectionHeader_String,targetSymbol_Symbol]:=Module[{lines,startIdx,startLineNum,endLineNum,subsequentLines,nextBlockIdx,headerParts,frequencies,theoryDataLines,parsedData},(* ===Import lines===*)lines=Import[filePath,"Lines"];*)
-(*If[!ListQ[lines]||!AllTrue[lines,StringQ],Print["\:274c Error: File content is not a list of strings."];*)
-(*Return[$Failed];];*)
-(*(* ===Find block start===*)startIdx=FirstPosition[lines,s_/;StringContainsQ[s,sectionHeader],Missing["NotFound"]];*)
-(*If[startIdx===Missing["NotFound"],Print["\:274c Section header not found: ",sectionHeader];*)
-(*Return[$Failed];];*)
-(*startLineNum=startIdx[[1]];*)
-(*(* ===Find end of block===*)subsequentLines=Drop[lines,startLineNum+2];*)
-(*nextBlockIdx=FirstPosition[subsequentLines,s_/;StringMatchQ[StringTrim[s],"## ==="~~___~~"==="]&&Not@StringContainsQ[s,sectionHeader],Missing["NotFound"]];*)
-(*endLineNum=If[nextBlockIdx===Missing["NotFound"],Length[lines],startLineNum+nextBlockIdx[[1]]-1];*)
-(*(* ===Parse frequency header===*)headerParts=StringSplit[StringReplace[lines[[startLineNum+1]]," [Current in \[Micro]A]"->""],"\t"];*)
-(*frequencies=ToExpression@StringReplace[headerParts[[2;;]],{"f="->"","Hz"->""," "->""}];*)
-(*(* ===Parse data lines===*)theoryDataLines=lines[[startLineNum+2;;endLineNum]];*)
-(*parsedData=Table[Module[{parts=StringSplit[StringTrim[line],"\t"]},With[{conc=ToExpression[parts[[1]]],currents=ToExpression/@parts[[2;;]]},If[Length[currents]===Length[frequencies],{conc,Transpose[{frequencies,currents}]},Print["\:26a0\:fe0f Skipping bad row at conc = ",conc," due to length mismatch"];*)
-(*Nothing]]],{line,theoryDataLines}];*)
-(*(* ===Assign parsed result to target symbol===*)targetSymbol=parsedData;*)
-(*Print["\:2705 Parsed ",Length[parsedData]," rows into variable ",SymbolName[Unevaluated[targetSymbol]]];]*)
-(**)
-(**)
 
 
-(* ::Input:: *)
-(*importCalibrationBlock[filePath_String,sectionHeader_String]:=Module[{lines,startIdx,startLineNum,endLineNum,subsequentLines,nextBlockIdx,dataLines,parsedData},lines=Import[filePath,"Lines"];*)
-(*If[!ListQ[lines]||!AllTrue[lines,StringQ],Print["\:274c Error: File content is not valid."];Return[$Failed]];*)
-(*startIdx=FirstPosition[lines,s_/;StringContainsQ[s,sectionHeader],Missing["NotFound"]];*)
-(*If[startIdx===Missing["NotFound"],Print["\:274c Section header not found: ",sectionHeader];*)
-(*Return[$Failed]];*)
-(*startLineNum=startIdx[[1]];*)
-(*subsequentLines=Drop[lines,startLineNum+2];*)
-(*nextBlockIdx=FirstPosition[subsequentLines,s_/;StringMatchQ[StringTrim[s],"## ==="~~___~~"==="]&&Not@StringContainsQ[s,sectionHeader],Missing["NotFound"]];*)
-(*endLineNum=If[nextBlockIdx===Missing["NotFound"],Length[lines],startLineNum+nextBlockIdx[[1]]-1];*)
-(*dataLines=lines[[startLineNum+2;;endLineNum]];*)
-(*parsedData=Cases[dataLines,s_:>With[{parts=StringSplit[StringTrim[s],"\t"]},If[Length[parts]==2,Quiet[{ToExpression[parts[[1]]],ToExpression[parts[[2]]]}],Nothing]]];*)
-(*parsedData]*)
-(**)
+(* ::Input::Initialization:: *)
+(* Preprocess experimental data into the plots of interest *)
+
+
+(* Preprocess theoretical data into the plots of interest *)
+
+
+(* ::Input::Initialization:: *)
+importLabeledTheoryBlock[filePath_String,sectionHeader_String,targetSymbol_Symbol]:=Module[{lines,startIdx,startLineNum,endLineNum,subsequentLines,nextBlockIdx,headerParts,frequencies,theoryDataLines,parsedData},(* ===Import lines===*)lines=Import[filePath,"Lines"];
+lines=Flatten[lines];
+lines=Select[lines,StringQ];
+If[Length[lines]==0,Print["\:274c Error: File content is not a list of strings."];
+Return[$Failed];];
+(* ===Find block start===*)startIdx=FirstPosition[lines,s_/;StringContainsQ[s,sectionHeader],Missing["NotFound"]];
+If[startIdx===Missing["NotFound"],Print["\:274c Section header not found: ",sectionHeader];
+Return[$Failed];];
+startLineNum=startIdx[[1]];
+(* ===Find end of block===*)subsequentLines=Drop[lines,startLineNum+2];
+nextBlockIdx=FirstPosition[subsequentLines,s_/;StringMatchQ[StringTrim[s],"## ==="~~___~~"==="]&&Not@StringContainsQ[s,sectionHeader],Missing["NotFound"]];
+endLineNum=If[nextBlockIdx===Missing["NotFound"],Length[lines],startLineNum+nextBlockIdx[[1]]-1];
+(* ===Parse frequency header===*)headerParts=StringSplit[StringReplace[lines[[startLineNum+1]]," [Current in \[Micro]A]"->""],"\t"];
+frequencies=ToExpression@StringReplace[headerParts[[2;;]],{"f="->"","Hz"->""," "->""}];
+(* ===Parse data lines===*)theoryDataLines=lines[[startLineNum+2;;endLineNum]];
+parsedData=Table[Module[{parts=StringSplit[StringTrim[line],"\t"]},With[{conc=ToExpression[parts[[1]]],currents=ToExpression/@parts[[2;;]]},If[Length[currents]===Length[frequencies],{conc,Transpose[{frequencies,currents}]},Print["\:26a0\:fe0f Skipping bad row at conc = ",conc," due to length mismatch"];
+Nothing]]],{line,theoryDataLines}];
+(* ===Assign parsed result to target symbol===*)targetSymbol=parsedData;
+Print["\:2705 Parsed ",Length[parsedData]," rows into variable ",SymbolName[Unevaluated[targetSymbol]]];]
+
+
+
+
+
 
 
 importVoltammogramBlock[filePath_String, sectionHeader_String, targetSymbol_Symbol] := 
@@ -176,12 +165,6 @@ importVoltammogramBlock[filePath_String, sectionHeader_String, targetSymbol_Symb
 (*Clear[theoryVoltammogramsConc0withResistor, theoryVoltammogramsConc0withNoResistor]*)
 (*importVoltammogramBlock[simulationDataWithResistorFilePath,"## === Voltammograms at Conc = 0 M ===",theoryVoltammogramsConc0withResistor];*)
 (*importVoltammogramBlock[simulationDataWithNoResistorFilePath,"## === Voltammograms at Conc = 0 M ===",theoryVoltammogramsConc0withNoResistor]*)
-
-
-simulationDataWithNoResistorFilePath
-
-
-theoryVoltammogramsConc0withNoResistor
 
 
 Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\loadExperimentalVoltammogramGeneratePlots.m"]
@@ -371,14 +354,6 @@ importLabeledTheoryBlock[simulationDataWithResistorFilePath,"## === Baseline Cur
 
 importLabeledTheoryBlock[simulationDataWithNoResistorFilePath,"## === Baseline Current vs Frequency ===",parsedBaselineDataLowResistor];
 
-(*Helper to compute mean baseline*)
-meanBaselineLine[group_,conc_]:=Transpose[{frequencies,10^6*Mean/@Transpose[group[conc]]}];
-
-baselineLineStandardLowConc=meanBaselineLine[grouped1,minConc];
-baselineLineStandardHighConc=meanBaselineLine[grouped1,maxConc];
-baselineLineAddedResistorLowConc=meanBaselineLine[grouped2,minConc];
-baselineLineAddedResistorHighConc=meanBaselineLine[grouped2,maxConc];
-
 
 plotRanges = {{5,700}, {-2,20}};
 
@@ -398,11 +373,6 @@ theoryCurve[conc_,data_]:=
 
 Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\CustomTicks\\CustomTicks.m"]
 Needs["CustomTicks`"]
-(* { NameQ["CustomTicks`LinTicks"], NameQ["CustomTicks`LogTicks"] } *)
-Options[CustomTicks`LinTicks]
-
-
-Options[CustomTicks`LogTicks]
 
 
 CHISignalDiffNonFaradaic=4 CDL E^(-(3/(CDL fSWV Rsol))) (1-E^(1/(4 CDL fSWV Rsol))-3 E^(1/(2 CDL fSWV Rsol))+3 E^(3/(4 CDL fSWV Rsol))+4 E^(1/(CDL fSWV Rsol))-4 E^(5/(4 CDL fSWV Rsol))-4 E^(3/(2 CDL fSWV Rsol))+4 E^(7/(4 CDL fSWV Rsol))+4 E^(2/(CDL fSWV Rsol))-4 E^(9/(4 CDL fSWV Rsol))-4 E^(5/(2 CDL fSWV Rsol))+4 E^(11/(4 CDL fSWV Rsol))) fSWV V0
@@ -615,29 +585,6 @@ baselineStandardPlot2
 
 
 
-(* ::Input:: *)
-(*(* deltaI *)*)
-(*(* Iterate over all frequencies in experimentalVoltammogramdataNoResistorLowConc *)*)
-(*deltaIVsFrequencyMicroA = *)
-(*  Table[*)
-(*    Module[*)
-(*      {freq, data, result},*)
-(*      *)
-(*      freq = f;*)
-(*      data = experimentalVoltammogramdataNoResistorLowConc[freq];*)
-(*      *)
-(*      result = analyzeVoltammogram[data];*)
-(*      *)
-(*      {freq, result["DeltaI"]}*)
-(*    ],*)
-(*    {f, Keys[experimentalVoltammogramdataNoResistorLowConc]}*)
-(*  ];*)
-(**)
-(*(* Sort by frequency for nice plotting *)*)
-(*deltaIVsFrequencyMicroASorted = *)
-(*  SortBy[deltaIVsFrequencyMicroA, First]*)
-(**)
-(**)
 
 
 (* Iterate over all frequencies in experimentalVoltmammogramdata *)
@@ -765,52 +712,6 @@ deltaIHighConcPlotExp =
 
 
 (* ::Input:: *)
-(**)
-
-
-(* ::Input:: *)
-(*plotRanges = {{5,700}, {-2,10}};*)
-(**)
-(**)
-(*(* ===Function to make consistent plots===*)*)
-(*makeConsistentPlot[data_,label_, legendLabel_]:=ListLogLinearPlot[data,Joined->True,PlotStyle->MapThread[{#1,#2}&,{plotStyles,lineStyles}],PlotMarkers->Automatic, Frame->True,FrameLabel->{"Frequency (Hz)","Current (\[Micro]A)"},PlotLabel->label,PlotRange->plotRanges,ImageSize->300,BaseStyle->{FontSize->10},PlotLegends->legendLabel];*)
-(*legendLabel={"no added R","added resistor"};*)
-(*(* ===Create each plot===*)*)
-(*(* theoryStandardPlot=makeConsistentPlot[{theoryCurve[0, parsedTheoryDataLowResistor],theoryCurve[0.0093, parsedTheoryDataLowResistor]},"Theory (Standard)", legendLabel]; *)*)
-(*theoryLowConcPlot = makeConsistentPlot[{theoryCurve[0, parsedTheoryDataLowResistor],theoryCurve[0, parsedTheoryDataHighResistor]},"Simulation - no added target", legendLabel];*)
-(*theoryHighConcPlot = makeConsistentPlot[{theoryCurve[0.0093, parsedTheoryDataLowResistor],theoryCurve[0.0093, parsedTheoryDataHighResistor]},"High Concentration", legendLabel];*)
-(**)
-(**)
-(*(* theoryResistorPlot=makeConsistentPlot[{theoryCurve[0, parsedTheoryDataHighResistor],theoryCurve[0.0093, parsedTheoryDataHighResistor]},"Theory (added resistor)", legendLabel]; *)*)
-(**)
-(*(* lowResistorDeltaIPlot=makeConsistentPlot[{lineStandardLowConc,lineStandardHighConc},"Exp5 (Standard)", None]; *)*)
-(*(*  lowResistorDeltaIPlot=makeConsistentPlot[{deltaIVsFrequencyMicroASorted},"Exp5 (Standard)", None];*)*)
-(**)
-(*(* highResistorDeltaIPlot=makeConsistentPlot[{deltaIVsFrequencyMicroASortedWithResistor},"Exp6 (Added Resistor)", None];*)
-(*highResistorDeltaIPlot=makeConsistentPlot[{lineAddedResistorLowConc,lineAddedResistorHighConc},"Exp6 (Added Resistor)", None]; *)*)
-(*deltaIHighConcPlotExp =*)
-(*  makeConsistentPlot[*)
-(*    {*)
-(*      deltaIVsFrequencyNoResistorHighConc,*)
-(*      deltaIVsFrequencyWithResistorHighConc*)
-(*    },*)
-(*    "Experiment 9.3mM ",*)
-(*    legendLabel={"no added R","added resistor"}*)
-(*  ];*)
-(**)
-(*deltaILowConcPlotExp =*)
-(*  makeConsistentPlot[*)
-(*    {*)
-(*      deltaIVsFrequencyNoResistorLowConc,*)
-(*      deltaIVsFrequencyWithResistorLowConc*)
-(*    },*)
-(*    "Experiment no added target",*)
-(*    legendLabel={"no added R","added resistor"}*)
-(*  ];*)
-(*(* ===Arrange in 2x2 Grid===*)*)
-(*deltaIPlots = Grid[{{deltaILowConcPlotExp,deltaIHighConcPlotExp},{theoryLowConcPlot,theoryHighConcPlot}},Spacings->{2,2}]*)
-(**)
-(**)
 (**)
 
 
@@ -1184,6 +1085,15 @@ experimentalPreambleSection[dir_, maxLines_: 12] := Module[{file, lines},
     ]
   ]
 ];
+
+formatParamAssoc[assoc_Association] :=
+  Column[
+    KeyValueMap[
+      Function[{k, v}, ToString[k] <> " = " <> ToString[NumberForm[N[v], 4]]],
+      assoc
+    ],
+    Spacings -> 0.1
+  ];
 
 (* ===================== Add to your existing paramSection ===================== *)
 
