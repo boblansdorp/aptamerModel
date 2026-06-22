@@ -252,7 +252,27 @@
 
 
 (* ::Input:: *)
-(*Plot[{10^6 it/.{t->(timems + 5)/1000,fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->100, V0->0.025, Rct->10000}, 10^6 it/.{t->(timems + 5)/1000,fSWV->200, Capt->300*10^-9, CDL->300*10^-9, Rsol->1000, V0->0.025, Rct->10000}}, {timems,0,5}, PlotRange->{{0,5}, {-10,10}}, PlotLegends->{"Low Rs", "High Rs"}, AxesLabel->{"time (s)", "current (microA)"},AspectRatio->1]*)
+xTicksCurrent = Table[{x, x, {0, 0.02}}, {x, {0, 1, 2, 3, 4, 5}}];
+yTicksCurrent = Table[{y, y, {0, 0.02}}, {y, {-10, -5, 0, 5, 10}}];
+
+Plot[
+  {10^6 it /. {t -> (timems + 5)/1000, fSWV -> 200, Capt -> 300*10^-9, CDL -> 300*10^-9, Rsol -> 100,  V0 -> 0.025, Rct -> 10000},
+   10^6 it /. {t -> (timems + 5)/1000, fSWV -> 200, Capt -> 300*10^-9, CDL -> 300*10^-9, Rsol -> 1000, V0 -> 0.025, Rct -> 10000}},
+  {timems, 0, 5},
+  PlotRange -> {{0, 5}, {-10, 10}},
+  PlotLegends -> {"Low R\[Subscript]s", "High R\[Subscript]s"},
+  Frame -> True,
+  Axes -> False,
+  FrameLabel -> {
+    Style["time (s)",        14, Bold, FontFamily -> "Helvetica"],
+    Style["current (\[Micro]A)", 14, Bold, FontFamily -> "Helvetica"]
+  },
+  FrameTicks -> {{yTicksCurrent, None}, {xTicksCurrent, None}},
+  FrameTicksStyle -> Directive[FontFamily -> "Helvetica", FontSize -> 12, Black],
+  AspectRatio -> 1,
+  Background -> White,
+  BaseStyle -> {FontFamily -> "Helvetica"}
+]
 
 
 (* ::InheritFromParent:: *)
@@ -273,17 +293,45 @@
 
 
 (* ::Input:: *)
-(*(*Fig 7C:Voltage at CDL node (=VWE-iRs) after step onset*)(*Laplace initial conditions give uncharged CDL at t=0;*)(*first vtime half-cycle is reverse,so sign is+*)*)
-(*cdlVal=300*10^-9;  (*300 nF double-layer capacitance*)*)
-(*captVal=300*10^-9;  (*300 nF aptamer capacitance*)*)
-(*rctVal=10000;      (*10 k\[CapitalOmega] charge transfer resistance*)*)
-(*v0Val=0.025;      (*25 mV step amplitude*)*)
-(*fSWVVal=200;        (*Hz\[LongDash]sets half-cycle duration*)*)
-(*rsLow=100;        (*\[CapitalOmega] low solution resistance*)*)
-(*rsHigh=1000;       (*\[CapitalOmega] high solution resistance*)*)
-(**)
-(*Plot[{25,1000*(v0Val+rsLow*it)/. {t->timems/1000,fSWV->fSWVVal,CDL->cdlVal,Capt->captVal,Rct->rctVal,Rsol->rsLow,V0->v0Val},1000*(v0Val+rsHigh*it)/. {t->timems/1000,fSWV->fSWVVal,CDL->cdlVal,Capt->captVal,Rct->rctVal,Rsol->rsHigh,V0->v0Val}},{timems,0,1},PlotRange->{{-0.2,1},{-5,30}},PlotStyle->{Yellow,Orange,Darker[Orange]},PlotLegends->{"V_WE - V_RE","Rs = "<>ToString[rsLow]<>" \[CapitalOmega]","Rs = "<>ToString[rsHigh]<>" \[CapitalOmega]"},AxesLabel->{"time (ms)","potential (mV)"},AspectRatio->1]*)
-(**)
+(* Fig 7C: Voltage at CDL node (= V_WE - i*Rs) after step onset.
+   Laplace initial conditions: uncharged CDL at t=0.
+   First vtime half-cycle is reverse pulse, so sign is +. *)
+cdlVal  = 300*10^-9;   (* 300 nF double-layer capacitance *)
+captVal = 300*10^-9;   (* 300 nF aptamer capacitance *)
+rctVal  = 10000;       (* 10 k\[CapitalOmega] charge transfer resistance *)
+v0Val   = 0.025;       (* 25 mV step amplitude *)
+fSWVVal = 200;         (* Hz \[LongDash] sets half-cycle duration *)
+rsLow   = 100;         (* \[CapitalOmega] low solution resistance *)
+rsHigh  = 1000;        (* \[CapitalOmega] high solution resistance *)
+
+xTicks7C = Table[{x, x, {0, 0.02}}, {x, {0, 0.25, 0.5, 0.75, 1.0}}];
+yTicks7C = Table[{y, y, {0, 0.02}}, {y, {0, 10, 20, 30}}];
+
+Plot[
+  {25,
+   1000*(v0Val + rsLow*it)  /. {t -> timems/1000, fSWV -> fSWVVal, CDL -> cdlVal, Capt -> captVal, Rct -> rctVal, Rsol -> rsLow,  V0 -> v0Val},
+   1000*(v0Val + rsHigh*it) /. {t -> timems/1000, fSWV -> fSWVVal, CDL -> cdlVal, Capt -> captVal, Rct -> rctVal, Rsol -> rsHigh, V0 -> v0Val}},
+  {timems, 0, 1},
+  PlotRange -> {{0, 1}, {-5, 30}},
+  PlotStyle -> {Yellow, Orange, Darker[Orange]},
+  PlotLegends -> {
+    "V\[Subscript]WE \[Minus] V\[Subscript]RE",
+    "R\[Subscript]s = " <> ToString[rsLow]  <> " \[CapitalOmega]",
+    "R\[Subscript]s = " <> ToString[rsHigh] <> " \[CapitalOmega]"
+  },
+  Frame -> True,
+  Axes -> False,
+  FrameLabel -> {
+    Style["time (ms)",      14, Bold, FontFamily -> "Helvetica"],
+    Style["potential (mV)", 14, Bold, FontFamily -> "Helvetica"]
+  },
+  FrameTicks -> {{yTicks7C, None}, {xTicks7C, None}},
+  FrameTicksStyle -> Directive[FontFamily -> "Helvetica", FontSize -> 12, Black],
+  AspectRatio -> 1,
+  Background -> White,
+  BaseStyle -> {FontFamily -> "Helvetica"}
+]
+
 
 
 (* ::Input:: *)
