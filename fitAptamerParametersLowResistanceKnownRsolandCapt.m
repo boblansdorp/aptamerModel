@@ -1,6 +1,8 @@
 (* ::Package:: *)
 
 (* ::Input:: *)
+(*ClearAll["Global`*"]*)
+(**)
 (*experimentalDataWithNoResistor=Import["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\2025-11-13\\E3Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt","Table"];*)
 (*(* to do: replace this E3Ir file with Mathematica voltammogram extraction of deltaI and baseline *)*)
 (**)
@@ -267,6 +269,44 @@
 (*combinedFigure=GraphicsRow[{Show[publicationFigureRct0Sensitivity,ImageSize->400,ImagePadding->{{80,20},{65,25}}],Show[publicationFigureLovric,ImageSize->400,ImagePadding->{{80,20},{65,25}}]},Spacings->0.25,Background->White,ImageSize->1000];*)
 (**)
 (*combinedFigure*)
+
+
+(* ---- Capt Lovri\[CAcute] at C = 0 (mirrors the Rct0 Lovri\[CAcute] block) ---- *)
+
+captTheoryCurvesLovric = Map[{#[[1]], 10^9 #[[2]]/#[[1]]} &, captTheoryCurves, {2}];
+expDataLovric = ({#[[1]], 10^9 #[[2]]/#[[1]]} &) /@ lowestConcData[[All, {1, 3}]];
+
+lovricYMax = 25;
+lovricYTicks = Range[0, lovricYMax, lovricYMax/5];
+
+captLovricTheoryPlot = ListLogLinearPlot[captTheoryCurvesLovric,
+   PlotStyle -> (Directive[#, Thick] & /@ captColors), Joined -> True, PlotMarkers -> None,
+   Frame -> True, Axes -> False,
+   FrameLabel -> {Style["Frequency (Hz)", 16, Bold], Style["\[CapitalDelta]I / f  (nA/Hz)", 16, Bold]},
+   FrameTicks -> {{makeOutsideTicksCustom[lovricYTicks], None},
+      {makeOutsideLogTicks[Min[frequencies], Max[frequencies]], None}},
+   FrameTicksStyle -> Directive[FontFamily -> "Helvetica", FontSize -> 14, Black],
+   PlotLegends -> Placed[SwatchLegend[captColors, captLegendLabels,
+       LegendLabel -> Style["Capt Values", 14]], Right],
+   ImageSize -> Large];
+
+captLovricExpPlot = ListLogLinearPlot[{expDataLovric}, PlotStyle -> {Black},
+   PlotMarkers -> {Automatic, 10}, Joined -> False];
+
+publicationFigureCaptLovric = Show[captLovricTheoryPlot, captLovricExpPlot,
+   PlotRange -> {{All, All}, {0, lovricYMax}},
+   PlotLabel -> Style["Lovri\[CAcute] Plot at C=0 (Capt sweep)", 18, Bold]];
+
+publicationFigureCaptLovric
+
+
+combinedFigure = GraphicsGrid[{
+    {Show[publicationFigureRct0Sensitivity, ImageSize -> 400, ImagePadding -> {{80, 20}, {65, 25}}],
+     Show[publicationFigureLovric, ImageSize -> 400, ImagePadding -> {{80, 20}, {65, 25}}]},
+    {Show[publicationFigureCaptSensitivity, ImageSize -> 400, ImagePadding -> {{80, 20}, {65, 25}}],
+     Show[publicationFigureCaptLovric, ImageSize -> 400, ImagePadding -> {{80, 20}, {65, 25}}]}},
+   Spacings -> {0.25, 0.25}, Background -> White, ImageSize -> 1000];
+combinedFigure
 
 
 (* ::Input:: *)
