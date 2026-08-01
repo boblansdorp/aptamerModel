@@ -104,11 +104,10 @@ Best-fit parameters (phenylalanine sensor, 1× PBS + 2 mM MgCl₂ + 35 mg/mL BSA
 | Rsol (no added resistor) | 294 Ω | EIS fit |
 | Rsol (added resistor) | 1620 Ω | EIS fit |
 | CDL | 355 nF | EIS fit |
-| Rct (unbound) | 17 021 Ω | Current vs freq fit |
-| Capt | 220 nF | Current vs freq fit |
-| kD | 17.7 mM | EIS/KDM fit |
-| k0u | 133 s⁻¹ | Lovric normalization |
-| k0b | 345 s⁻¹ | Lovric normalization |
+| Rct (unbound) | 17 034 Ω | Current vs freq fit |
+| Rct (bound) | 6 542 Ω | Current vs freq fit |
+| Capt | 227 nF | Current vs freq fit |
+| kD | 17.2 mM | EIS/KDM fit |
 
 ---
 
