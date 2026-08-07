@@ -23,9 +23,9 @@ The third-party [`CustomTicks`](CustomTicks/) package (Mark A. Caprio, MIT Licen
 | `loadMxGeneratePlots.m` | Loads a saved `.mx` result file and restores all simulation parameters and ODE definitions |
 | `addedResistanceKDM.m` | KDM (Kinetic Differentiation Metric) analysis — computes how solution resistance drift degrades concentration estimates; uses the closed-form `CHISignalBaselineSubtractedExpr` |
 | `radialConductivity.m` | Finite-element electrostatics (axisymmetric Laplace) — estimates solution resistance for different electrode geometries and tissue conductivities |
-| `fitRsolCDLfromData.m` | Fits CDL and Rsol from measured non-faradaic baseline current vs frequency |
-| `fitAptamerParametersLowResistanceKnownRsolandCapt.m` | Fits Rct and Capt from measured current vs frequency at zero target concentration |
-| `fitRCData_2026_07_15.m` | Fits CDL and Rsol from RC-circuit standard measurements (2 kΩ and 47 kΩ datasets, 2026-07-15) |
+| `fitRsolCDLfromData.m` | Fits CDL and Rsol from SWV non-faradaic baseline current vs frequency; publication values obtained from EIS instead (see below) |
+| `fit aptamer parameters at low resistance with known Rsol and CDL.m` | Fits Rct and Capt from measured current vs frequency at zero target concentration |
+| `fitRCData_resistors.m` | Fits CDL and Rsol from RC-circuit standard measurements (2 kΩ and 47 kΩ datasets, 2026-07-15) |
 | `CustomTicks/` | Third-party tick-formatting package (MIT License, Mark A. Caprio) |
 
 ---
@@ -69,14 +69,14 @@ Analytical curves in 6D–F use `chiAnalytical[]` wrapping `CHISignalBaselineSub
 
 ### Figure S5 — Current vs frequency at zero concentration; Rct and Capt fit
 
-`fitAptamerParametersLowResistanceKnownRsolandCapt.m` — fits the full analytical expression (baseline-subtracted Faradaic current) to current vs frequency data at zero target concentration.
+`fit aptamer parameters at low resistance with known Rsol and CDL.m` — fits the full analytical expression (baseline-subtracted Faradaic current) to current vs frequency data at zero target concentration.
 
 ### Figures S7–S8 — RC circuit standard: analytical theory fits
 
 | Figure | Parameters | Code |
 |---|---|---|
-| S7 | Rs = 2000 Ω, C = 220 nF | `fitRCData_2026_07_15.m` |
-| S8 | Rs = 47 000 Ω, C = 220 nF | `fitRCData_2026_07_15.m` |
+| S7 | Rs = 2000 Ω, C = 220 nF | `fitRCData_resistors.m` |
+| S8 | Rs = 47 000 Ω, C = 220 nF | `fitRCData_resistors.m` |
 
 ---
 
