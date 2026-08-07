@@ -1,6 +1,8 @@
 # aptamerModel
 Physical electrochemistry model of aptamer-based electrochemical biosensors using Square Wave Voltammetry (SWV) and a Laplace equation solver for estimating solution resistance in a cylindrical geometry.
 
+Latest version: [github.com/boblansdorp/aptamerModel](https://github.com/boblansdorp/aptamerModel)
+
 ## Introduction
 
 These simulations are written in Mathematica (tested on version 13.1).
