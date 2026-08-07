@@ -44,10 +44,10 @@
 *.obj
 
 
-# txt files
+# txt files (exemptions below)
 *.txt
 
-# Build / output folders (rename to whatever you use)
+# Build / output folders
 build/
 dist/
 out/
@@ -57,11 +57,25 @@ tmp/
 # sandbox folder
 sandbox/
 
-# data folders
-experimentalData/
+# data folders — ignore contents by default so exemptions can override
+experimentalData/*
 fracpole/
 oldResults/
-results/
+results/*
+
+# Actively imported experimental data
+!experimentalData/spikeVoltammograms/
+!experimentalData/spikeVoltammograms/*.txt
+!experimentalData/2026_07_15/
+experimentalData/2026_07_15/*
+!experimentalData/2026_07_15/2kOhm_resistor_220nF_capacitor_inseries/
+!experimentalData/2026_07_15/2kOhm_resistor_220nF_capacitor_inseries/*.txt
+!experimentalData/2026_07_15/47kOhm_resistor_220nF_capacitor_inseries/
+!experimentalData/2026_07_15/47kOhm_resistor_220nF_capacitor_inseries/*.txt
+
+# Actively imported simulation results
+!results/simulation_export_CDL-355 Rsol-1620 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt
+!results/simulation_export_CDL-355 Rsol-294 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt
 
 # Mathematica "Working" scratch folders you might create
 Scratch/
