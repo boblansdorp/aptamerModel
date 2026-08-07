@@ -10,7 +10,8 @@
    fitRsolCDLfromData.m; imports via loadExperimentalVoltammogramGeneratePlots.m
    ================================================================ *)
 
-Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\loadExperimentalVoltammogramGeneratePlots.m"]
+$aptamerModelDir = If[StringQ[NotebookDirectory[]], NotebookDirectory[], DirectoryName[$InputFileName]];
+Get[FileNameJoin[{$aptamerModelDir, "loadExperimentalVoltammogramGeneratePlots.m"}]]
 
 
 (* ---- Analytical non-Faradaic baseline current (from analyticalCurrentGivenParams.m) ---- *)
@@ -40,10 +41,10 @@ FitFunctionRC[data_, initialGuesses_Association, rsolMax_: 200000] :=
 
 
 (* ---- Import voltammograms ---- *)
-baseDir = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\2026_07_15\\";
+baseDir = FileNameJoin[{$aptamerModelDir, "experimentalData", "2026_07_15"}];
 
-raw2k  = LoadVoltammogramData`loadAllVoltammograms[baseDir <> "2kOhm_resistor_220nF_capacitor_inseries"];
-raw47k = LoadVoltammogramData`loadAllVoltammograms[baseDir <> "47kOhm_resistor_220nF_capacitor_inseries"];
+raw2k  = LoadVoltammogramData`loadAllVoltammograms[FileNameJoin[{baseDir, "2kOhm_resistor_220nF_capacitor_inseries"}]];
+raw47k = LoadVoltammogramData`loadAllVoltammograms[FileNameJoin[{baseDir, "47kOhm_resistor_220nF_capacitor_inseries"}]];
 
 
 (* ---- Extract {frequency (Hz), mean |IDiff| (A)} per file ----

@@ -257,7 +257,8 @@ plotsByConc = KeyValueMap[
 
 
 Remove["Global`analyzeVoltammogram"];
-Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\AnalyzeVoltammogram.m"];
+$aptamerModelDir = If[StringQ[NotebookDirectory[]], NotebookDirectory[], DirectoryName[$InputFileName]];
+Get[FileNameJoin[{$aptamerModelDir, "AnalyzeVoltammogram.m"}]];
 AppendTo[$ContextPath, "AnalyzeVoltammogram`"];
 
 

@@ -66,6 +66,10 @@ results/*
 # Actively imported experimental data
 !experimentalData/spikeVoltammograms/
 !experimentalData/spikeVoltammograms/*.txt
+!experimentalData/2025-11-13/
+experimentalData/2025-11-13/*
+!experimentalData/2025-11-13/E3Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt
+!experimentalData/2025-11-13/E2Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt
 !experimentalData/2026_07_15/
 experimentalData/2026_07_15/*
 !experimentalData/2026_07_15/2kOhm_resistor_220nF_capacitor_inseries/

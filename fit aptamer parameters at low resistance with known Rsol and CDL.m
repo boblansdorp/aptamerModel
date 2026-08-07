@@ -18,7 +18,7 @@
 
 
 (* ::Input:: *)
-(*experimentalDataWithNoResistor=Import["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\2025-11-13\\E3Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt","Table"];*)
+(*experimentalDataWithNoResistor=Import[FileNameJoin[{$aptamerModelDir,"experimentalData","2025-11-13","E3Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt"}],"Table"];*)
 (*(* to do: replace this E3Ir file with Mathematica voltammogram extraction of deltaI and baseline *)*)
 (**)
 (*columnHeaders=experimentalDataWithNoResistor[[1]];*)
@@ -924,7 +924,7 @@ combinedFigureProduct
 (**)
 (*(* this section is optional... fit the added resistor data *)*)
 (*(* note: there are some errors in the code below... it is using baseline fitting on non-baseline data  *)*)
-(*experimentalDataWithResistor=Import["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\2025-11-13\\E2Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt","Table"];*)
+(*experimentalDataWithResistor=Import[FileNameJoin[{$aptamerModelDir,"experimentalData","2025-11-13","E2Ir_vs_Freq10Hz_15Hz_20Hz_25Hz_30Hz_40Hz_70Hz_80Hz_100Hz_200Hz_300Hz_400Hz_500Hz_600Hz_.txt"}],"Table"];*)
 (*columnHeadersWithResistor=experimentalDataWithResistor[[1]];*)
 (**)
 (*frequencies=ToExpression[StringReplace[columnHeaders,"Current_"->""]];*)

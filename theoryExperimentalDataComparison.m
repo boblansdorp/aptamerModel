@@ -6,9 +6,10 @@
 
 (* ::Input::Initialization:: *)
 (* Load TXT files *)
+$aptamerModelDir = If[StringQ[NotebookDirectory[]], NotebookDirectory[], DirectoryName[$InputFileName]];
 
 (* voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\voltammograms\\" *)
-voltammogramPath="C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\experimentalData\\spikeVoltammograms\\"
+voltammogramPath = FileNameJoin[{$aptamerModelDir, "experimentalData", "spikeVoltammograms"}]
 
 (* in voltammogram we need to pick which channels correspond to high and low resistance experiments from voltammogramPath *)
 channelLowResistor = 5;
@@ -23,11 +24,11 @@ dataSeriesToUseHighConc = 18; (* which filename (e.g. S1_5Hz__18.txt would be 18
 
 (* simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_highRhighKet3.txt" *)
 
-simulationDataWithResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-1620 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"
+simulationDataWithResistorFilePath = FileNameJoin[{$aptamerModelDir, "results", "simulation_export_CDL-355 Rsol-1620 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"}]
 simulationDataWithResistor=Import[simulationDataWithResistorFilePath,"Table"];
-(* simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_lowRhighKet2.txt" *)
+(* simulationDataWithNoResistorFilePath = FileNameJoin[{$aptamerModelDir, "results", "simulation_lowRhighKet2.txt"}] *)
 
-simulationDataWithNoResistorFilePath = "C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\results\\simulation_export_CDL-355 Rsol-294 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"
+simulationDataWithNoResistorFilePath = FileNameJoin[{$aptamerModelDir, "results", "simulation_export_CDL-355 Rsol-294 k0u-133 k0b-345 kD-0.0177 Lamda-2E-12.txt"}]
 simulationDataWithNoResistor=Import[simulationDataWithNoResistorFilePath,"Table"];
 
 
@@ -167,7 +168,7 @@ importVoltammogramBlock[filePath_String, sectionHeader_String, targetSymbol_Symb
 (*importVoltammogramBlock[simulationDataWithNoResistorFilePath,"## === Voltammograms at Conc = 0 M ===",theoryVoltammogramsConc0withNoResistor]*)
 
 
-Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\loadExperimentalVoltammogramGeneratePlots.m"]
+Get[FileNameJoin[{$aptamerModelDir, "loadExperimentalVoltammogramGeneratePlots.m"}]]
 
 
 (* Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\testLoad.m"] *)
@@ -240,7 +241,7 @@ voltammogramPlots = Grid[
 ]
 
 
-Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\AnalyzeVoltammogram.m"];
+Get[FileNameJoin[{$aptamerModelDir, "AnalyzeVoltammogram.m"}]];
 AppendTo[$ContextPath, "AnalyzeVoltammogram`"];
 
 
@@ -371,7 +372,7 @@ theoryCurve[conc_,data_]:=
 
 
 
-Get["C:\\Users\\Bob Lansdorp\\Documents\\Wolfram Mathematica\\aptamerModel\\CustomTicks\\CustomTicks.m"]
+Get[FileNameJoin[{$aptamerModelDir, "CustomTicks", "CustomTicks.m"}]]
 Needs["CustomTicks`"]
 
 
