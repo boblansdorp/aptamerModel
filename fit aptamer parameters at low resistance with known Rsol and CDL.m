@@ -2,14 +2,17 @@
 
 (* ::Input:: *)
 (*ClearAll["Global`*"] *)
+
+
+$aptamerModelDir = If[StringQ[NotebookDirectory[]], NotebookDirectory[], DirectoryName[$InputFileName]]
 (**)
 (*(* Use these EIS fit values for Rs and Cdl in the low resistance case: *)*)
 (**)
 (**)
-(*RsEIS = 1619;*)
-(*RsEIS = 294;*)
-(*CdlEIS = 355*10^-9;*)
-(*squareWaveAmplitude = 0.025 ;(* assume a 25 mV step *)*)
+RsEIS = 1619;
+RsEIS = 294;
+CdlEIS = 355*10^-9;
+squareWaveAmplitude = 0.025 ;(* assume a 25 mV step *)
 (**)
 (*(* Then, fit Capt, Rct0, Rct1, kD from data. *)*)
 (*(* Given the Rs, Cdl, Capt, Rct0, Rct1, kD, and known concentrations, generate a predition for current vs frequency with an added resistors, at each of the concentrations tested *)*)

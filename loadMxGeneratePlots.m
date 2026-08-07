@@ -3,6 +3,8 @@
 (* ::Input:: *)
 (*ClearAll["Global`*"] *)
 
+$aptamerModelDir = If[StringQ[NotebookDirectory[]], NotebookDirectory[], DirectoryName[$InputFileName]];
+
 
 (* ::Input:: *)
 (*(* =====================================*)(* ===Load Latest Simulation Results===*)(* =====================================*)*)
