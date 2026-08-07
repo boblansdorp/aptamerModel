@@ -25,12 +25,12 @@ The third-party [`CustomTicks`](CustomTicks/) package (Mark A. Caprio, MIT Licen
 | `radialConductivity.m` | Finite-element electrostatics (axisymmetric Laplace) — estimates solution resistance for different electrode geometries and tissue conductivities |
 | `fitRsolCDLfromData.m` | Fits CDL and Rsol from measured non-faradaic baseline current vs frequency |
 | `fitAptamerParametersLowResistanceKnownRsolandCapt.m` | Fits Rct and Capt from measured current vs frequency at zero target concentration |
+| `fitRCData_2026_07_15.m` | Fits CDL and Rsol from RC-circuit standard measurements (2 kΩ and 47 kΩ datasets, 2026-07-15) |
 | `CustomTicks/` | Third-party tick-formatting package (MIT License, Mark A. Caprio) |
 
 ---
 
 ## Reproducing manuscript figures
-
 
 ### Figure 5 — Equivalent circuit model and Rs-dependent voltammogram distortion
 
@@ -38,6 +38,7 @@ The third-party [`CustomTicks`](CustomTicks/) package (Mark A. Caprio, MIT Licen
 |---|---|---|
 | 5A | Experimental voltammograms, low-Rs vs high-Rs (unbound state) | `theoryExperimentalDataComparison.m` → `voltammogramPlots` (top row) |
 | 5B | Simulated SWV voltammograms (Butler–Volmer + circuit) | `Aptamer-Model.m` (generates `.mx`); `theoryExperimentalDataComparison.m` → `voltammogramPlots` (bottom row) |
+
 
 ### Figure 6 — Rs distorts the frequency response (experimental and model)
 
@@ -56,9 +57,9 @@ Analytical curves in 6D–F use `chiAnalytical[]` wrapping `CHISignalBaselineSub
 
 | Panel | Description | Code |
 |---|---|---|
-| 7C | Potential step experienced by redox reporter vs time for different Rs | `analyticalCurrentGivenParams.m` — plots `1000*(v0Val + rsol*it)` at t=0 onset using `vtime` step
+| 7C | Potential step experienced by redox reporter vs time for different Rs | `analyticalCurrentGivenParams.m` — plots `1000*(v0Val + rsol*it)` at t=0 onset using `vtime` step |
 
-### Figure S1 — Simulated potential field (in vitro and rat jugular vein)
+### Figure S2 — Simulated potential field (in vitro and rat jugular vein)
 
 `radialConductivity.m` — solves the axisymmetric Laplace equation for two geometries (shot glass R = 15 mm; vein R = 1 mm), exports `potential_field_two_panel.png`.
 
@@ -66,24 +67,16 @@ Analytical curves in 6D–F use `chiAnalytical[]` wrapping `CHISignalBaselineSub
 
 `radialConductivity.m` — iterates over tissue conductivity values (PBS, blood, muscle, fat) and prints `Resistance (Ohms)` and `GeometryFactor` for each.
 
-### Figure S3 — Applied square wave potential vs time at 100 Hz
-
-`analyticalCurrentGivenParams.m` — `vtime[t, NSTEPS, fSWV]` defines the waveform; plot of applied voltage vs time at 100 Hz.
-
-### Figure S4 — Non-faradaic baseline current vs frequency; CDL and Rs fit
-
-`fitRsolCDLfromData.m` — fits the closed-form `CHISignalDiffNonFaradaic` expression to measured baseline current vs frequency to extract best-fit CDL and Rsol.
-
-### Figure S6 — Current vs frequency at zero concentration; Rct and Capt fit
+### Figure S5 — Current vs frequency at zero concentration; Rct and Capt fit
 
 `fitAptamerParametersLowResistanceKnownRsolandCapt.m` — fits the full analytical expression (baseline-subtracted Faradaic current) to current vs frequency data at zero target concentration.
 
-### Figures S10–S11 — Experimental SWV with analytical theory fits
+### Figures S7–S8 — RC circuit standard: analytical theory fits
 
 | Figure | Parameters | Code |
 |---|---|---|
-| S10 | Rs = 2200 Ω, C = 220 nF | `fitRsolCDLfromData.m` |
-| S11 | Rs = 47 000 Ω, C = 220 nF (in-vivo condition) | `fitRsolCDLfromData.m` |
+| S7 | Rs = 2000 Ω, C = 220 nF | `fitRCData_2026_07_15.m` |
+| S8 | Rs = 47 000 Ω, C = 220 nF | `fitRCData_2026_07_15.m` |
 
 ---
 
@@ -106,7 +99,7 @@ Best-fit parameters (phenylalanine sensor, 1× PBS + 2 mM MgCl₂ + 35 mg/mL BSA
 | CDL | 355 nF | EIS fit |
 | Rct (unbound) | 17 034 Ω | Current vs freq fit |
 | Rct (bound) | 6 542 Ω | Current vs freq fit |
-| Capt | 227 nF | Current vs freq fit |
+| Capt | 227.7 nF | Current vs freq fit |
 | kD | 17.2 mM | EIS/KDM fit |
 
 ---
