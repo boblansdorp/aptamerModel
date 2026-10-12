@@ -1,0 +1,155 @@
+{
+ "cells": [
+  {
+   "kind": 1,
+   "value": "# Figure 7C — Elevated $R_s$ delays potential transduction to the tunneling region\n\nPotential at the double-layer node ($V_{CDL} = V_{WE} - i R_s$) right after a square-wave step, for low and high solution resistance.\n\nSource: `analyticalCurrentGivenParams.m`. The circuit is $R_s$ in series with $C_{DL} \\parallel (R_{ct} + C_{apt})$. The applied SWV potential is Laplace-transformed, divided by the circuit impedance, and inverted back to the time-domain current $i(t)$.\n\nLaplace initial conditions: $C_{DL}$ is uncharged at $t = 0$. The first half-cycle of `vtime` is the reverse pulse ($-V_0$), so the plotted node potential is $V_0 + R_s\\, i(t)$.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 0. Setup: publication theme\n\nThe plots use the \"Publication\" theme shared with the DCT project (`plots/PlotTheme.wl`): white background, black Arial labels, 1.2 pt frame, and outward major/minor ticks.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "$aptamerModelDir = NotebookDirectory[];\nGet[FileNameJoin[{$aptamerModelDir, \"plots\", \"PlotTheme.wl\"}]];\n\npubTheme  = DCTPlots`DCTThemeData[\"Publication\"];\npubChrome = DCTPlots`ThemeChrome[pubTheme, 13, 1.2];   (* PlotTheme, Background, FrameStyle, LabelStyle, Frame, Axes *)\npubFg     = pubTheme[\"Fg\"];\npubFont   = pubTheme[\"Font\"];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 1. Circuit impedance\n\n$Z_{total} = R_s + \\left(\\frac{1}{Z_{DL}} + \\frac{1}{Z_F}\\right)^{-1}$, with $Z_{DL} = \\frac{1}{i\\omega C_{DL}}$ and $Z_F = R_{ct} + \\frac{1}{i\\omega C_{apt}}$.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* clear only this notebook's symbols: ClearAll[\"Global`*\"] would also hit Wolfbook's own helpers in Global` *)\nClearAll[ZDL, ZFaradaic, ZParallel, ZTotal, V0FWD, NSTEPS, vtime, VofS, Is, it,\n  V0, VDELTA, fSWV, CDL, Capt, Rct, Rsol, t, s, timems];\n\nZDL[w_, CDL_] := 1/(I*w*CDL);\nZFaradaic[w_, RCT_, CApt_] := RCT + 1/(I*w*CApt);\nZParallel[w_, CDL_, RCT_, CApt_] := 1/(1/ZDL[w, CDL] + 1/ZFaradaic[w, RCT, CApt]);\nZTotal[w_, CDL_, RCT_, Rsol_, CApt_] := Rsol + ZParallel[w, CDL, RCT, CApt];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 2. Applied square-wave potential\n\n`vtime` is a train of `NSTEPS` square-wave cycles of amplitude $V_0$ at frequency `fSWV` (no staircase increment, `VDELTA` → 0).",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "V0FWD = V0;  (* SWV amplitude E_sw *)\nNSTEPS = 2;\n\nvtime[t_, nSteps_, fSWV_] := V0FWD (-Sum[\n     HeavisideTheta[t - n/fSWV] + HeavisideTheta[t - (n + 1)/fSWV] - 2 HeavisideTheta[t - (n + 1/2)/fSWV] -\n      (VDELTA/V0FWD) HeavisideTheta[t - (n + 1)/fSWV], {n, 0, nSteps - 1}]);\n\n(* check: two cycles at 100 Hz, 25 mV *)\nPlot[1000 vtime[t/1000, NSTEPS, fSWV] /. {V0 -> 0.025, fSWV -> 100, VDELTA -> 0}, {t, -5, 25},\n  PlotStyle -> Directive[GrayLevel[0.5], AbsoluteThickness[2]], Exclusions -> None,\n  PlotRange -> {{-5, 25}, {-35, 35}},\n  FrameLabel -> {\"Time (ms)\", \"Applied SWV potential (mV)\"},\n  FrameTicks -> {{DCTPlots`ThemeLinTicks[-30, 30, pubFg], None}, {DCTPlots`ThemeLinTicks[-5, 25, pubFg], None}},\n  Evaluate[Sequence @@ pubChrome], ImageSize -> 420, AspectRatio -> 0.45]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"970278\" data-output-id=\"2\" data-out-n=\"71\" data-sub-idx=\"4\" data-output-format=\"Auto\" data-output-is-graphics=\"1\" data-cell-idx=\"6\" data-sub-start=\"8\" data-sub-end=\"13\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[71]=</span></div><div class=\"wl-output-content\"><span class=\"vscode-wolfram-gfx-marker\" style=\"display:none;\"></span><img class=\"vscode-wolfram-svg-output\" data-wl-img=\"c:\\\\Users\\\\Bob Lansdorp\\\\Documents\\\\Wolfram Mathematica\\\\aptamerModel\\\\img\\\\paperFigures\\\\wl_1xibx5l9503ac.svg\" width=\"560\" height=\"276\" src=\"img/paperFigures/wl_1xibx5l9503ac.svg\"/></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(* output: graphics *)\nV0FWD = V0;  (* SWV amplitude E_sw *)\nNSTEPS = 2;\n\nvtime[t_, nSteps_, fSWV_] := V0FWD (-Sum[\n     HeavisideTheta[t - n/fSWV] + HeavisideTheta[t - (n + 1)/fSWV] - 2 HeavisideTheta[t - (n + 1/2)/fSWV] -\n      (VDELTA/V0FWD) HeavisideTheta[t - (n + 1)/fSWV], {n, 0, nSteps - 1}]);\n\n(* check: two cycles at 100 Hz, 25 mV *)\nPlot[1000 vtime[t/1000, NSTEPS, fSWV] /. {V0 -> 0.025, fSWV -> 100, VDELTA -> 0}, {t, -5, 25},\n  PlotStyle -> Directive[GrayLevel[0.5], AbsoluteThickness[2]], Exclusions -> None,\n  PlotRange -> {{-5, 25}, {-35, 35}},\n  FrameLabel -> {\"Time (ms)\", \"Applied SWV potential (mV)\"},\n  FrameTicks -> {{DCTPlots`ThemeLinTicks[-30, 30, pubFg], None}, {DCTPlots`ThemeLinTicks[-5, 25, pubFg], None}},\n  Evaluate[Sequence @@ pubChrome], ImageSize -> 420, AspectRatio -> 0.45]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "2b0f1d3d-2d59-4f85-abd2-62bf12dc92e3"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 3. Time-domain current $i(t)$\n\n$I(s) = V(s)/Z_{total}(s)$ with $\\omega = -i s$, then inverse Laplace transform.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "VofS = LaplaceTransform[vtime[t, NSTEPS, fSWV] /. {VDELTA -> 0}, t, s, Assumptions -> {V0 \\[Element] Reals, fSWV > 0}];\nVofS = Simplify[VofS, Assumptions -> {fSWV > 0}];\n\nIs = (VofS/ZTotal[-I s, CDL, Rct, Rsol, Capt]) /. {VDELTA -> 0};\nit = InverseLaplaceTransform[Is, s, t, Assumptions -> {fSWV > 0}];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 4. Figure 7C\n\nPotential at the $C_{DL}$ node for $R_s$ = 100 Ω and 1000 Ω ($C_{DL} = C_{apt}$ = 300 nF, $R_{ct}$ = 10 kΩ, $V_0$ = 25 mV, $f$ = 200 Hz) over one full square-wave cycle (5 ms). Top panel: applied potential $V_{WE} - V_{RE}$.\n\nThe sign is flipped so the first (reverse) half-cycle reads positive, as in the published panel. Over $0 < t < 1/(2f)$ this is $V_0 + R_s\\, i(t)$; in general it is $-(v(t) - R_s\\, i(t))$.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "cdlVal  = 300*10^-9;   (* 300 nF double-layer capacitance *)\ncaptVal = 300*10^-9;   (* 300 nF aptamer capacitance *)\nrctVal  = 10000;       (* 10 k\\[CapitalOmega] charge transfer resistance *)\nv0Val   = 0.025;       (* 25 mV step amplitude *)\nfSWVVal = 200;         (* Hz \\[LongDash] sets half-cycle duration *)\nrsLow   = 100;         (* \\[CapitalOmega] low solution resistance *)\nrsHigh  = 1000;        (* \\[CapitalOmega] high solution resistance *)\n\ntMin = -0.25;\ntMax = 1000/fSWVVal;   (* one full SWV cycle in ms: 5 ms at 200 Hz *)\n\nrules7C[rs_] := {fSWV -> fSWVVal, CDL -> cdlVal, Capt -> captVal, Rct -> rctVal, Rsol -> rs, V0 -> v0Val, VDELTA -> 0};\n\n(* potentials in mV vs time in ms; sign flipped so the first (reverse) half-cycle reads positive.\n   InverseLaplaceTransform assumes t > 0, so the node potential is gated to zero before the step. *)\nappliedmV = -1000 vtime[t, NSTEPS, fSWV] /. rules7C[0] /. t -> timems/1000;\nnodemV[rs_] := UnitStep[timems] (-1000 (vtime[t, NSTEPS, fSWV] - rs*it) /. rules7C[rs] /. t -> timems/1000);\nnodeLowmV  = nodemV[rsLow];\nnodeHighmV = nodemV[rsHigh];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* ---- publication style (pubChrome from section 0) with the colours of the published panel ---- *)\ncolLowR    = Black;\ncolHighR   = RGBColor[0.95, 0.42, 0.42];\ncolApplied = GrayLevel[0.5];\nlineThick  = AbsoluteThickness[2.5];\nlabelStyle[col_] := Directive[col, Bold, 13, FontFamily -> pubFont];\ninsetStyle = Directive[pubFg, Bold, 11, FontFamily -> pubFont];\ntickStyle  = Directive[pubFg, 12, Bold, FontFamily -> pubFont];\nvDiff[a_, b_] := Row[{Subscript[\"V\", a], \"-\", Subscript[\"V\", b]}];\nrsLabel[rs_] := Column[{vDiff[\"WE\", \"T\"], Row[{Subscript[\"R\", \"S\"], \" = \", rs, \" \\[CapitalOmega]\"}]}, Spacings -> 0.1];\n\n(* ---- charging timescale tau = Rs*Cdl, drawn as a dimension line under each curve ---- *)\ntauMs[rs_]    := rs*cdlVal*1000;   (* ms *)\ntauLabel[rs_] := Row[{\"\\[Tau] = \", Subscript[\"R\", \"S\"], Subscript[\"C\", \"dl\"], \" = \", Round[rs*cdlVal*10^6], \" \\[Micro]s\"}];\n\n(* Engineering-drawing dimension: end marks at t = 0 and t = tau, the dimension line between them,\n   and arrowheads outside the span pointing inward, so even a very short tau stays visible.\n   rs: resistance, node: node-potential expression, y: height of the dimension line (mV), col: colour.\n   A dot marks the curve at t = tau and a dashed guide drops from it to the dimension line. *)\ntauDimension[rs_, node_, y_, col_] := Module[{tau = tauMs[rs], vTau, gap = 0.22, tick = 1.3},\n  vTau = N[node /. timems -> tau];\n  {col, AbsoluteThickness[1.3],\n   {Dashed, Line[{{tau, vTau}, {tau, y}}]},\n   AbsolutePointSize[7], Point[{tau, vTau}],\n   Line[{{0, y - tick}, {0, y + tick}}], Line[{{tau, y - tick}, {tau, y + tick}}],\n   Line[{{0, y}, {tau, y}}],\n   Arrowheads[0.022],\n   Arrow[{{-gap, y}, {0, y}}], Arrow[{{tau + gap, y}, {tau, y}}],\n   Text[Style[tauLabel[rs], labelStyle[col]], {tau + gap + 0.07, y}, {-1, 0}]}];\n\n(* outward major/minor ticks from plots/PlotTheme.wl; the top panel keeps its x marks but no labels *)\nxTicksMain  = DCTPlots`ThemeLinTicks[0, tMax, pubFg];\nxTicksBlank = ReplacePart[#, 2 -> \"\"] & /@ xTicksMain;\nyTicksMain  = DCTPlots`ThemeLinTicks[-30, 30, pubFg];\nyTicksTop   = Join[\n   {#, Style[#, pubFg], {0, 0.016}, {pubFg}} & /@ {-25, 0, 25},\n   {#, \"\", {0, 0.008}, {pubFg}} & /@ {-20, -15, -10, -5, 5, 10, 15, 20}];\n\n(* ---- equivalent-circuit inset: Rs in series with Cdl || (Rct + Capt) ---- *)\nzigzag[{x1_, y_}, x2_] := Line[Join[{{x1, y}}, Table[{x1 + (x2 - x1) k/8, y + 0.22 (-1)^k}, {k, 1, 7}], {{x2, y}}]];\ncapacitor[{x_, y_}] := {Line[{{x - 0.12, y - 0.32}, {x - 0.12, y + 0.32}}], Line[{{x + 0.12, y - 0.32}, {x + 0.12, y + 0.32}}]};\n\ncircuitInset = Graphics[{AbsoluteThickness[1.5], pubFg,\n   Line[{{0, 0}, {1, 0}}], zigzag[{1, 0}, 2.6],\n   Line[{{2.6, 0}, {3.4, 0}, {3.4, 0.8}, {5.38, 0.8}}], capacitor[{5.5, 0.8}], Line[{{5.62, 0.8}, {8, 0.8}, {8, -0.8}}],\n   Line[{{3.4, 0}, {3.4, -0.8}, {4.2, -0.8}}], zigzag[{4.2, -0.8}, 5.8],\n   Line[{{5.8, -0.8}, {6.88, -0.8}}], capacitor[{7, -0.8}], Line[{{7.12, -0.8}, {8, -0.8}}],\n   Line[{{8, 0}, {9, 0}}],\n   Text[Style[Subscript[\"R\", \"s\"], insetStyle], {1.8, 0.75}],\n   Text[Style[Subscript[\"C\", \"dl\"], insetStyle], {5.5, 1.5}],\n   Text[Style[Subscript[\"R\", \"ct\"], insetStyle], {5.0, -1.55}],\n   Text[Style[Subscript[\"C\", \"apt\"], insetStyle], {7.1, -1.55}]},\n  PlotRange -> {{-0.2, 9.2}, {-2.1, 2.1}}];",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* ---- top panel: applied square wave ---- *)\nappliedPanel = Plot[appliedmV, {timems, tMin, tMax},\n  PlotStyle -> Directive[colApplied, lineThick],\n  Exclusions -> None,\n  PlotRange -> {{tMin, tMax}, {-35, 35}},\n  FrameLabel -> {None, Style[\"Applied (mV)\", labelStyle[pubFg]]},\n  FrameTicks -> {{yTicksTop, None}, {xTicksBlank, None}},\n  FrameTicksStyle -> tickStyle,\n  Epilog -> {Text[Style[vDiff[\"WE\", \"RE\"], labelStyle[pubFg]], {2.4, 16}, {1, 0}]},\n  Evaluate[Sequence @@ pubChrome],\n  AspectRatio -> 0.3, ImageSize -> 420, ImagePadding -> {{60, 15}, {8, 8}}];\n\n(* ---- bottom panel: potential at the C_DL node (the applied step is shown in the top panel) ---- *)\n(* curve labels sit next to their own curves; the tau = Rs*Cdl dimension lines use the empty\n   region below 0 mV in the first half-cycle, with a shared dashed guide at the step onset t = 0 *)\nfig7C = Plot[{nodeLowmV, nodeHighmV}, {timems, tMin, tMax},\n  PlotStyle -> {Directive[colLowR, lineThick], Directive[colHighR, lineThick]},\n  Exclusions -> None, PlotPoints -> 300, MaxRecursion -> 4,\n  PlotRange -> {{tMin, tMax}, {-32, 36}},\n  FrameLabel -> {Style[\"Time (ms)\", labelStyle[pubFg]], Style[\"Potential (mV)\", labelStyle[pubFg]]},\n  FrameTicks -> {{yTicksMain, None}, {xTicksMain, None}},\n  FrameTicksStyle -> tickStyle,\n  Epilog -> {\n    {GrayLevel[0.4], AbsoluteThickness[1.], Dashed, Line[{{0, 0}, {0, -12}}]},\n    tauDimension[rsHigh, nodeHighmV, -5, colHighR],\n    tauDimension[rsLow, nodeLowmV, -10, colLowR],\n    Text[Style[rsLabel[rsLow], labelStyle[colLowR]], {0.45, 26.5}, {-1, -1}],\n    Text[Style[rsLabel[rsHigh], labelStyle[colHighR]], {0.85, 17}, {-1, 1}],\n    Inset[circuitInset, {3.95, 14}, Center, 2.0]},\n  Evaluate[Sequence @@ pubChrome],\n  AspectRatio -> 1, ImageSize -> 420, ImagePadding -> {{60, 15}, {50, 8}}];\n\nfig7CFull = Column[{appliedPanel, fig7C}, Spacings -> 0.3, Alignment -> Left, Background -> pubTheme[\"Bg\"]]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-output-block\"><div class=\"wl-output-header\" style=\"display:flex;align-items:center;gap:6px;width:100%;min-height:22px;\" data-session-epoch=\"970278\" data-output-id=\"6\" data-out-n=\"167\" data-sub-idx=\"5\" data-output-format=\"Auto\" data-output-is-graphics=\"1\" data-cell-idx=\"12\" data-sub-start=\"32\" data-sub-end=\"32\"><span style=\"font-size:10px;color:#888;margin-right:8px;\">Out[167]=</span></div><div class=\"wl-output-content\"><span class=\"vscode-wolfram-gfx-marker\" style=\"display:none;\"></span><img class=\"vscode-wolfram-svg-output\" data-wl-img=\"c:\\\\Users\\\\Bob Lansdorp\\\\Documents\\\\Wolfram Mathematica\\\\aptamerModel\\\\img\\\\paperFigures\\\\wl_1iv7pefrbr5w0.svg\" width=\"560\" height=\"705\" src=\"img/paperFigures/wl_1iv7pefrbr5w0.svg\"/></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(* output: graphics *)\n(* ---- top panel: applied square wave ---- *)\nappliedPanel = Plot[appliedmV, {timems, tMin, tMax},\n  PlotStyle -> Directive[colApplied, lineThick],\n  Exclusions -> None,\n  PlotRange -> {{tMin, tMax}, {-35, 35}},\n  FrameLabel -> {None, Style[\"Applied (mV)\", labelStyle[pubFg]]},\n  FrameTicks -> {{yTicksTop, None}, {xTicksBlank, None}},\n  FrameTicksStyle -> tickStyle,\n  Epilog -> {Text[Style[vDiff[\"WE\", \"RE\"], labelStyle[pubFg]], {2.4, 16}, {1, 0}]},\n  Evaluate[Sequence @@ pubChrome],\n  AspectRatio -> 0.3, ImageSize -> 420, ImagePadding -> {{60, 15}, {8, 8}}];\n\n(* ---- bottom panel: potential at the C_DL node (the applied step is shown in the top panel) ---- *)\n(* curve labels sit next to their own curves; the tau = Rs*Cdl dimension lines use the empty\n   region below 0 mV in the first half-cycle, with a shared dashed guide at the step onset t = 0 *)\nfig7C = Plot[{nodeLowmV, nodeHighmV}, {timems, tMin, tMax},\n  PlotStyle -> {Directive[colLowR, lineThick], Directive[colHighR, lineThick]},\n  Exclusions -> None, PlotPoints -> 300, MaxRecursion -> 4,\n  PlotRange -> {{tMin, tMax}, {-32, 36}},\n  FrameLabel -> {Style[\"Time (ms)\", labelStyle[pubFg]], Style[\"Potential (mV)\", labelStyle[pubFg]]},\n  FrameTicks -> {{yTicksMain, None}, {xTicksMain, None}},\n  FrameTicksStyle -> tickStyle,\n  Epilog -> {\n    {GrayLevel[0.4], AbsoluteThickness[1.], Dashed, Line[{{0, 0}, {0, -12}}]},\n    tauDimension[rsHigh, nodeHighmV, -5, colHighR],\n    tauDimension[rsLow, nodeLowmV, -10, colLowR],\n    Text[Style[rsLabel[rsLow], labelStyle[colLowR]], {0.45, 26.5}, {-1, -1}],\n    Text[Style[rsLabel[rsHigh], labelStyle[colHighR]], {0.85, 17}, {-1, 1}],\n    Inset[circuitInset, {3.95, 14}, Center, 2.0]},\n  Evaluate[Sequence @@ pubChrome],\n  AspectRatio -> 1, ImageSize -> 420, ImagePadding -> {{60, 15}, {50, 8}}];\n\nfig7CFull = Column[{appliedPanel, fig7C}, Spacings -> 0.3, Alignment -> Left, Background -> pubTheme[\"Bg\"]]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "b49e3b60-2749-4f1d-9629-641f14c0f5b6"
+    }
+   ],
+   "metadata": {}
+  },
+  {
+   "kind": 1,
+   "value": "## 5. Export\n\nWrites `fig7C.pdf` (vector, for LaTeX and print) and `fig7C.png` (600 dpi, for Docs and Slides) to `publicationFigures/`.",
+   "languageId": "markdown",
+   "outputs": [],
+   "metadata": {}
+  },
+  {
+   "kind": 2,
+   "value": "exportFigure = True; (* set to False to skip writing files *)\n\nfigDir = FileNameJoin[{$aptamerModelDir, \"publicationFigures\"}];\n\n(* PDF = vector (LaTeX / print); PNG = 600 dpi raster (Google Docs / Slides do not accept PDF or SVG) *)\nexportFig[fig_, name_] := (\n  Export[FileNameJoin[{figDir, name <> \".pdf\"}], fig];\n  Export[FileNameJoin[{figDir, name <> \".png\"}], fig, ImageResolution -> 600];\n  Print[\"\\[Checkmark] \", name]\n);\n\nIf[exportFigure,\n  If[!DirectoryQ[figDir], CreateDirectory[figDir]];\n  Print[\"Saving to: \", figDir];\n  exportFig[fig7CFull, \"fig7C\"]\n];",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wl-print-output\"><div class=\"wl-print-line\"><span class=\"wl-ps\">Saving to: </span><span class=\"wl-ps\">c:\\\\Users\\\\Bob Lansdorp\\\\Documents\\\\Wolfram Mathematica\\\\aptamerModel\\\\publicationFigures</span></div></div><div class=\"wl-print-output\"><div class=\"wl-print-line\"><span class=\"wl-ps\">✓ </span><span class=\"wl-ps\">fig7C</span></div></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Print: Saving to:c:\\\\Users\\\\Bob Lansdorp\\\\Documents\\\\Wolfram Mathematica\\\\aptamerModel\\\\publicationFigures✓fig7C",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "2a18aae9-925b-48b1-96df-e5f1d8fdb24e"
+    }
+   ],
+   "metadata": {}
+  }
+ ],
+ "metadata": {
+  "createdBy": "wolfbook_newNotebook",
+  "createdAt": "2026-10-08T01:48:29.981Z"
+ }
+}
